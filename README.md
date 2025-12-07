@@ -60,11 +60,18 @@ O **Microsoft 365 Ultimate Installer** é uma solução automatizada robusta que
 ### Mínimos
 - **OS**: Windows 10 (Build 1909+) ou Windows 11
 - **Arquitetura**: 64-bit
-- **PowerShell**: 5.1 ou superior
+- **PowerShell**: 5.1 (não precisa pré-instalar PowerShell 7)
 - **Memória RAM**: 2 GB mínimo (4 GB recomendado)
 - **Espaço em Disco**: 8 GB disponível
 - **Conexão de Internet**: Obrigatória (>2 Mbps recomendado)
 - **Privilégios**: Administrador
+
+### ✨ PowerShell 7 - Instalação Automática
+O script detectará automaticamente se PowerShell 7 está instalado. **Se não estiver, será instalado automaticamente:**
+- 🤖 Detecção automática via `winget` ou download direto
+- 🔄 Instalação silenciosa (sem interação do usuário)
+- 📊 Melhora de suporte UTF-8 para idiomas multibyte (日本語, Русский, 中文, etc.)
+- ✅ Compatível com Windows 10 e Windows 11
 
 ### Recomendados
 - **OS**: Windows 11 (versão recente)
@@ -83,15 +90,25 @@ O **Microsoft 365 Ultimate Installer** é uma solução automatizada robusta que
 git clone https://github.com/ac-tech-pro/Microsoft-365-Ultimate-Installer.git
 ```
 
-### 2️⃣ Abrir como Administrador
+### 2️⃣ Abrir como Administrador & Executar
 
 ```powershell
 # Navegue até a pasta do script
 cd .\Microsoft-365-Ultimate-Installer
 
-# Execute com privilégios de administrador
+# Execute o script (PowerShell 5.1 ou PowerShell 7)
+# O bootstrap detectará e instalará PowerShell 7 automaticamente se necessário
 .\Microsoft 365 Ultimate Installer.ps1
+
+# Ou com a opção Force (limpa mutex travados)
+.\Microsoft 365 Ultimate Installer.ps1 -Force
 ```
+
+**O que acontece automaticamente:**
+- 🔍 Detecção de PowerShell 7
+- 📥 Instalação automática via `winget` ou download direto (se não estiver instalado)
+- ⚡ Relançamento com PowerShell 7 para suporte UTF-8 adequado
+- 🎯 Execução do instalador principal
 
 ### 3️⃣ Escolher Modo de Instalação
 

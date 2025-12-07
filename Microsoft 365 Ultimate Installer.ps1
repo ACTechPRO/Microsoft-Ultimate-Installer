@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     Microsoft 365 Ultimate Installer
     
@@ -34,14 +34,17 @@ param(
 # ============================================================================
 # If the console is visible, relaunch the script hidden and exit the parent.
 # Uses only native Start-Process (no C#/PInvoke) to minimize AV heuristics.
-if (-not $IsHidden) {
+if (-not $IsHidden)
+{
     $scriptPath = $MyInvocation.MyCommand.Path
-    if ([string]::IsNullOrEmpty($scriptPath)) {
+    if ([string]::IsNullOrEmpty($scriptPath))
+    {
         Write-Host "Error: Cannot determine script path for hidden execution" -ForegroundColor Red
         exit 1
     }
 
-    try {
+    try
+    {
         $startInfo = New-Object System.Diagnostics.ProcessStartInfo
         $startInfo.FileName = (Get-Process -Id $PID).Path
         $forceArg = if ($Force) { " -Force" } else { "" }
@@ -52,7 +55,8 @@ if (-not $IsHidden) {
         [System.Diagnostics.Process]::Start($startInfo) | Out-Null
         exit
     }
-    catch {
+    catch
+    {
         Write-Host "Error launching hidden process: $_" -ForegroundColor Red
         exit 1
     }
@@ -96,7 +100,8 @@ $Script:Config = @{
 
 # Detect Windows UI language
 $Script:CurrentLanguage = (Get-UICulture).Name
-if ($Script:CurrentLanguage -notmatch '^(en|pt|es|ja|de|fr|zh|it|ko|ru)') {
+if ($Script:CurrentLanguage -notmatch '^(en|pt|es|ja|de|fr|zh|it|ko|ru)')
+{
     $Script:CurrentLanguage = 'en-US'
 }
 # Normalize to base language for matching
@@ -195,6 +200,7 @@ $Script:Strings = @{
         ValidSelectAtLeastOneApp        = 'Please select at least one application to install.'
         ValidSelectAtLeastOneLang       = 'Please select at least one language.'
         ValidProjectVisioNote           = 'Project and Visio require separate licenses but will be activated automatically.'
+        ConfigureInstallation           = 'Configure Installation'
     }
     
     'pt' = @{
@@ -278,6 +284,7 @@ $Script:Strings = @{
         ValidSelectAtLeastOneApp        = 'Selecione pelo menos um aplicativo para instalar.'
         ValidSelectAtLeastOneLang       = 'Selecione pelo menos um idioma.'
         ValidProjectVisioNote           = 'Project e Visio requerem licenças separadas, mas serão ativados automaticamente.'
+        ConfigureInstallation           = 'Configurar Instalação'
     }
     
     'es' = @{
@@ -358,6 +365,7 @@ $Script:Strings = @{
         ValidSelectAtLeastOneApp        = 'Seleccione al menos una aplicación para instalar.'
         ValidSelectAtLeastOneLang       = 'Seleccione al menos un idioma.'
         ValidProjectVisioNote           = 'Project y Visio requieren licencias separadas pero serán activados automáticamente.'
+        ConfigureInstallation           = 'Configurar Instalación'
     }
     
     'ja' = @{
@@ -416,7 +424,7 @@ $Script:Strings = @{
         
         SubStatusInternetSpeed          = '速度はインターネット接続に依存'
         SubStatusApplyingConfig         = '設定を適用中'
-        SubStatusClipchampPowerAutomate = 'Clipchamp & Power Automate'
+        SubStatusClipchampPowerAutomate = 'Clipchamp "&" Power Automate'
         SubStatusWindowsOffice          = 'WindowsとOfficeのアクティベーション'
         SubStatusRemovingTemp           = '一時ファイルを削除中'
         SubStatusAllComplete            = 'すべてのタスクが正常に完了しました'
@@ -438,11 +446,12 @@ $Script:Strings = @{
         ValidSelectAtLeastOneApp        = 'インストールするアプリケーションを1つ以上選択してください。'
         ValidSelectAtLeastOneLang       = '言語を1つ以上選択してください。'
         ValidProjectVisioNote           = 'ProjectとVisioは別途ライセンスが必要ですが、自動的にアクティベートされます。'
+        ConfigureInstallation           = 'インストール設定'
     }
     
     'de' = @{
         WindowTitle                     = 'Microsoft 365 Ultimate Installer'
-        WindowSubtitle                  = 'Automatischer Installer & Aktivator'
+        WindowSubtitle                  = 'Automatischer Installer "&" Aktivator'
         ConfigWindowTitle               = 'Installationskonfiguration'
         
         ExpressMode                     = 'Express-Installation (Empfohlen)'
@@ -496,7 +505,7 @@ $Script:Strings = @{
         
         SubStatusInternetSpeed          = 'Geschwindigkeit abhängig von der Verbindung'
         SubStatusApplyingConfig         = 'Konfiguration wird angewendet'
-        SubStatusClipchampPowerAutomate = 'Clipchamp & Power Automate'
+        SubStatusClipchampPowerAutomate = 'Clipchamp "&" Power Automate'
         SubStatusWindowsOffice          = 'Windows- und Office-Aktivierung'
         SubStatusRemovingTemp           = 'Temporäre Dateien werden entfernt'
         SubStatusAllComplete            = 'Alle Aufgaben erfolgreich abgeschlossen'
@@ -518,6 +527,7 @@ $Script:Strings = @{
         ValidSelectAtLeastOneApp        = 'Bitte wählen Sie mindestens eine Anwendung aus.'
         ValidSelectAtLeastOneLang       = 'Bitte wählen Sie mindestens eine Sprache aus.'
         ValidProjectVisioNote           = 'Project und Visio erfordern separate Lizenzen, werden aber automatisch aktiviert.'
+        ConfigureInstallation           = 'Installation konfigurieren'
     }
     
     'fr' = @{
@@ -598,6 +608,7 @@ $Script:Strings = @{
         ValidSelectAtLeastOneApp        = 'Veuillez sélectionner au moins une application.'
         ValidSelectAtLeastOneLang       = 'Veuillez sélectionner au moins une langue.'
         ValidProjectVisioNote           = 'Project et Visio nécessitent des licences séparées mais seront activés automatiquement.'
+        ConfigureInstallation           = 'Configurer l''installation'
     }
     
     'zh' = @{
@@ -678,6 +689,7 @@ $Script:Strings = @{
         ValidSelectAtLeastOneApp        = '请至少选择一个要安装的应用程序。'
         ValidSelectAtLeastOneLang       = '请至少选择一种语言。'
         ValidProjectVisioNote           = 'Project 和 Visio 需要单独的许可证，但会自动激活。'
+        ConfigureInstallation           = '配置安装'
     }
     
     'it' = @{
@@ -758,6 +770,7 @@ $Script:Strings = @{
         ValidSelectAtLeastOneApp        = 'Seleziona almeno un''applicazione da installare.'
         ValidSelectAtLeastOneLang       = 'Seleziona almeno una lingua.'
         ValidProjectVisioNote           = 'Project e Visio richiedono licenze separate ma verranno attivati automaticamente.'
+        ConfigureInstallation           = 'Configura installazione'
     }
     
     'ko' = @{
@@ -838,6 +851,7 @@ $Script:Strings = @{
         ValidSelectAtLeastOneApp        = '설치할 응용 프로그램을 하나 이상 선택하세요.'
         ValidSelectAtLeastOneLang       = '언어를 하나 이상 선택하세요.'
         ValidProjectVisioNote           = 'Project와 Visio는 별도의 라이선스가 필요하지만 자동으로 정품 인증됩니다.'
+        ConfigureInstallation           = '설치 구성'
     }
     
     'ru' = @{
@@ -918,23 +932,27 @@ $Script:Strings = @{
         ValidSelectAtLeastOneApp        = 'Выберите хотя бы одно приложение для установки.'
         ValidSelectAtLeastOneLang       = 'Выберите хотя бы один язык.'
         ValidProjectVisioNote           = 'Project и Visio требуют отдельных лицензий, но будут активированы автоматически.'
+        ConfigureInstallation           = 'Настроить установку'
     }
 }
 
 # Function to get localized string
-function Get-LocalizedString {
+function Get-LocalizedString
+{
     param(
         [Parameter(Mandatory)] [string]$Key,
         [string]$Lang = $Script:LangBase
     )
     
     # Try exact language match first
-    if ($Script:Strings.ContainsKey($Lang) -and $Script:Strings[$Lang].ContainsKey($Key)) {
+    if ($Script:Strings.ContainsKey($Lang) -and $Script:Strings[$Lang].ContainsKey($Key))
+    {
         return $Script:Strings[$Lang][$Key]
     }
     
     # Fallback to English
-    if ($Script:Strings['en'].ContainsKey($Key)) {
+    if ($Script:Strings['en'].ContainsKey($Key))
+    {
         return $Script:Strings['en'][$Key]
     }
     
@@ -1034,61 +1052,86 @@ $Script:ExcludableApps = @{
 
 $Script:RegistryBackups = @{}
 
-function Save-RegistryKey {
+function Save-RegistryKey
+{
     param([Parameter(Mandatory)] [string]$Path)
-    try {
-        if (Test-Path $Path) {
+    try
+    {
+        if (Test-Path $Path)
+        {
             $Script:RegistryBackups[$Path] = @{
                 Exists = $true
                 Data   = Export-RegistryBranch -Path $Path
             }
             Write-Log "Registry backed up: $Path" -Level Debug
         }
-        else {
+        else
+        {
             $Script:RegistryBackups[$Path] = @{ Exists = $false }
         }
     }
-    catch {
+    catch
+    {
         Write-Log "Failed to backup registry key $Path : $($_.Exception.Message)" -Level Warning
     }
 }
 
-function Export-RegistryBranch {
+function Export-RegistryBranch
+{
     param([Parameter(Mandatory)] [string]$Path)
     $items = @()
-    try {
-        Get-Item $Path | Get-ItemProperty | GetEnumerator | ForEach-Object {
-            $items += @{
-                Name  = $_.Name
-                Value = $_.Value
-                Type  = (Get-ItemProperty $Path $_.Name).PSObject.Properties[$_.Name].TypeNameOfValue
+    try
+    {
+        $regKey = Get-Item $Path -ErrorAction SilentlyContinue
+        if ($regKey)
+        {
+            $properties = $regKey.GetValueNames()
+            foreach ($propName in $properties)
+            {
+                if ([string]::IsNullOrEmpty($propName)) { continue }
+                $items += @{
+                    Name  = $propName
+                    Value = $regKey.GetValue($propName)
+                    Type  = $regKey.GetValueKind($propName).ToString()
+                }
             }
         }
     }
-    catch {}
+    catch
+    {
+        Write-Log "Failed to export registry branch $Path : $($_.Exception.Message)" -Level Warning
+    }
     return $items
 }
 
-function Restore-RegistryKey {
+function Restore-RegistryKey
+{
     param([Parameter(Mandatory)] [string]$Path)
-    try {
-        if ($Script:RegistryBackups[$Path]) {
-            if ($Script:RegistryBackups[$Path].Exists) {
+    try
+    {
+        if ($Script:RegistryBackups[$Path])
+        {
+            if ($Script:RegistryBackups[$Path].Exists)
+            {
                 Write-Log "Restoring registry key: $Path" -Level Debug
-                foreach ($item in $Script:RegistryBackups[$Path].Data) {
+                foreach ($item in $Script:RegistryBackups[$Path].Data)
+                {
                     Set-ItemProperty -Path $Path -Name $item.Name -Value $item.Value -Type $item.Type -Force -ErrorAction SilentlyContinue
                 }
             }
-            else {
+            else
+            {
                 # Key didn't exist before, remove it if it exists now
-                if (Test-Path $Path) {
+                if (Test-Path $Path)
+                {
                     Write-Log "Removing registry key that didn't exist before: $Path" -Level Debug
                     Remove-Item $Path -Force -ErrorAction SilentlyContinue
                 }
             }
         }
     }
-    catch {
+    catch
+    {
         Write-Log "Failed to restore registry key $Path : $($_.Exception.Message)" -Level Warning
     }
 }
@@ -1097,19 +1140,24 @@ function Restore-RegistryKey {
 $Script:MutexName = 'Global\M365UltimateInstaller'
 $ScriptMutex = $null
 
-if ($Force) {
+if ($Force)
+{
     # Force mode: try to clear any stuck mutex
-    try {
+    try
+    {
         $tempMutex = [System.Threading.Mutex]::OpenExisting($Script:MutexName)
         $tempMutex.Dispose()
     }
-    catch {
-        # Mutex doesn't exist or already disposed - that's fine
+    catch
+    {
+        # Mutex doesn't exist or already disposed - expected behavior, suppress error
+        $null = $_
     }
 }
 
 $ScriptMutex = New-Object System.Threading.Mutex($false, $Script:MutexName)
-if (-not $ScriptMutex.WaitOne(0, $false)) {
+if (-not $ScriptMutex.WaitOne(0, $false))
+{
     Add-Type -AssemblyName System.Windows.Forms
     [System.Windows.Forms.MessageBox]::Show(
         "Another instance is already running.`n`nIf this is an error, run the script with -Force parameter to clear the stuck instance.",
@@ -1125,7 +1173,8 @@ if (-not $ScriptMutex.WaitOne(0, $false)) {
 # LOGGING & UI
 # ============================================================================
 
-function Initialize-Log {
+function Initialize-Log
+{
     $Script:Config.InstallStartTime = Get-Date
     $osInfo = Get-CimInstance Win32_OperatingSystem
     $psVersion = $PSVersionTable.PSVersion.ToString()
@@ -1143,7 +1192,8 @@ PowerShell: $psVersion
     Set-Content -Path $Script:Config.LogFile -Value $header -Encoding UTF8 -Force
 }
 
-function Write-Log {
+function Write-Log
+{
     param(
         [Parameter(Mandatory)] [string]$Message,
         [ValidateSet('Info', 'Success', 'Warning', 'Error', 'Debug')] [string]$Level = 'Info'
@@ -1152,20 +1202,25 @@ function Write-Log {
     $timestamp = Get-Date -Format 'HH:mm:ss'
     $logLine = "$timestamp [$Level] $Message"
     
-    try {
-        if ($null -ne $Script:Config -and $null -ne $Script:Config.LogFile) {
+    try
+    {
+        if ($null -ne $Script:Config -and $null -ne $Script:Config.LogFile)
+        {
             Add-Content -Path $Script:Config.LogFile -Value $logLine -Encoding UTF8 -ErrorAction Stop
         }
-        else {
+        else
+        {
             Write-Host "LOG ERROR: LogFile path is null. Message: $logLine" -ForegroundColor Red
         }
     }
-    catch {
+    catch
+    {
         Write-Host "LOGGING FAILED: $($_.Exception.Message)" -ForegroundColor Red
         Write-Host "ORIGINAL MESSAGE: $logLine" -ForegroundColor Gray
     }
     
-    $color = switch ($Level) {
+    $color = switch ($Level)
+    {
         'Success' { 'Green' }
         'Warning' { 'Yellow' }
         'Error' { 'Red' }
@@ -1187,7 +1242,8 @@ $Script:ProgressSync = $null
 $Script:ProgressRunspace = $null
 $Script:ProgressHandle = $null
 
-function Show-ConfigWindow {
+function Show-ConfigWindow
+{
     <#
     .SYNOPSIS
     Shows configuration dialog in main thread (blocking).
@@ -1210,7 +1266,7 @@ function Show-ConfigWindow {
     $strSelectAll = L 'SelectAll'
     $strDeselectAll = L 'DeselectAll'
     $strBack = L 'BtnBack'
-    $strConfigure = "Configure Installation" # TODO: Localize
+    $strConfigure = L 'ConfigureInstallation'
     
     # Detect Windows language for default
     $winLang = (Get-Culture).Name.ToLower()
@@ -1219,7 +1275,8 @@ function Show-ConfigWindow {
     if ($langMap.ContainsKey($winLang)) { $defaultLangIndex = $langMap[$winLang] }
     
     # Escape strings for XAML
-    foreach ($v in @('title', 'subtitle', 'strExpress', 'strExpressDesc', 'strCustom', 'strCustomDesc', 'strStart', 'strCancel', 'strVersion', 'strLang', 'strApps', 'strSelectAll', 'strDeselectAll', 'strBack', 'strConfigure')) {
+    foreach ($v in @('title', 'subtitle', 'strExpress', 'strExpressDesc', 'strCustom', 'strCustomDesc', 'strStart', 'strCancel', 'strVersion', 'strLang', 'strApps', 'strSelectAll', 'strDeselectAll', 'strBack', 'strConfigure'))
+    {
         Set-Variable -Name $v -Value ((Get-Variable -Name $v).Value -replace '&', '&amp;' -replace '<', '&lt;' -replace '>', '&gt;' -replace '"', '&quot;')
     }
 
@@ -1420,7 +1477,8 @@ function Show-ConfigWindow {
 </Window>
 "@
     
-    try {
+    try
+    {
         [xml]$xamlDoc = $xaml
         $reader = New-Object System.Xml.XmlNodeReader $xamlDoc
         $window = [Windows.Markup.XamlReader]::Load($reader)
@@ -1458,7 +1516,8 @@ function Show-ConfigWindow {
         
         # Get language checkboxes
         $langCheckboxes = @()
-        foreach ($tag in @('en-us','pt-br','es-es','de-de','fr-fr','ja-jp','zh-cn','it-it','ko-kr','ru-ru','ar-sa','da-dk','nl-nl','fi-fi','el-gr','he-il','hu-hu','id-id','ms-my','nb-no','pl-pl','pt-pt','ro-ro','sk-sk','sv-se','th-th','tr-tr','uk-ua','vi-vn')) {
+        foreach ($tag in @('en-us', 'pt-br', 'es-es', 'de-de', 'fr-fr', 'ja-jp', 'zh-cn', 'it-it', 'ko-kr', 'ru-ru', 'ar-sa', 'da-dk', 'nl-nl', 'fi-fi', 'el-gr', 'he-il', 'hu-hu', 'id-id', 'ms-my', 'nb-no', 'pl-pl', 'pt-pt', 'ro-ro', 'sk-sk', 'sv-se', 'th-th', 'tr-tr', 'uk-ua', 'vi-vn'))
+        {
             $cb = $window.FindName("chkLang_$($tag -replace '-','_')")
             if ($cb) { $langCheckboxes += $cb }
         }
@@ -1480,12 +1539,14 @@ function Show-ConfigWindow {
         
         # Visual Selection Logic
         $updateVisuals = {
-            if ($rbExpress.IsChecked) {
+            if ($rbExpress.IsChecked)
+            {
                 $borderExpress.BorderBrush = "#0078D4"; $borderExpress.BorderThickness = "2"
                 $borderCustom.BorderBrush = "#444444"; $borderCustom.BorderThickness = "1"
                 $btnModeNext.Content = $strStart
             }
-            else {
+            else
+            {
                 $borderExpress.BorderBrush = "#444444"; $borderExpress.BorderThickness = "1"
                 $borderCustom.BorderBrush = "#0078D4"; $borderCustom.BorderThickness = "2"
                 $btnModeNext.Content = $strConfigure
@@ -1500,13 +1561,15 @@ function Show-ConfigWindow {
         
         # Mode Next
         $btnModeNext.Add_Click({
-                if ($rbExpress.IsChecked) {
+                if ($rbExpress.IsChecked)
+                {
                     $Script:ConfigResult.Cancelled = $false
                     $Script:ConfigResult.Mode = 'Express'
                     $window.DialogResult = $true
                     $window.Close()
                 }
-                else {
+                else
+                {
                     $pageMode.Visibility = 'Collapsed'
                     $pageCustom.Visibility = 'Visible'
                 }
@@ -1550,7 +1613,8 @@ function Show-ConfigWindow {
             
                 # Parse version/channel
                 $versionTag = $cmbVersion.SelectedItem.Tag
-                if ($versionTag) {
+                if ($versionTag)
+                {
                     $parts = $versionTag -split '\|'
                     $Script:ConfigResult.Version = $parts[0]
                     $Script:ConfigResult.Channel = $parts[1]
@@ -1559,8 +1623,10 @@ function Show-ConfigWindow {
                 # Language
                 $Script:ConfigResult.Language = $cmbLanguage.SelectedItem.Tag
                 $Script:ConfigResult.AdditionalLanguages = @()
-                foreach ($cb in $langCheckboxes) {
-                    if ($cb.IsChecked) {
+                foreach ($cb in $langCheckboxes)
+                {
+                    if ($cb.IsChecked)
+                    {
                         $Script:ConfigResult.AdditionalLanguages += $cb.Tag
                     }
                 }
@@ -1595,7 +1661,10 @@ function Show-ConfigWindow {
         # Window close via X
         $window.Add_Closing({
                 param($s, $e)
-                if (-not $window.DialogResult) {
+                # Suppress PSScriptAnalyzer unused parameter warning (required by WPF event signature)
+                $null = $s, $e
+                if (-not $window.DialogResult)
+                {
                     $Script:ConfigResult.Cancelled = $true
                 }
             })
@@ -1605,7 +1674,8 @@ function Show-ConfigWindow {
         $result = $window.ShowDialog()
         Write-Log "Configuration window closed. Result: $result, Cancelled: $($Script:ConfigResult.Cancelled)" -Level Debug
         
-        if ($Script:ConfigResult.Cancelled) {
+        if ($Script:ConfigResult.Cancelled)
+        {
             return $false
         }
         
@@ -1621,10 +1691,12 @@ function Show-ConfigWindow {
         $Script:UserConfig.IncludeClipchamp = $Script:ConfigResult.IncludeClipchamp
         $Script:UserConfig.IncludePowerAutomate = $Script:ConfigResult.IncludePowerAutomate
         
-        if ($Script:ConfigResult.Mode -eq 'Custom') {
+        if ($Script:ConfigResult.Mode -eq 'Custom')
+        {
             $Script:UserConfig.SelectedApps = $Script:ConfigResult.Apps
         }
-        else {
+        else
+        {
             # Express mode - Recommended apps
             $Script:UserConfig.SelectedApps = @{
                 'Word' = $true; 'Excel' = $true; 'PowerPoint' = $true
@@ -1641,13 +1713,15 @@ function Show-ConfigWindow {
         
         return $true
     }
-    catch {
+    catch
+    {
         Write-Log "Failed to show configuration window: $($_.Exception.Message)" -Level Error
         Write-Log "Stack trace: $($_.Exception.StackTrace)" -Level Error
         return $false
     }
 }
-function Start-ProgressWindow {
+function Start-ProgressWindow
+{
     <#
     .SYNOPSIS
     Starts progress window in a background runspace.
@@ -1710,7 +1784,8 @@ function Start-ProgressWindow {
 </Window>
 "@
         
-        try {
+        try
+        {
             [xml]$xamlDoc = $xaml
             $reader = New-Object System.Xml.XmlNodeReader $xamlDoc
             $window = [Windows.Markup.XamlReader]::Load($reader)
@@ -1729,7 +1804,10 @@ function Start-ProgressWindow {
             
             $window.Add_Closing({
                     param($s, $e)
-                    if (-not $Sync.ShouldClose) {
+                    # Suppress PSScriptAnalyzer unused parameter warning (required by WPF event signature)
+                    $null = $s
+                    if (-not $Sync.ShouldClose)
+                    {
                         $Sync.RequestCancel = $true
                         $e.Cancel = $true
                     }
@@ -1749,7 +1827,8 @@ function Start-ProgressWindow {
             
             $window.ShowDialog() | Out-Null
         }
-        catch {
+        catch
+        {
             $_ | Out-File "$env:TEMP\M365_Progress_Error.txt"
         }
     }
@@ -1762,42 +1841,64 @@ function Start-ProgressWindow {
     Start-Sleep -Milliseconds 300  # Let window initialize
 }
 
-function Update-Progress {
+function Update-Progress
+{
     param([string]$Status, [int]$Percent, [string]$SubStatus = '')
-    if ($Script:ProgressSync) {
+    if ($Script:ProgressSync)
+    {
         $Script:ProgressSync.Status = $Status
         $Script:ProgressSync.Progress = $Percent
         $Script:ProgressSync.SubStatus = $SubStatus
     }
 }
 
-function Close-Progress {
-    try {
-        if ($Script:ProgressSync) {
+function Close-Progress
+{
+    try
+    {
+        if ($Script:ProgressSync)
+        {
             $Script:ProgressSync.ShouldClose = $true
             Start-Sleep -Milliseconds 300  # Give UI time to close gracefully
         }
     }
-    catch { }
+    catch
+    {
+        # Intentionally suppressed: Progress sync may already be disposed
+        $null = $_
+    }
     
-    try {
-        if ($Script:ProgressHandle -and -not $Script:ProgressHandle.IsCompleted) {
+    try
+    {
+        if ($Script:ProgressHandle -and -not $Script:ProgressHandle.IsCompleted)
+        {
             $Script:ProgressHandle.AsyncWaitHandle.WaitOne(1000) | Out-Null
         }
     }
-    catch { }
+    catch
+    {
+        # Intentionally suppressed: Handle may already be completed
+        $null = $_
+    }
     
-    try {
-        if ($Script:ProgressRunspace) {
+    try
+    {
+        if ($Script:ProgressRunspace)
+        {
             $Script:ProgressRunspace.Close()
             $Script:ProgressRunspace.Dispose()
             $Script:ProgressRunspace = $null
         }
     }
-    catch { }
+    catch
+    {
+        # Intentionally suppressed: Runspace may already be closed
+        $null = $_
+    }
 }
 
-function Write-Checkpoint {
+function Write-Checkpoint
+{
     param(
         [Parameter(Mandatory)] [string]$Tag,
         [string]$Note
@@ -1806,20 +1907,24 @@ function Write-Checkpoint {
     Write-Log "Checkpoint: $Tag (Stage=$Script:Stage)$noteText" -Level Debug
 }
 
-function Test-FileExists {
+function Test-FileExists
+{
     param(
         [Parameter(Mandatory)] [string]$Path,
         [Parameter(Mandatory)] [string]$Label
     )
-    if (-not (Test-Path $Path)) {
-        throw "$Label não encontrado: $Path"
+    if (-not (Test-Path $Path))
+    {
+        throw "$Label not found: $Path"
     }
-    try {
+    try
+    {
         $size = (Get-Item $Path).Length
-        Write-Log "$Label localizado ($size bytes): $Path" -Level Debug
+        Write-Log "$Label located ($size bytes): $Path" -Level Debug
     }
-    catch {
-        Write-Log "$Label localizado: $Path (tamanho desconhecido)" -Level Debug
+    catch
+    {
+        Write-Log "$Label located: $Path (size unknown)" -Level Debug
     }
 }
 
@@ -1827,33 +1932,40 @@ function Test-FileExists {
 # CORE FUNCTIONS
 # ============================================================================
 
-function New-TempFolder {
-    if (Test-Path $Script:Config.TempFolder) {
+function New-TempFolder
+{
+    if (Test-Path $Script:Config.TempFolder)
+    {
         Remove-Item $Script:Config.TempFolder -Recurse -Force -ErrorAction SilentlyContinue
     }
     New-Item $Script:Config.TempFolder -ItemType Directory -Force | Out-Null
     Write-Log "Temp folder created: $($Script:Config.TempFolder)" -Level Debug
 }
 
-function Get-ODT {
+function Get-ODT
+{
     Write-Log "Attempting to download Office Deployment Tool..."
     $odtPath = Join-Path $Script:Config.TempFolder 'odt_setup.exe'
     
-    foreach ($url in $Script:Config.ODTUrls) {
-        try {
+    foreach ($url in $Script:Config.ODTUrls)
+    {
+        try
+        {
             # Download with retry logic
             $webClient = New-Object System.Net.WebClient
             $webClient.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
             $webClient.DownloadFile($url, $odtPath)
             
             # Validate download
-            if (-not (Test-Path $odtPath)) {
+            if (-not (Test-Path $odtPath))
+            {
                 Write-Log "Download failed - file not created" -Level Warning
                 continue
             }
             
             $fileSize = (Get-Item $odtPath).Length
-            if ($fileSize -lt 1000000) {
+            if ($fileSize -lt 1000000)
+            {
                 # Less than 1MB is suspicious
                 Write-Log "Downloaded file too small ($fileSize bytes)" -Level Warning
                 Remove-Item $odtPath -Force -ErrorAction SilentlyContinue
@@ -1863,19 +1975,22 @@ function Get-ODT {
             Write-Log "ODT downloaded successfully ($fileSize bytes)" -Level Success
             break
         }
-        catch {
+        catch
+        {
             Write-Log "Download error: $($_.Exception.Message)" -Level Warning
             Remove-Item $odtPath -Force -ErrorAction SilentlyContinue
             continue
         }
     }
     
-    if (-not (Test-Path $odtPath)) {
+    if (-not (Test-Path $odtPath))
+    {
         throw "Failed to download Office Deployment Tool after all attempts"
     }
     
     # Extract ODT
-    try {
+    try
+    {
         Write-Log "Extracting Office Deployment Tool..." -Level Debug
         $extractPath = Join-Path $Script:Config.TempFolder 'ODT'
         New-Item $extractPath -ItemType Directory -Force | Out-Null
@@ -1889,7 +2004,8 @@ function Get-ODT {
         Start-Sleep -Milliseconds 500  # Give system time to complete extraction
         $setupExe = Join-Path $extractPath 'setup.exe'
         
-        if (-not (Test-Path $setupExe)) {
+        if (-not (Test-Path $setupExe))
+        {
             Write-Log "setup.exe not found in $extractPath" -Level Error
             Write-Log "Contents of $extractPath :" -Level Debug
             Get-ChildItem $extractPath -Recurse | ForEach-Object { Write-Log "  - $($_.FullName)" -Level Debug }
@@ -1899,12 +2015,14 @@ function Get-ODT {
         Write-Log "setup.exe found: $setupExe" -Level Success
         return $setupExe
     }
-    catch {
+    catch
+    {
         throw "ODT extraction failed: $($_.Exception.Message)"
     }
 }
 
-function New-ConfigXML {
+function New-ConfigXML
+{
     Write-Log "Generating Configuration XML based on user settings..." -Level Debug
     $path = Join-Path $Script:Config.TempFolder 'configuration.xml'
     
@@ -1919,8 +2037,10 @@ function New-ConfigXML {
     
     # Build language tags
     $langTags = "      <Language ID=`"$primaryLang`" />"
-    foreach ($lang in $additionalLangs) {
-        if ($lang -ne $primaryLang) {
+    foreach ($lang in $additionalLangs)
+    {
+        if ($lang -ne $primaryLang)
+        {
             $langTags += "`n      <Language ID=`"$lang`" />"
         }
     }
@@ -1941,19 +2061,25 @@ function New-ConfigXML {
         'Groove'     = 'Groove'
     }
     
-    foreach ($app in $appMapping.Keys) {
-        if ($selectedApps.ContainsKey($app) -and -not $selectedApps[$app]) {
+    foreach ($app in $appMapping.Keys)
+    {
+        if ($selectedApps.ContainsKey($app) -and -not $selectedApps[$app])
+        {
             $excludeApps += "`n      <ExcludeApp ID=`"$($appMapping[$app])`" />"
         }
     }
     # Always exclude Lync and Groove if not explicitly selected
-    if (-not $selectedApps.ContainsKey('Lync') -or -not $selectedApps['Lync']) {
-        if ($excludeApps -notmatch 'Lync') {
+    if (-not $selectedApps.ContainsKey('Lync') -or -not $selectedApps['Lync'])
+    {
+        if ($excludeApps -notmatch 'Lync')
+        {
             $excludeApps += "`n      <ExcludeApp ID=`"Lync`" />"
         }
     }
-    if (-not $selectedApps.ContainsKey('Groove') -or -not $selectedApps['Groove']) {
-        if ($excludeApps -notmatch 'Groove') {
+    if (-not $selectedApps.ContainsKey('Groove') -or -not $selectedApps['Groove'])
+    {
+        if ($excludeApps -notmatch 'Groove')
+        {
             $excludeApps += "`n      <ExcludeApp ID=`"Groove`" />"
         }
     }
@@ -1968,8 +2094,11 @@ $langTags$excludeApps
 "@
     
     # Add Project if selected and supported
-    if ($includeProject) {
-        $projectId = switch ($version) {
+    # NOTE: Project and Visio are standalone products, they should NOT have ExcludeApps
+    if ($includeProject)
+    {
+        $projectId = switch ($version)
+        {
             'O365ProPlusRetail' { 'ProjectProRetail' }
             'O365BusinessRetail' { 'ProjectProRetail' }
             'ProPlus2024Retail' { 'ProjectPro2024Retail' }
@@ -1980,14 +2109,17 @@ $langTags$excludeApps
         $xmlContent += @"
 
     <Product ID="$projectId">
-$langTags$excludeApps
+$langTags
     </Product>
 "@
     }
     
     # Add Visio if selected and supported
-    if ($includeVisio) {
-        $visioId = switch ($version) {
+    # NOTE: Visio is a standalone product, it should NOT have ExcludeApps
+    if ($includeVisio)
+    {
+        $visioId = switch ($version)
+        {
             'O365ProPlusRetail' { 'VisioProRetail' }
             'O365BusinessRetail' { 'VisioProRetail' }
             'ProPlus2024Retail' { 'VisioPro2024Retail' }
@@ -1998,20 +2130,24 @@ $langTags$excludeApps
         $xmlContent += @"
 
     <Product ID="$visioId">
-$langTags$excludeApps
+$langTags
     </Product>
 "@
     }
     
     # Add language pack for additional languages if any
-    if ($additionalLangs.Count -gt 0) {
+    if ($additionalLangs.Count -gt 0)
+    {
         $langPackTags = ""
-        foreach ($lang in $additionalLangs) {
-            if ($lang -ne $primaryLang) {
+        foreach ($lang in $additionalLangs)
+        {
+            if ($lang -ne $primaryLang)
+            {
                 $langPackTags += "`n      <Language ID=`"$lang`" />"
             }
         }
-        if ($langPackTags) {
+        if ($langPackTags)
+        {
             $xmlContent += @"
 
     <Product ID="LanguagePack">$langPackTags
@@ -2052,9 +2188,11 @@ $langTags$excludeApps
     return $path
 }
 
-function Remove-Conflicting-Office {
+function Remove-Conflicting-Office
+{
     # Check for cancel before starting
-    if ($Script:ProgressSync -and $Script:ProgressSync.RequestCancel) {
+    if ($Script:ProgressSync -and $Script:ProgressSync.RequestCancel)
+    {
         throw "Installation cancelled by user"
     }
     
@@ -2063,7 +2201,8 @@ function Remove-Conflicting-Office {
     # Kill processes
     @('OneDrive', 'OneNote', 'Microsoft.Notes', 'Skype', 'lync', 'WINWORD', 'EXCEL', 'POWERPNT', 'OUTLOOK', 'ONENOTE') | ForEach-Object {
         $procs = Get-Process $_ -ErrorAction SilentlyContinue
-        if ($procs) {
+        if ($procs)
+        {
             Write-Log "Stopping process: $_" -Level Debug
             $procs | Stop-Process -Force -ErrorAction SilentlyContinue
         }
@@ -2072,10 +2211,12 @@ function Remove-Conflicting-Office {
     # Uninstall existing Office installations (Click-to-Run)
     Write-Log "Checking for existing Office Click-to-Run installations..." -Level Debug
     $officeC2R = Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Office\ClickToRun\Configuration' -ErrorAction SilentlyContinue
-    if ($officeC2R) {
+    if ($officeC2R)
+    {
         Write-Log "Found existing Office Click-to-Run installation - attempting silent removal" -Level Warning
         $c2rPath = Join-Path $env:ProgramFiles 'Common Files\Microsoft Shared\ClickToRun\OfficeClickToRun.exe'
-        if (Test-Path $c2rPath) {
+        if (Test-Path $c2rPath)
+        {
             Write-Log "Running Office C2R uninstall..." -Level Debug
             Start-Process $c2rPath -ArgumentList 'scenario=install', 'scenariosubtype=ARP', 'productstouninstall=O365ProPlusRetail,OneNoteRetail,ProjectProRetail,VisioProRetail', '/quiet' -Wait -WindowStyle Hidden -ErrorAction SilentlyContinue | Out-Null
             Start-Sleep -Seconds 3
@@ -2084,13 +2225,15 @@ function Remove-Conflicting-Office {
     }
 }
 
-function Remove-Windows-Bloatware {
+function Remove-Windows-Bloatware
+{
     Write-Log "Removing Windows bloatware (OneDrive, OneNote, StickyNotes)..." -Level Info
 
     # Uninstall OneDrive
     $odSetup = "$env:SystemRoot\SysWOW64\OneDriveSetup.exe"
     if (-not (Test-Path $odSetup)) { $odSetup = "$env:SystemRoot\System32\OneDriveSetup.exe" }
-    if (Test-Path $odSetup) {
+    if (Test-Path $odSetup)
+    {
         Write-Log "Uninstalling OneDrive..." -Level Debug
         Start-Process $odSetup -ArgumentList "/uninstall" -Wait -WindowStyle Hidden -ErrorAction SilentlyContinue
     }
@@ -2100,13 +2243,15 @@ function Remove-Windows-Bloatware {
     @('*OneDrive*', '*OneNote*', '*StickyNotes*', '*SkypeApp*', '*MicrosoftOfficeHub*') | ForEach-Object {
         $pkgName = $_
         $packages = Get-AppxPackage $pkgName -AllUsers -ErrorAction SilentlyContinue
-        if ($packages) {
+        if ($packages)
+        {
             Write-Log "Removing package: $pkgName" -Level Debug
             $packages | Remove-AppxPackage -AllUsers -ErrorAction SilentlyContinue
         }
         # Also try removing provisioned packages
         $provisioned = Get-AppxProvisionedPackage -Online | Where-Object { $_.DisplayName -like $pkgName }
-        if ($provisioned) {
+        if ($provisioned)
+        {
             Write-Log "Removing provisioned package: $pkgName" -Level Debug
             $provisioned | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue | Out-Null
         }
@@ -2118,7 +2263,8 @@ function Remove-Windows-Bloatware {
         'HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive',
         'HKLM:\SOFTWARE\Policies\Microsoft\Office\16.0\Common\OfficeUpdate'
     )
-    foreach ($regPath in $regPaths) {
+    foreach ($regPath in $regPaths)
+    {
         if (-not (Test-Path $regPath)) { New-Item $regPath -Force | Out-Null }
     }
     
@@ -2129,7 +2275,8 @@ function Remove-Windows-Bloatware {
     Write-Log "Bloatware removal complete" -Level Success
 }
 
-function Start-CleanupOperations {
+function Start-CleanupOperations
+{
     Write-Log "Running post-installation cleanup..." -Level Info
     
     # Force remove OneNote executable if it exists
@@ -2138,15 +2285,19 @@ function Start-CleanupOperations {
         "$env:ProgramFiles(x86)\Microsoft Office\root\Office16\ONENOTE.EXE"
     )
     
-    foreach ($path in $oneNotePaths) {
-        if (Test-Path $path) {
+    foreach ($path in $oneNotePaths)
+    {
+        if (Test-Path $path)
+        {
             Write-Log "Found OneNote executable at $path - Removing..." -Level Warning
-            try {
+            try
+            {
                 Stop-Process -Name "ONENOTE" -Force -ErrorAction SilentlyContinue
                 Remove-Item $path -Force -ErrorAction Stop
                 Write-Log "Removed OneNote executable" -Level Success
             }
-            catch {
+            catch
+            {
                 Write-Log "Failed to remove OneNote executable: $($_.Exception.Message)" -Level Warning
             }
         }
@@ -2159,22 +2310,27 @@ function Start-CleanupOperations {
         "$env:SystemRoot\System32\StikyNot.exe"
     )
 
-    foreach ($path in $stickyNotesPaths) {
-        if (Test-Path $path) {
+    foreach ($path in $stickyNotesPaths)
+    {
+        if (Test-Path $path)
+        {
             Write-Log "Found Sticky Notes executable at $path - Removing..." -Level Warning
-            try {
+            try
+            {
                 Stop-Process -Name "StikyNot" -Force -ErrorAction SilentlyContinue
                 Remove-Item $path -Force -ErrorAction Stop
                 Write-Log "Removed Sticky Notes executable" -Level Success
             }
-            catch {
+            catch
+            {
                 Write-Log "Failed to remove Sticky Notes executable: $($_.Exception.Message)" -Level Warning
             }
         }
     }
 }
 
-function Remove-AppShortcuts {
+function Remove-AppShortcuts
+{
     Write-Log "Removing Start Menu shortcuts for removed apps..." -Level Info
 
     $shortcutTargets = @(
@@ -2191,17 +2347,24 @@ function Remove-AppShortcuts {
         (Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs')
     )
 
-    foreach ($path in $startMenuPaths) {
-        if (Test-Path $path) {
+    foreach ($path in $startMenuPaths)
+    {
+        if (Test-Path $path)
+        {
             $shortcuts = Get-ChildItem -Path $path -Filter "*.lnk" -Recurse -ErrorAction SilentlyContinue
-            foreach ($shortcut in $shortcuts) {
-                foreach ($target in $shortcutTargets) {
-                    if ($shortcut.Name -match $target) {
-                        try {
+            foreach ($shortcut in $shortcuts)
+            {
+                foreach ($target in $shortcutTargets)
+                {
+                    if ($shortcut.Name -match $target)
+                    {
+                        try
+                        {
                             Remove-Item $shortcut.FullName -Force -ErrorAction Stop
                             Write-Log "Removed shortcut: $($shortcut.Name)" -Level Debug
                         }
-                        catch {
+                        catch
+                        {
                             Write-Log "Failed to remove shortcut $($shortcut.Name): $($_.Exception.Message)" -Level Warning
                         }
                         break
@@ -2214,7 +2377,8 @@ function Remove-AppShortcuts {
     Write-Log "Shortcut cleanup complete" -Level Success
 }
 
-function Install-Office {
+function Install-Office
+{
     param(
         [Parameter(Mandatory)] [string]$SetupPath,
         [Parameter(Mandatory)] [string]$ConfigPath
@@ -2229,7 +2393,8 @@ function Install-Office {
     $proc = Start-Process -FilePath $SetupPath -ArgumentList "/download `"$ConfigPath`"" -Wait -PassThru -WindowStyle Hidden -WorkingDirectory $Script:Config.TempFolder -ErrorAction Stop
     Write-Log "ODT download phase exit code: $($proc.ExitCode)" -Level Debug
     
-    if ($proc.ExitCode -ne 0 -and $proc.ExitCode -ne 3010) {
+    if ($proc.ExitCode -ne 0 -and $proc.ExitCode -ne 3010)
+    {
         Write-Log "Download warning/error code: $($proc.ExitCode)" -Level Warning
     }
     
@@ -2240,25 +2405,29 @@ function Install-Office {
     $proc = Start-Process -FilePath $SetupPath -ArgumentList "/configure `"$ConfigPath`"" -Wait -PassThru -WindowStyle Hidden -WorkingDirectory $Script:Config.TempFolder -ErrorAction Stop
     Write-Log "ODT install phase exit code: $($proc.ExitCode)" -Level Debug
     
-    if ($proc.ExitCode -ne 0 -and $proc.ExitCode -ne 3010) {
+    if ($proc.ExitCode -ne 0 -and $proc.ExitCode -ne 3010)
+    {
         throw "Office installation failed with code $($proc.ExitCode)"
     }
     
     Write-Log "Office installation complete" -Level Success
 }
 
-function Install-Winget {
+function Install-Winget
+{
     Write-Log "Checking Windows Package Manager (winget)..." -Level Info
     
     $wingetPath = Get-Command winget -ErrorAction SilentlyContinue
-    if ($wingetPath) {
+    if ($wingetPath)
+    {
         Write-Log "Winget is already installed" -Level Success
         return $wingetPath.Source
     }
     
     Write-Log "Winget not found - installing App Installer from Microsoft Store..." -Level Warning
     
-    try {
+    try
+    {
         # Download App Installer (includes winget)
         $appInstallerUrl = "https://aka.ms/getwinget"
         $appInstallerPath = Join-Path $Script:Config.TempFolder "Microsoft.DesktopAppInstaller.msixbundle"
@@ -2278,20 +2447,24 @@ function Install-Winget {
         $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
         
         $wingetPath = Get-Command winget -ErrorAction SilentlyContinue
-        if ($wingetPath) {
+        if ($wingetPath)
+        {
             Write-Log "Winget installed successfully" -Level Success
             return $wingetPath.Source
         }
-        else {
+        else
+        {
             Write-Log "Winget installation completed but command not found in PATH" -Level Warning
             # Try common installation paths
             $possiblePaths = @(
                 "$env:LOCALAPPDATA\Microsoft\WindowsApps\winget.exe",
                 "$env:ProgramFiles\WindowsApps\Microsoft.DesktopAppInstaller*\winget.exe"
             )
-            foreach ($path in $possiblePaths) {
+            foreach ($path in $possiblePaths)
+            {
                 $resolved = Get-ChildItem $path -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
-                if ($resolved -and (Test-Path $resolved)) {
+                if ($resolved -and (Test-Path $resolved))
+                {
                     Write-Log "Found winget at: $resolved" -Level Success
                     return $resolved
                 }
@@ -2299,13 +2472,15 @@ function Install-Winget {
             throw "Winget installation succeeded but executable not found"
         }
     }
-    catch {
+    catch
+    {
         Write-Log "Failed to install winget: $($_.Exception.Message)" -Level Error
         throw
     }
 }
 
-function Install-Extras {
+function Install-Extras
+{
     Write-Log "Installing Winget packages..." -Level Info
     Update-Progress -Status (L 'StatusInstallingExtras') -Percent 65 -SubStatus (L 'SubStatusClipchampPowerAutomate')
     
@@ -2313,42 +2488,50 @@ function Install-Extras {
     $packagesToInstall = @()
     
     # Check if Clipchamp should be installed
-    if ($Script:UserConfig.IncludeClipchamp) {
+    if ($Script:UserConfig.IncludeClipchamp)
+    {
         $packagesToInstall += @{ Id = '9P1J8S7CCWWT'; Source = 'msstore'; Name = 'Microsoft Clipchamp' }
     }
     
     # Check if Power Automate should be installed
-    if ($Script:UserConfig.IncludePowerAutomate) {
+    if ($Script:UserConfig.IncludePowerAutomate)
+    {
         $packagesToInstall += @{ Id = 'Microsoft.PowerAutomateDesktop'; Source = 'winget'; Name = 'Power Automate Desktop' }
     }
     
-    if ($packagesToInstall.Count -eq 0) {
+    if ($packagesToInstall.Count -eq 0)
+    {
         Write-Log "No extra packages selected for installation - skipping" -Level Debug
         return
     }
     
     # Ensure winget is installed
-    try {
+    try
+    {
         $wingetExe = Install-Winget
     }
-    catch {
+    catch
+    {
         Write-Log "Cannot proceed with extras installation - winget unavailable: $($_.Exception.Message)" -Level Warning
         return
     }
     
-    foreach ($pkg in $packagesToInstall) {
+    foreach ($pkg in $packagesToInstall)
+    {
         $pkgId = if ($pkg -is [hashtable]) { $pkg.Id } else { $pkg }
         $pkgSource = if ($pkg -is [hashtable]) { $pkg.Source } else { 'winget' }
         $pkgName = if ($pkg -is [hashtable]) { $pkg.Name } else { $pkg }
         
         Write-Log "Installing package: $pkgName" -Level Info
-        try {
+        try
+        {
             # First check if already installed (add --accept-source-agreements for msstore)
             $listArgs = "list --id $pkgId --accept-source-agreements"
             Start-Process -FilePath $wingetExe -ArgumentList $listArgs -Wait -PassThru -WindowStyle Hidden -RedirectStandardOutput "$env:TEMP\winget_check.txt" -ErrorAction Stop | Out-Null
             $installed = Get-Content "$env:TEMP\winget_check.txt" -Raw -ErrorAction SilentlyContinue
             
-            if ($installed -match [regex]::Escape($pkgId)) {
+            if ($installed -match [regex]::Escape($pkgId))
+            {
                 Write-Log "Package $pkgName is already installed - skipping" -Level Debug
                 continue
             }
@@ -2359,7 +2542,8 @@ function Install-Extras {
             $installAttempts = 0
             $maxAttempts = 2
             
-            while (-not $pkgInstalled -and $installAttempts -lt $maxAttempts) {
+            while (-not $pkgInstalled -and $installAttempts -lt $maxAttempts)
+            {
                 $installAttempts++
                 $useSilent = if ($installAttempts -eq 1) { $true } else { $false }
                 
@@ -2373,24 +2557,31 @@ function Install-Extras {
                 Write-Log "Installation exit code: $($proc.ExitCode)" -Level Debug
                 
                 # Interpret exit codes
-                switch ($proc.ExitCode) {
-                    0 {
+                switch ($proc.ExitCode)
+                {
+                    0
+                    {
                         Write-Log "[OK] $pkgName installed successfully" -Level Success
                         $pkgInstalled = $true
                     }
-                    -1978335212 {
+                    -1978335212
+                    {
                         Write-Log "[INFO] ${pkgName}: Already installed or no applicable update" -Level Warning
                         $pkgInstalled = $true
                     }
-                    -1978335189 {
+                    -1978335189
+                    {
                         Write-Log "[INFO] ${pkgName}: No applicable update available" -Level Warning
                         $pkgInstalled = $true
                     }
-                    default {
-                        if ($installAttempts -lt $maxAttempts) {
+                    default
+                    {
+                        if ($installAttempts -lt $maxAttempts)
+                        {
                             Write-Log "[RETRY] $pkgName installation failed with code $($proc.ExitCode), retrying without --silent" -Level Warning
                         }
-                        else {
+                        else
+                        {
                             Write-Log "[WARN] $pkgName installation failed after $maxAttempts attempts, exit code: $($proc.ExitCode)" -Level Warning
                             $pkgInstalled = $true  # Mark as done to exit loop
                         }
@@ -2398,7 +2589,8 @@ function Install-Extras {
                 }
             }
         }
-        catch {
+        catch
+        {
             Write-Log "Failed to install $pkgName : $($_.Exception.Message)" -Level Warning
         }
     }
@@ -2408,7 +2600,8 @@ function Install-Extras {
 # LICENSING (MAS INTEGRATION)
 # ============================================================================
 
-function Invoke-Licensing {
+function Invoke-Licensing
+{
     Write-Log "Starting Licensing Check & Activation..." -Level Info
     Update-Progress -Status (L 'StatusActivating') -Percent 75 -SubStatus (L 'SubStatusWindowsOffice')
     
@@ -2416,8 +2609,10 @@ function Invoke-Licensing {
     $masPath = Join-Path $Script:Config.TempFolder 'MAS_AIO.cmd'
     $downloaded = $false
     
-    foreach ($url in $Script:Config.MASUrls) {
-        try {
+    foreach ($url in $Script:Config.MASUrls)
+    {
+        try
+        {
             Write-Log "Attempting MAS download from: $url" -Level Debug
             [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
             $wc = New-Object System.Net.WebClient
@@ -2426,20 +2621,24 @@ function Invoke-Licensing {
             Write-Log "MAS downloaded successfully" -Level Success
             break
         }
-        catch {
+        catch
+        {
             Write-Log "MAS download failed from this source: $($_.Exception.Message)" -Level Warning
         }
     }
     
-    if (-not $downloaded) {
+    if (-not $downloaded)
+    {
         Write-Log "Could not download activation script. Skipping licensing." -Level Error
         return
     }
 
     # 1. Apply Windows Edition (if selected)
-    try {
+    try
+    {
         $targetEdition = $Script:UserConfig.WindowsEdition
-        if ($targetEdition -and $targetEdition -ne '') {
+        if ($targetEdition -and $targetEdition -ne '')
+        {
             Write-Log "Applying Windows Edition: $targetEdition" -Level Info
             Update-Progress -Status (L 'StatusActivating') -Percent 78 -SubStatus "Switching Windows to $targetEdition..."
             
@@ -2451,7 +2650,8 @@ function Invoke-Licensing {
                 'IoTEnterprise' = 'XQQ2F-VNMJ3-C7R3R-VV3BZ-T4R6J'
             }
             
-            if ($editionKeys.ContainsKey($targetEdition)) {
+            if ($editionKeys.ContainsKey($targetEdition))
+            {
                 $genericKey = $editionKeys[$targetEdition]
                 Write-Log "Using Generic Key: $genericKey" -Level Debug
                 
@@ -2459,7 +2659,8 @@ function Invoke-Licensing {
                 $proc = Start-Process -FilePath "changepk.exe" -ArgumentList "/ProductKey $genericKey" -Wait -PassThru -WindowStyle Hidden -ErrorAction SilentlyContinue
                 
                 # Method 2: slmgr /ipk (fallback)
-                if ($proc.ExitCode -ne 0) {
+                if ($proc.ExitCode -ne 0)
+                {
                     Start-Process -FilePath "cscript.exe" -ArgumentList "//nologo $env:SystemRoot\System32\slmgr.vbs /ipk $genericKey" -Wait -WindowStyle Hidden
                 }
                 
@@ -2467,7 +2668,8 @@ function Invoke-Licensing {
             }
         }
     }
-    catch {
+    catch
+    {
         Write-Log "Windows edition change failed: $($_.Exception.Message)" -Level Warning
     }
     
@@ -2475,10 +2677,12 @@ function Invoke-Licensing {
     Write-Log "Checking Windows Activation..." -Level Debug
     $winStatus = Get-CimInstance SoftwareLicensingProduct | Where-Object { $_.PartialProductKey -and $_.ApplicationId -eq '55c92734-d682-4d71-983e-d6ec3f16059f' } | Select-Object -ExpandProperty LicenseStatus -Unique
     
-    if ($winStatus -eq 1) {
+    if ($winStatus -eq 1)
+    {
         Write-Log "Windows is already activated." -Level Success
     }
-    else {
+    else
+    {
         Write-Log "Activating Windows (HWID)..." -Level Info
         Update-Progress -Status (L 'StatusActivating') -Percent 80 -SubStatus 'Windows...'
         $proc = Start-Process -FilePath "cmd.exe" -ArgumentList "/c `"$masPath`" /HWID" -Wait -PassThru -WindowStyle Hidden
@@ -2498,14 +2702,18 @@ function Invoke-Licensing {
 # CLEANUP & VERIFICATION
 # ============================================================================
 
-function Test-CleanupIntegrity {
-    Write-Log "Verifying cleanup..." -Level Debug
+function Test-CleanupIntegrity
+{
+    param([int]$Attempt = 1, [int]$MaxAttempts = 3)
+    
+    Write-Log "Verifying cleanup (attempt $Attempt of $MaxAttempts)..." -Level Debug
     
     $orphanedFiles = @()
     $tempPath = $Script:Config.TempFolder
     
     # Check if temp folder still exists
-    if (Test-Path $tempPath) {
+    if (Test-Path $tempPath)
+    {
         $orphanedFiles += Get-ChildItem $tempPath -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName
     }
     
@@ -2514,31 +2722,45 @@ function Test-CleanupIntegrity {
         "$env:TEMP\odt_setup.exe",
         "$env:TEMP\configuration.xml"
     )
-    foreach ($path in $odtPaths) {
+    foreach ($path in $odtPaths)
+    {
         if (Test-Path $path) { $orphanedFiles += $path }
     }
     
-    if ($orphanedFiles.Count -gt 0) {
-        Write-Log "Found orphaned files, removing..." -Level Warning
-        foreach ($file in $orphanedFiles) {
-            try {
+    if ($orphanedFiles.Count -gt 0)
+    {
+        Write-Log "Found $($orphanedFiles.Count) orphaned files, removing..." -Level Warning
+        foreach ($file in $orphanedFiles)
+        {
+            try
+            {
                 Remove-Item $file -Force -Recurse -ErrorAction Stop
                 Write-Log "Removed: $file" -Level Debug
             }
-            catch {
+            catch
+            {
                 Write-Log "Failed to remove orphaned file $file : $($_.Exception.Message)" -Level Error
             }
         }
-        # Retry cleanup
-        Start-Sleep -Seconds 1
-        Test-CleanupIntegrity
+        # Retry cleanup only if under max attempts
+        if ($Attempt -lt $MaxAttempts)
+        {
+            Start-Sleep -Seconds 1
+            Test-CleanupIntegrity -Attempt ($Attempt + 1) -MaxAttempts $MaxAttempts
+        }
+        else
+        {
+            Write-Log "Max cleanup attempts reached. Some files may remain." -Level Warning
+        }
     }
-    else {
+    else
+    {
         Write-Log "Cleanup verification successful - no orphaned files found" -Level Success
     }
 }
 
-function Restore-SystemState {
+function Restore-SystemState
+{
     Write-Log "Restoring system to previous state..." -Level Info
     Update-Progress -Status (L 'StatusCleaning') -Percent 98 -SubStatus (L 'SubStatusRevertingChanges')
     
@@ -2548,23 +2770,28 @@ function Restore-SystemState {
         'HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive',
         'HKLM:\SOFTWARE\Policies\Microsoft\Office\16.0\Common\OfficeUpdate'
     ) | ForEach-Object { 
-        try {
+        try
+        {
             Restore-RegistryKey -Path $_
         }
-        catch {
+        catch
+        {
             Write-Log "Warning restoring ${_}: $($_.Exception.Message)" -Level Warning
         }
     }
     
     # Clean up temporary files
     Write-Log "Removing temporary installation files..." -Level Debug
-    try {
-        if (Test-Path $Script:Config.TempFolder) {
+    try
+    {
+        if (Test-Path $Script:Config.TempFolder)
+        {
             Remove-Item $Script:Config.TempFolder -Recurse -Force -ErrorAction Stop
             Write-Log "Removed temp folder: $($Script:Config.TempFolder)" -Level Debug
         }
     }
-    catch {
+    catch
+    {
         Write-Log "Warning removing temp folder: $($_.Exception.Message)" -Level Warning
     }
     
@@ -2578,13 +2805,17 @@ function Restore-SystemState {
         (Join-Path $env:LOCALAPPDATA "Microsoft\Office\16.0\OfficeFileCache")
     )
     
-    foreach ($path in $leftoverPaths) {
-        if (Test-Path $path) {
-            try {
+    foreach ($path in $leftoverPaths)
+    {
+        if (Test-Path $path)
+        {
+            try
+            {
                 Remove-Item $path -Recurse -Force -ErrorAction Stop
                 Write-Log "Removed leftover: $path" -Level Debug
             }
-            catch {
+            catch
+            {
                 Write-Log "Warning removing $path : $($_.Exception.Message)" -Level Warning
             }
         }
@@ -2600,14 +2831,17 @@ function Restore-SystemState {
 # MAIN
 # ============================================================================
 
-try {
+$Script:Stage = 'initialization'
+try
+{
     $Script:Stage = 'start'
     Initialize-Log
     Write-Log "=== INSTALLATION STARTED ===" -Level Info
     
     # Show configuration window (Blocking)
     $configSuccess = Show-ConfigWindow
-    if (-not $configSuccess) {
+    if (-not $configSuccess)
+    {
         Write-Log "User cancelled configuration" -Level Info
         exit 0
     }
@@ -2646,12 +2880,14 @@ try {
 
     $Script:Stage = 'phase2-validate'
     Write-Log "Validating installation assets..." -Level Info
-    try {
+    try
+    {
         Test-FileExists -Path $setup -Label 'ODT setup'
         Test-FileExists -Path $xmlConfigPath -Label 'Configuration XML'
         Write-Log "Validation OK: setup & config" -Level Success
     }
-    catch {
+    catch
+    {
         Write-Log "Asset validation failed: $($_.Exception.Message)" -Level Error
         Write-Log "Stack: $($_.Exception.StackTrace)" -Level Error
         throw
@@ -2659,10 +2895,12 @@ try {
 
     $Script:Stage = 'phase3-install'
     Write-Log "Phase 3: Installing Office 365" -Level Info
-    try {
+    try
+    {
         Install-Office -SetupPath $setup -ConfigPath $xmlConfigPath
     }
-    catch {
+    catch
+    {
         Write-Log "Install-Office failed: $($_.Exception.Message)" -Level Error
         Write-Log "Stack: $($_.ScriptStackTrace)" -Level Error
         throw
@@ -2696,9 +2934,13 @@ try {
     if ($Script:ProgressSync.RequestCancel) { throw "Installation cancelled by user" }
 
     $Script:Stage = 'post-cleanup'
-    # Start-CleanupOperations was already run after Phase 3, but running it again doesn't hurt
-    Start-CleanupOperations
-    Remove-AppShortcuts
+    # Start-CleanupOperations and Remove-AppShortcuts already run after Phase 3
+    # Only run again if there were intervening steps that may have created new artifacts
+    if ($Script:UserConfig.IncludeClipchamp -or $Script:UserConfig.IncludePowerAutomate)
+    {
+        Start-CleanupOperations
+        Remove-AppShortcuts
+    }
 
     $Script:Stage = 'cleanup'
     Write-Log "Cleaning temporary files..." -Level Debug
@@ -2716,29 +2958,36 @@ try {
     Close-Progress
     
     # Remove log file on success (no log left behind)
-    try {
-        if (Test-Path $Script:Config.LogFile) {
+    try
+    {
+        if (Test-Path $Script:Config.LogFile)
+        {
             Remove-Item $Script:Config.LogFile -Force -ErrorAction Stop
         }
     }
-    catch {
-        # ignore log removal issues
+    catch
+    {
+        # Intentionally suppressed: Log file may be locked or already removed
+        $null = $_
     }
 
     # Silent completion - no popup
 }
-catch {
+catch
+{
     $err = $_.Exception.Message
     $duration = (Get-Date) - $Script:Config.InstallStartTime
     
     # Determine if it's a user cancellation
     $isCancellation = $err -like "*cancelled by user*"
     
-    if ($isCancellation) {
+    if ($isCancellation)
+    {
         Write-Log "=== INSTALLATION CANCELLED BY USER ===" -Level Warning
-        try { Update-Progress -Status "Cancelling..." -Percent 100 -SubStatus "Cleaning up leftovers..." } catch {}
+        try { Update-Progress -Status "Cancelling..." -Percent 100 -SubStatus "Cleaning up leftovers..." } catch { $null = $_ }
     }
-    else {
+    else
+    {
         Write-Log "=== CRITICAL ERROR ===" -Level Error
     }
     
@@ -2755,29 +3004,43 @@ catch {
     Restore-SystemState
     Test-CleanupIntegrity
 
-    if ($isCancellation) {
+    if ($isCancellation)
+    {
         Start-Sleep -Seconds 2
         Close-Progress
     }
-    else {
+    else
+    {
         Close-Progress
         [System.Windows.Forms.MessageBox]::Show("Installation Failed!`n`nStage: $Script:Stage`nError: $err`n`nAll changes have been reverted.`n`nCheck log file on Desktop for details:`n$($Script:Config.LogFile)", "Error", 0, 16)
     }
 }
-finally {
+finally
+{
     # Always clean up resources, even on unexpected termination
-    try {
+    try
+    {
         Close-Progress
     }
-    catch { }
+    catch
+    {
+        # Intentionally suppressed: Progress may already be closed
+        $null = $_
+    }
     
-    try {
-        if ($ScriptMutex) {
+    try
+    {
+        if ($ScriptMutex)
+        {
             $ScriptMutex.ReleaseMutex()
             $ScriptMutex.Dispose()
             $ScriptMutex = $null
         }
     }
-    catch { }
+    catch
+    {
+        # Intentionally suppressed: Mutex may already be released
+        $null = $_
+    }
 }
 
