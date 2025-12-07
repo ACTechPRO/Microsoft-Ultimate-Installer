@@ -1,0 +1,9 @@
+# Ignore temporary files and logs
+*.log
+*.tmp
+temp/
+tmp/
+M365Ultimate_Installation/
+ODT/
+configuration.xml
+setup.exe
