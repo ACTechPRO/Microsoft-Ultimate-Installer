@@ -1440,7 +1440,6 @@ function Show-ConfigWindow {
         $btnDeselectAll = $window.FindName('btnDeselectAll')
         $cmbVersion = $window.FindName('cmbVersion')
         $cmbLanguage = $window.FindName('cmbLanguage')
-        $lstAdditionalLanguages = $window.FindName('lstAdditionalLanguages')
         $cmbWindowsEdition = $window.FindName('cmbWindowsEdition')
         $chkWord = $window.FindName('chkWord')
         $chkExcel = $window.FindName('chkExcel')

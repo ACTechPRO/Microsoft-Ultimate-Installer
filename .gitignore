@@ -1,9 +1,57 @@
 # Ignore temporary files and logs
 *.log
 *.tmp
+*.bak
+*.old
+*.swp
+*~
 temp/
 tmp/
 M365Ultimate_Installation/
 ODT/
 configuration.xml
 setup.exe
+
+# VS Code Project Settings
+.vscode/
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/snippets/
+
+# PowerShell
+*.pdb
+*.psc1
+*.psd1
+*.ps1xml
+
+# Windows
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# System files
+.DS_Store
+*.sys
+
+# IDE specific
+.idea/
+*.suo
+*.user
+*.sln.iml
+
+# Git
+.git/
+.gitkeep
+
+# Node (if used in future)
+node_modules/
+npm-debug.log
+package-lock.json
+
+# Python (if used in future)
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
