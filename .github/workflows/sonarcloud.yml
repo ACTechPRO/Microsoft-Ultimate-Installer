@@ -1,0 +1,38 @@
+# SonarCloud CI-based Analysis for Microsoft 365 Ultimate Installer
+# This workflow analyzes PowerShell code on every push and pull request
+
+name: SonarCloud Analysis
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  sonarcloud:
+    name: SonarCloud Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for better analysis
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=ac-tech-pro_Microsoft-365-Ultimate-Installer
+            -Dsonar.organization=ac-tech-pro
+            -Dsonar.host.url=https://sonarcloud.io
