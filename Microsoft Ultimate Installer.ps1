@@ -3077,7 +3077,8 @@ function Show-Progress {
                     if ($Sync.ShouldClose) { $window.Close() }
                     
                     # Ensure window stays top if needed
-                    if ($window.WindowState -eq 'Minimized') { $window.WindowState = 'Normal' }
+                    # Ensure window stays top if needed
+                    # checking if WindowState is Minimized removed to allow minimization
                 })
             $timer.Start()
             
