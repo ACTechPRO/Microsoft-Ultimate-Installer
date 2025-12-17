@@ -1,0 +1,20 @@
+# Microsoft Ultimate Installer - Regras de Desenvolvimento
+
+## Projeto
+Script PowerShell único para instalação/remoção de produtos Microsoft.
+
+## Repositório
+https://github.com/moacirbcj/Microsoft-Ultimate-Installer
+
+## Commits
+Formato: `<emoji> <descrição em pt-BR>`
+
+## Regras Críticas do Projeto
+1. **Arquivo Único**: Sempre manter como script independente
+2. **Limpeza Total**: Remover QUALQUER arquivo criado durante execução
+3. **Log Só em Erro**: Não gerar logs em execução bem-sucedida
+4. **Compatibilidade**: Funcionar em qualquer versão do PowerShell
+5. **Auto-suficiente**: Instalar/remover dependências automaticamente
+
+## Contexto AC Tech
+Consulte `D:\TechAI\TechAgents\AGENT_DIRECTIVES.md`
