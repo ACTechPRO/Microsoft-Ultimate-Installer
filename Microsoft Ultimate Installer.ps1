@@ -1264,15 +1264,27 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
 </ComboBox>
 
 
-<!-- Windows Insider -->
-<TextBlock Text="Windows Insider Program (Experimental)" Foreground="#888888" FontWeight="Bold" Margin="0,20,0,8"/>
-<ComboBox x:Name="cmbInsider" Height="35" Background="#333333" Foreground="White" BorderBrush="#555555" IsEditable="False" SelectedIndex="0">
-<ComboBoxItem Tag="None" IsSelected="True">Do not change Windows configuration</ComboBoxItem>
-<ComboBoxItem Tag="ReleasePreview">Join Release Preview Channel</ComboBoxItem>
-<ComboBoxItem Tag="Beta">Join Beta Channel</ComboBoxItem>
-<ComboBoxItem Tag="Dev">Join Dev Channel</ComboBoxItem>
-<ComboBoxItem Tag="Canary">Join Canary Channel</ComboBoxItem>
+<!-- Windows Edition -->
+<TextBlock Text="Windows Edition (Activation)" Foreground="#888888" FontWeight="Bold" Margin="0,20,0,8"/>
+<ComboBox x:Name="cmbWindowsEdition" Height="35" Background="#333333" Foreground="White" BorderBrush="#555555" SelectedIndex="0">
+<ComboBoxItem Tag="Pro" IsSelected="True">Windows 10/11 Pro (Recommended)</ComboBoxItem>
+<ComboBoxItem Tag="Home">Windows 10/11 Home</ComboBoxItem>
+<ComboBoxItem Tag="Enterprise">Windows 10/11 Enterprise</ComboBoxItem>
+<ComboBoxItem Tag="Education">Windows 10/11 Education</ComboBoxItem>
+<ComboBoxItem Tag="IoTEnterprise">Windows 10/11 IoT Enterprise</ComboBoxItem>
+<ComboBoxItem Tag="">Do Not Change Edition</ComboBoxItem>
 </ComboBox>
+
+<!-- Windows Insider Program -->
+<TextBlock Text="Windows Insider Program (Experimental)" Foreground="#888888" FontWeight="Bold" Margin="0,20,0,8"/>
+<WrapPanel x:Name="panelInsider">
+<RadioButton x:Name="rbInsiderNone" Content="Do not change" Tag="None" GroupName="InsiderChannel" IsChecked="True" Foreground="White" Margin="0,0,20,8"/>
+<RadioButton x:Name="rbInsiderRelease" Content="Release Preview" Tag="ReleasePreview" GroupName="InsiderChannel" Foreground="White" Margin="0,0,20,8"/>
+<RadioButton x:Name="rbInsiderBeta" Content="Beta Channel" Tag="Beta" GroupName="InsiderChannel" Foreground="White" Margin="0,0,20,8"/>
+<RadioButton x:Name="rbInsiderDev" Content="Dev Channel" Tag="Dev" GroupName="InsiderChannel" Foreground="White" Margin="0,0,20,8"/>
+<RadioButton x:Name="rbInsiderCanary" Content="Canary Channel" Tag="Canary" GroupName="InsiderChannel" Foreground="White" Margin="0,0,20,8"/>
+</WrapPanel>
+
 
 <!-- Application Selection -->
 <Grid Margin="0,20,0,10">
@@ -1304,7 +1316,7 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
 <CheckBox x:Name="chkPowerAutomate" Content="Power Automate" Style="{StaticResource Style.CheckBox.Card}"/>
 <CheckBox x:Name="chkPowerToys" Content="PowerToys" Style="{StaticResource Style.CheckBox.Card}"/>
 <CheckBox x:Name="chkVSCode" Content="VS Code (Insider)" Style="{StaticResource Style.CheckBox.Card}"/>
-<CheckBox x:Name="chkVS2022" Content="VS 2022 (Preview)" Style="{StaticResource Style.CheckBox.Card}"/>
+<CheckBox x:Name="chkVS2022" Content="VS 2026 (Preview)" Style="{StaticResource Style.CheckBox.Card}"/>
 <CheckBox x:Name="chkCopilot" Content="Copilot" Style="{StaticResource Style.CheckBox.Card}"/>
 <CheckBox x:Name="chkSkype" Content="Skype" Style="{StaticResource Style.CheckBox.Card}"/>
 </UniformGrid>
@@ -1350,7 +1362,30 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
 <CheckBox x:Name="chkLang_es_es" Content="Español" Tag="es-es" Foreground="White" Margin="0,0,20,8"/>
 <CheckBox x:Name="chkLang_de_de" Content="Deutsch" Tag="de-de" Foreground="White" Margin="0,0,20,8"/>
 <CheckBox x:Name="chkLang_fr_fr" Content="Français" Tag="fr-fr" Foreground="White" Margin="0,0,20,8"/>
-<!-- Add other langs here or via logic if needed, but defining them in XAML is easier for event mapping if we want to be explicit -->
+<CheckBox x:Name="chkLang_ja_jp" Content="日本語" Tag="ja-jp" Foreground="White" Margin="0,0,20,8"/>
+<CheckBox x:Name="chkLang_zh_cn" Content="中文 (简体)" Tag="zh-cn" Foreground="White" Margin="0,0,20,8"/>
+<CheckBox x:Name="chkLang_it_it" Content="Italiano" Tag="it-it" Foreground="White" Margin="0,0,20,8"/>
+<CheckBox x:Name="chkLang_ko_kr" Content="한국어" Tag="ko-kr" Foreground="White" Margin="0,0,20,8"/>
+<CheckBox x:Name="chkLang_ru_ru" Content="Русский" Tag="ru-ru" Foreground="White" Margin="0,0,20,8"/>
+<CheckBox x:Name="chkLang_ar_sa" Content="Arabic" Tag="ar-sa" Foreground="White" Margin="0,0,20,8"/>
+<CheckBox x:Name="chkLang_da_dk" Content="Danish" Tag="da-dk" Foreground="White" Margin="0,0,20,8"/>
+<CheckBox x:Name="chkLang_nl_nl" Content="Dutch" Tag="nl-nl" Foreground="White" Margin="0,0,20,8"/>
+<CheckBox x:Name="chkLang_fi_fi" Content="Finnish" Tag="fi-fi" Foreground="White" Margin="0,0,20,8"/>
+<CheckBox x:Name="chkLang_el_gr" Content="Greek" Tag="el-gr" Foreground="White" Margin="0,0,20,8"/>
+<CheckBox x:Name="chkLang_he_il" Content="Hebrew" Tag="he-il" Foreground="White" Margin="0,0,20,8"/>
+<CheckBox x:Name="chkLang_hu_hu" Content="Hungarian" Tag="hu-hu" Foreground="White" Margin="0,0,20,8"/>
+<CheckBox x:Name="chkLang_id_id" Content="Indonesian" Tag="id-id" Foreground="White" Margin="0,0,20,8"/>
+<CheckBox x:Name="chkLang_ms_my" Content="Malay" Tag="ms-my" Foreground="White" Margin="0,0,20,8"/>
+<CheckBox x:Name="chkLang_nb_no" Content="Norwegian" Tag="nb-no" Foreground="White" Margin="0,0,20,8"/>
+<CheckBox x:Name="chkLang_pl_pl" Content="Polish" Tag="pl-pl" Foreground="White" Margin="0,0,20,8"/>
+<CheckBox x:Name="chkLang_pt_pt" Content="Português (PT)" Tag="pt-pt" Foreground="White" Margin="0,0,20,8"/>
+<CheckBox x:Name="chkLang_ro_ro" Content="Romanian" Tag="ro-ro" Foreground="White" Margin="0,0,20,8"/>
+<CheckBox x:Name="chkLang_sk_sk" Content="Slovak" Tag="sk-sk" Foreground="White" Margin="0,0,20,8"/>
+<CheckBox x:Name="chkLang_sv_se" Content="Swedish" Tag="sv-se" Foreground="White" Margin="0,0,20,8"/>
+<CheckBox x:Name="chkLang_th_th" Content="Thai" Tag="th-th" Foreground="White" Margin="0,0,20,8"/>
+<CheckBox x:Name="chkLang_tr_tr" Content="Turkish" Tag="tr-tr" Foreground="White" Margin="0,0,20,8"/>
+<CheckBox x:Name="chkLang_uk_ua" Content="Ukrainian" Tag="uk-ua" Foreground="White" Margin="0,0,20,8"/>
+<CheckBox x:Name="chkLang_vi_vn" Content="Vietnamese" Tag="vi-vn" Foreground="White" Margin="0,0,20,8"/>
 </WrapPanel>
 </StackPanel>
 </ScrollViewer>
@@ -1397,7 +1432,10 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
     $btnSelectAll = $window.FindName('btnSelectAll')
     $btnDeselectAll = $window.FindName('btnDeselectAll')
     $cmbVersion = $window.FindName('cmbVersion')
-    $cmbInsider = $window.FindName('cmbInsider')
+    # Insider Radio Buttons Panel (iterate children to find selected)
+    $panelInsider = $window.FindName('panelInsider')
+    # Windows Edition
+    $cmbWindowsEdition = $window.FindName('cmbWindowsEdition')
     $cmbLanguage = $window.FindName('cmbLanguage')
     $panelAdditionalLangs = $window.FindName('panelAdditionalLangs')
 
@@ -1597,6 +1635,33 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
             }
         })
 
+    # 3.5 Fix Rounded Corner Transparency Artifact
+    # Apply Clip geometry to MainBorder on Loaded to properly clip corners
+    $MainBorder = $window.FindName('MainBorder')
+    if ($MainBorder) {
+        $MainBorder.Add_Loaded({
+                param($senderObj, $e)
+                $border = $senderObj
+                $radius = 10
+                $geometry = New-Object System.Windows.Media.RectangleGeometry
+                $geometry.Rect = New-Object System.Windows.Rect(0, 0, $border.ActualWidth, $border.ActualHeight)
+                $geometry.RadiusX = $radius
+                $geometry.RadiusY = $radius
+                $border.Clip = $geometry
+            })
+        $MainBorder.Add_SizeChanged({
+                param($senderObj, $e)
+                $border = $senderObj
+                $radius = 10
+                $geometry = New-Object System.Windows.Media.RectangleGeometry
+                $geometry.Rect = New-Object System.Windows.Rect(0, 0, $border.ActualWidth, $border.ActualHeight)
+                $geometry.RadiusX = $radius
+                $geometry.RadiusY = $radius
+                $border.Clip = $geometry
+            })
+    }
+
+
     # 4. Mode Selection Logic
     $updateModeVisuals = {
         if ($rbExpress.IsChecked) {
@@ -1671,7 +1736,27 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
             $pageMode.Visibility = 'Visible'
         })
 
-    # 6. Global Select/Deselect
+    # 6. Dynamic Language Filtering
+    # When Primary Language changes, hide that option from Additional Languages
+    $updateAdditionalLangs = {
+        $primaryLang = $cmbLanguage.SelectedItem.Tag
+        $panelAdditionalLangs.Children | ForEach-Object {
+            if ($_ -is [System.Windows.Controls.CheckBox]) {
+                if ($_.Tag -eq $primaryLang) {
+                    $_.Visibility = 'Collapsed'
+                    $_.IsChecked = $false
+                }
+                else {
+                    $_.Visibility = 'Visible'
+                }
+            }
+        }
+    }
+    $cmbLanguage.Add_SelectionChanged($updateAdditionalLangs)
+    # Run once on load to set initial state
+    & $updateAdditionalLangs
+
+    # 7. Global Select/Deselect
     $appsList = @($chkWord, $chkExcel, $chkPowerPoint, $chkOutlook, $chkTeams, $chkOneNote, $chkOneDrive, 
         $chkAccess, $chkPublisher, $chkProject, $chkVisio, $chkClipchamp, $chkPowerAutomate, $chkSkype,
         $chkDefender, $chkToDo, $chkPCManager, $chkStickyNotes, $chkPowerBI, $chkPowerToys, $chkVSCode, $chkVS2022, $chkCopilot)
@@ -1679,7 +1764,6 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
     $btnSelectAll.Add_Click({ foreach ($a in $appsList) { if ($a) { $a.IsChecked = $true } } })
     $btnDeselectAll.Add_Click({ foreach ($a in $appsList) { if ($a) { $a.IsChecked = $false } } })
 
-    # 7. Start Install
     $btnCustomStart.Add_Click({
             $Script:ConfigResult.Cancelled = $false
             $Script:ConfigResult.Mode = 'Custom'
@@ -1699,12 +1783,12 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
                 if ($_.IsChecked) { $Script:ConfigResult.AdditionalLanguages += $_.Tag } 
             }
         
-            # Parse Windows Insider Selection
-            if ($cmbInsider.SelectedItem) {
-                $Script:ConfigResult.WindowsInsiderChannel = $cmbInsider.SelectedItem.Tag
-            }
-            else {
-                $Script:ConfigResult.WindowsInsiderChannel = "None"
+            # Parse Windows Insider Selection (from radio buttons)
+            $Script:ConfigResult.WindowsInsiderChannel = "None"
+            $panelInsider.Children | ForEach-Object {
+                if ($_ -is [System.Windows.Controls.RadioButton] -and $_.IsChecked) {
+                    $Script:ConfigResult.WindowsInsiderChannel = $_.Tag
+                }
             }
 
             # Populate result apps
@@ -1723,7 +1807,7 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
                 Channel               = $Script:ConfigResult.Channel
                 PrimaryLanguage       = $Script:ConfigResult.Language
                 AdditionalLanguages   = $Script:ConfigResult.AdditionalLanguages
-                WindowsEdition        = 'Pro' # Default or from UI if implemented
+                WindowsEdition        = if ($cmbWindowsEdition.SelectedItem) { $cmbWindowsEdition.SelectedItem.Tag } else { 'Pro' }
                 WindowsInsiderChannel = $Script:ConfigResult.WindowsInsiderChannel # New: Insider Channel
                 IncludeProject        = $chkProject.IsChecked
                 IncludeVisio          = $chkVisio.IsChecked
