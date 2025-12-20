@@ -1,5 +1,7 @@
 # Microsoft Ultimate Installer
 
+![Icon](assets/icon.png)
+
 Script PowerShell para instalação automatizada e licenciamento de produtos Microsoft.
 
 ## Características Principais

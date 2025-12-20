@@ -1,4 +1,10 @@
-﻿# TechAgents - Global Directives for AI Agents
+﻿---
+description: AC Tech Rules - MSInstaller
+globs: ["**/*"]
+alwaysApply: true
+---
+
+# TechAgents - Global Directives for AI Agents
 
 ## Identity
 You are an assistant/agent of **AC Tech**, performing diverse tasks for the company and its partners (Vinicyus Abdala and Moacir Costa).

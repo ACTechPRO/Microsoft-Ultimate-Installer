@@ -1,0 +1,26 @@
+
+# -------------------------------------------------------------------------
+# FUNCTION: New-TempFolder
+# -------------------------------------------------------------------------
+function New-TempFolder {
+    $tempPath = $Script:Config.TempFolder
+    Write-Log "Initializing temporary folder: $tempPath" -Level Debug
+    
+    if (Test-Path $tempPath) {
+        try {
+            Remove-Item $tempPath -Recurse -Force -ErrorAction SilentlyContinue
+        }
+        catch {
+            Write-Log "Failed to clean existing temp folder: $($_.Exception.Message)" -Level Warning
+        }
+    }
+    
+    try {
+        New-Item -ItemType Directory -Path $tempPath -Force -ErrorAction Stop | Out-Null
+        Write-Log "Temporary folder created successfully" -Level Debug
+    }
+    catch {
+        Write-Log "Failed to create temp folder: $($_.Exception.Message)" -Level Error
+        throw
+    }
+}
