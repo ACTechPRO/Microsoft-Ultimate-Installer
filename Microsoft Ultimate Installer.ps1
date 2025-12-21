@@ -1309,7 +1309,98 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
 </LinearGradientBrush>
 
 <!-- STYLES -->
-<Style TargetType="Button" x:Key="Style.Button.Primary">
+<!-- STYLES -->
+    <!-- Toggle Button for ComboBox -->
+    <Style x:Key="ComboBoxToggleButton" TargetType="ToggleButton">
+        <Setter Property="OverridesDefaultStyle" Value="true"/>
+        <Setter Property="IsTabStop" Value="false"/>
+        <Setter Property="Focusable" Value="false"/>
+        <Setter Property="ClickMode" Value="Press"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Border x:Name="templateRoot" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" SnapsToDevicePixels="true">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition MinWidth="20" Width="0"/>
+                            </Grid.ColumnDefinitions>
+                            <Path x:Name="arrow" Grid.Column="1" Fill="White" HorizontalAlignment="Center" VerticalAlignment="Center" Data="F1 M 0,0 L 2.667,2.66665 L 5.3334,0 L 5.3334,-1.78168 L 2.6667,0.88501 L0,-1.78168 L0,0 Z" Margin="0,0,10,0"/>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                         <Trigger Property="IsMouseOver" Value="true">
+                            <Setter TargetName="templateRoot" Property="Background" Value="#444444"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ComboBox Style -->
+    <Style TargetType="ComboBox">
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Background" Value="#111111"/> 
+        <Setter Property="BorderBrush" Value="#444444"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
+        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+        <Setter Property="Padding" Value="6,3,5,3"/>
+        <Setter Property="ScrollViewer.CanContentScroll" Value="true"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBox">
+                    <Grid x:Name="templateRoot" SnapsToDevicePixels="true">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition MinWidth="20" Width="0"/>
+                        </Grid.ColumnDefinitions>
+                        <Popup x:Name="PART_Popup" AllowsTransparency="true" Grid.ColumnSpan="2" IsOpen="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" Margin="1" Placement="Bottom" PopupAnimation="{DynamicResource {x:Static SystemParameters.ComboBoxPopupAnimationKey}}">
+                            <Border x:Name="dropDownBorder" Background="#111111" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" MaxHeight="{TemplateBinding MaxDropDownHeight}" MinWidth="{Binding ActualWidth, ElementName=templateRoot}">
+                                <ScrollViewer x:Name="DropDownScrollViewer">
+                                    <Grid x:Name="grid" RenderOptions.ClearTypeHint="Enabled">
+                                        <Canvas x:Name="canvas" HorizontalAlignment="Left" Height="0" VerticalAlignment="Top" Width="0">
+                                            <Rectangle x:Name="opaqueRect" Fill="{Binding Background, ElementName=dropDownBorder}" Height="{Binding ActualHeight, ElementName=dropDownBorder}" Width="{Binding ActualWidth, ElementName=dropDownBorder}"/>
+                                        </Canvas>
+                                        <ItemsPresenter x:Name="ItemsPresenter" KeyboardNavigation.DirectionalNavigation="Contained" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                                    </Grid>
+                                </ScrollViewer>
+                            </Border>
+                        </Popup>
+                        <ToggleButton x:Name="toggleButton" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Grid.ColumnSpan="2" IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" Style="{StaticResource ComboBoxToggleButton}"/>
+                        <ContentPresenter x:Name="contentPresenter" ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" Content="{TemplateBinding SelectionBoxItem}" ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" IsHitTestVisible="false" Margin="{TemplateBinding Padding}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="ComboBoxItem">
+        <Setter Property="Background" Value="#333333"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="10,5"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBoxItem">
+                     <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsHighlighted" Value="true">
+                            <Setter TargetName="Bd" Property="Background" Value="#555555"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="true">
+                             <Setter TargetName="Bd" Property="Background" Value="{StaticResource Brush.Accent1}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="Button" x:Key="Style.Button.Primary">
 <Setter Property="Background" Value="{StaticResource Brush.Accent.Gradient}"/>
 <Setter Property="Foreground" Value="White"/>
 <Setter Property="BorderThickness" Value="0"/>
@@ -2251,21 +2342,19 @@ function Start-OfficeUninstallation {
     # 1. Kill Processes (The "Kill List")
     Update-Progress "Stopping Microsoft Office applications..." 5
     $processes = @(
-        # Office Core
-        "winword", "excel", "powerpnt", "outlook", "onenote", "onenotem", "mspub", "msaccess", "visio", "winproj", "groove", "lync", "teams",
-        # Services/Background
+        # Office Core & Services
+        "winword", "excel", "powerpnt", "outlook", "onenote", "onenotem", "mspub", "msaccess", "visio", "winproj", "groove", "lync",
         "officeclicktorun", "officec2rclient", "ose", "osppsvc", "msiexec", "installer", "setup", "odownload",
-        # Teams & Skype
-        "ms-teams", "teams", "skype", "skypeapp", "skypehost",
-        # OneDrive
+        # Teams, Skype & OneDrive
+        "teams", "ms-teams", "msteams", "skype", "skypeapp", "skypehost",
         "onedrive", "onedrivesetup", "filecoauth",
-        # Power Platform
-        "powerpnt", "powerbi", "powerbi.exe", "pbidesktop", "powerautomate", "pad.console.host", "microsoft.flow.assistant",
-        # Utilities
+        # Power Platform & Utilities
+        "powerbi", "pbidesktop", "powerautomate", "pad.console.host", "microsoft.flow.assistant",
         "powertoys", "powertoys.settings", "powertoys.runner", "clipchamp", "pcmanager", "microsoft.pcmanager", "stickynotes", "todo",
         # Other
         "cortana", "copilot", "officeapp", "yourphone", "phoneexperiencehost"
-    )
+    ) | Select-Object -Unique
+
     foreach ($proc in $processes) {
         Stop-Process -Name $proc -Force -ErrorAction SilentlyContinue
     }
@@ -2321,35 +2410,32 @@ function Start-OfficeUninstallation {
         Write-Log "Winget uninstall phase skipped: $($_.Exception.Message)" -Level Debug
     }
 
-    # 5. Remove Store Apps (Appx List of Doom)
-    Update-Progress "removing Microsoft Store applications..." 30
-    $appxPatterns = @(
-        "*Microsoft.Office*", "*Microsoft.OutlookForWindows*",
-        "*MicrosoftTeams*", "*MSTeams*", "*Skype*",
-        "*Clipchamp*",
-        "*Microsoft.Todos*",
-        "*PowerAutomate*", "*Flow*",
-        "*PowerBI*",
-        "*StickyNotes*",
-        "*MicrosoftDefender*", # M365 App
-        "*PCManager*",
-        "*PowerToys*",
-        "*Publisher*", "*Visio*", "*Project*", "*Copilot*"
-    )
+    # 5. Remove Store Apps (Optimized Batch Query)
+    Update-Progress "Removing Microsoft Store applications..." 30
     
-    foreach ($pattern in $appxPatterns) {
-        try {
-            # EXCLUDE Visual Studio and VS Code
-            $apps = Get-AppxPackage -Name $pattern -AllUsers -ErrorAction SilentlyContinue | Where-Object { 
-                $_.Name -notmatch "VisualStudio" -and $_.Name -notmatch "VSCode" -and $_.Name -notmatch "SecHealthUI" -and $_.Name -notmatch "WindowsDefender"
-            }
-            foreach ($app in $apps) {
-                Write-Log "Removing Appx: $($app.Name)" -Level Debug
-                $app | Remove-AppxPackage -AllUsers -ErrorAction SilentlyContinue
-                $app | Remove-AppxPackage -ErrorAction SilentlyContinue
-            }
+    # Regex pattern to match all target apps using a single pass
+    $appxRegex = "Microsoft\.Office|Microsoft\.OutlookForWindows|MicrosoftTeams|MSTeams|Skype|Clipchamp|Microsoft\.Todos|PowerAutomate|Flow|PowerBI|StickyNotes|MicrosoftDefender|PCManager|PowerToys|Publisher|Visio|Project|Copilot"
+
+    try {
+        Write-Log "Querying installed Appx packages (AllUsers)..." -Level Debug
+        $allApps = Get-AppxPackage -AllUsers -ErrorAction SilentlyContinue
+        
+        $targetApps = $allApps | Where-Object { 
+            ($_.Name -match $appxRegex) -and 
+            ($_.Name -notmatch "VisualStudio") -and 
+            ($_.Name -notmatch "VSCode") -and 
+            ($_.Name -notmatch "SecHealthUI") -and 
+            ($_.Name -notmatch "WindowsDefender") # Exclude system Defender
         }
-        catch {}
+
+        foreach ($app in $targetApps) {
+            Write-Log "Removing Appx: $($app.Name)" -Level Debug
+            $app | Remove-AppxPackage -AllUsers -ErrorAction SilentlyContinue
+            $app | Remove-AppxPackage -ErrorAction SilentlyContinue
+        }
+    }
+    catch {
+        Write-Log "Appx removal failed: $($_.Exception.Message)" -Level Debug
     }
 
     # 6. LICENSE & CREDENTIAL NUKE
@@ -2444,15 +2530,11 @@ function Start-OfficeUninstallation {
         }
     }
 
-    # 10. Remove ALL Microsoft/Office shortcuts from Start Menu & Desktop
+    # 10. Remove ALL Microsoft/Office shortcuts from Start Menu & Desktop (Optimized Regex)
     Update-Progress "Removing all Microsoft/Office shortcuts..." 95
-    $shortcutPatterns = @(
-        '*Word*', '*Excel*', '*PowerPoint*', '*Outlook*', '*OneNote*', '*Access*', '*Publisher*',
-        '*Visio*', '*Project*', '*Teams*', '*OneDrive*', '*Skype*', '*Power BI*', '*PowerBI*',
-        '*Power Automate*', '*PowerToys*', '*Clipchamp*', '*Sticky Notes*', '*Microsoft 365*',
-        '*Office*', '*PC Manager*', '*PCManager*', '*Copilot*', '*To Do*', '*Defender*',
-        '*Visual Studio Code*', '*VS Code*'
-    )
+    
+    # Combined Regex for significantly faster matching (avoids nested loops)
+    $shortcutRegex = "(?i)(Word|Excel|PowerPoint|Outlook|OneNote|Access|Publisher|Visio|Project|Teams|OneDrive|Skype|Power\s?BI|Power\s?Automate|PowerToys|Clipchamp|Sticky\s?Notes|Microsoft\s?365|Office|PC\s?Manager|Copilot|To\s?Do|Defender|Visual\s?Studio\s?Code|VS\s?Code)"
     
     $shortcutPaths = @(
         "$env:ProgramData\Microsoft\Windows\Start Menu\Programs",
@@ -2466,15 +2548,12 @@ function Start-OfficeUninstallation {
         if (Test-Path $searchPath) {
             $shortcuts = Get-ChildItem -Path $searchPath -Filter "*.lnk" -Recurse -ErrorAction SilentlyContinue
             foreach ($shortcut in $shortcuts) {
-                foreach ($pattern in $shortcutPatterns) {
-                    if ($shortcut.Name -like $pattern) {
-                        try {
-                            Remove-Item $shortcut.FullName -Force -ErrorAction Stop
-                            Write-Log "Removed shortcut: $($shortcut.FullName)" -Level Debug
-                        }
-                        catch {}
-                        break
+                if ($shortcut.Name -match $shortcutRegex) {
+                    try {
+                        Remove-Item $shortcut.FullName -Force -ErrorAction Stop
+                        Write-Log "Removed shortcut: $($shortcut.FullName)" -Level Debug
                     }
+                    catch {}
                 }
             }
         }
@@ -3366,195 +3445,144 @@ function New-DesktopShortcut {
     }
 }
 
-function New-UwpShortcut {
-    param(
-        [string]$PackageName, # Wildcard name, e.g. "*OutlookForWindows*"
-        [string]$ShortcutName
-    )
-    
-    try {
-        Write-Log "Processing UWP Shortcut: $ShortcutName ($PackageName)" -Level Debug
-
-        # Find the package
-        $pkg = Get-AppxPackage -Name $PackageName -ErrorAction SilentlyContinue | Select-Object -First 1
-        if (-not $pkg) { 
-            Write-Log "UWP Package not found: $PackageName" -Level Debug
-            return 
-        }
-        
-        # Guard against missing InstallLocation
-        $installLoc = "$($pkg.InstallLocation)"
-        if ([string]::IsNullOrWhiteSpace($installLoc)) {
-            Write-Log "UWP Package $ShortcutName has no InstallLocation (Stub/Cloud-based?)" -Level Warning
-            return
-        }
-
-        # Try to find the AppID (AUMID) using Get-StartApps
-        $aumid = $null
-        if (Get-Command Get-StartApps -ErrorAction SilentlyContinue) {
-            $appInfo = Get-StartApps | Where-Object { $_.AppId -like "$($pkg.PackageFamilyName)*" } | Select-Object -First 1
-            if ($appInfo) { $aumid = $appInfo.AppID }
-        }
-        
-        if (-not $aumid) {
-            # Fallback for common apps
-            $aumid = "$($pkg.PackageFamilyName)!App"
-        }
-
-        $desktopPath = [Environment]::GetFolderPath("Desktop")
-        if ([string]::IsNullOrWhiteSpace($desktopPath)) { $desktopPath = "$env:USERPROFILE\Desktop" }
-        
-        $shortcutPath = [System.IO.Path]::Combine($desktopPath, "$ShortcutName.lnk")
-        
-        # --- Icon Extraction Logic ---
-        $iconPath = $null
-        $manifestPath = [System.IO.Path]::Combine($installLoc, "AppxManifest.xml")
-        
-        if (Test-Path $manifestPath -ErrorAction SilentlyContinue) {
-            try {
-                [xml]$manifest = Get-Content $manifestPath -ErrorAction Stop
-                
-                # Try to find Square44x44Logo (good for shortcuts)
-                $logoPath = $null
-                try { $logoPath = $manifest.Package.Applications.Application.VisualElements.Square44x44Logo } catch {}
-                if (-not $logoPath) {
-                    try { $logoPath = $manifest.Package.Applications.Application.VisualElements.Square150x150Logo } catch {}
-                }
-                if (-not $logoPath) {
-                    try { $logoPath = $manifest.Package.Applications.Application.VisualElements.Logo } catch {}
-                }
-                
-                if ($logoPath -and $logoPath -is [string] -and $logoPath.Length -gt 0) {
-                    $possibleIcons = @()
-                    
-                    try {
-                        # Get logo directory (may be empty for root-level logos)
-                        $logoDir = ""
-                        try { $logoDir = [System.IO.Path]::GetDirectoryName($logoPath) } catch { $logoDir = "" }
-                        if (-not $logoDir) { $logoDir = "" }
-                        
-                        $logoName = ""
-                        try { $logoName = [System.IO.Path]::GetFileNameWithoutExtension($logoPath) } catch { $logoName = "" }
-                        
-                        # 1. Try full logo dir
-                        $fullLogoDir = $installLoc
-                        if ($logoDir.Length -gt 0) {
-                            try { $fullLogoDir = [System.IO.Path]::Combine($installLoc, $logoDir) } catch { $fullLogoDir = $installLoc }
-                        }
-                        
-                        # 2. Try .ico replacement
-                        if ($logoPath.Length -gt 0) {
-                            $icoName = $logoPath -replace '\.png$', '.ico'
-                            if ($icoName.Length -gt 0) {
-                                try { $possibleIcons += [System.IO.Path]::Combine($installLoc, $icoName) } catch {}
-                            }
-                        }
-                        
-                        # 3. Try exact path
-                        if ($logoPath.Length -gt 0) {
-                            try { $possibleIcons += [System.IO.Path]::Combine($installLoc, $logoPath) } catch {}
-                        }
-                        
-                        # 4. Try targetsize variants (with safe sorting)
-                        if ($fullLogoDir.Length -gt 0 -and (Test-Path $fullLogoDir -ErrorAction SilentlyContinue) -and $logoName.Length -gt 0) {
-                            try {
-                                $icons = Get-ChildItem -Path $fullLogoDir -Filter "$logoName*.png" -ErrorAction SilentlyContinue
-                                if ($icons) {
-                                    # Safe sort: extract targetsize number, default to 0 if not found
-                                    $sorted = $icons | Sort-Object { 
-                                        $size = 0
-                                        if ($_.BaseName -match 'targetsize-(\d+)') { $size = [int]$Matches[1] }
-                                        $size
-                                    } -Descending
-                                    $found = $sorted | Select-Object -First 1 -ExpandProperty FullName
-                                    if ($found) { $possibleIcons += $found }
-                                }
-                            }
-                            catch {}
-                        }
-                    }
-                    catch {
-                        Write-Log "Error constructing icon paths for $ShortcutName : $($_.Exception.Message)" -Level Debug
-                    }
-
-                    foreach ($possibleIcon in $possibleIcons) {
-                        if ($possibleIcon -and $possibleIcon.Length -gt 0 -and (Test-Path $possibleIcon -ErrorAction SilentlyContinue)) {
-                            $iconPath = $possibleIcon
-                            break
-                        }
-                    }
-                }
-            }
-            catch {
-                Write-Log "Could not parse manifest for $ShortcutName : $($_.Exception.Message)" -Level Debug
-            }
-        }
-        
-        # Create shortcut via WScript.Shell
-        $wshShell = New-Object -ComObject WScript.Shell
-        $shortcut = $wshShell.CreateShortcut($shortcutPath)
-        $shortcut.TargetPath = "explorer.exe"
-        $shortcut.Arguments = "shell:AppsFolder\$aumid"
-        $shortcut.WindowStyle = 1
-        
-        # ONLY use .ico files for IconLocation (Windows .lnk does NOT support .png)
-        if ($iconPath -and $iconPath.Length -gt 0 -and $iconPath.EndsWith(".ico", [System.StringComparison]::OrdinalIgnoreCase) -and (Test-Path $iconPath -ErrorAction SilentlyContinue)) {
-            $shortcut.IconLocation = "$iconPath,0"
-        }
-        else {
-            # Let Windows resolve the default icon from the AppID target
-            $shortcut.IconLocation = "$env:SystemRoot\System32\imageres.dll,1" # Default folder icon or generic app icon fallback just in case, but usually leaving it empty works best for UWP
-            # Actually, for UWP shell:AppsFolder shortcuts, leaving IconLocation empty or setting it to the app's executable (if known) is best.
-            # But here we rely on the shell. If prompt says "blank page", it means it has NO icon.
-            # Setting to empty string usually works for UWP.
-            $shortcut.IconLocation = "" 
-        }
-        # NOTE: Do NOT set fallback IconLocation - Windows will auto-resolve from shell:AppsFolder target
-        
-        $shortcut.Save()
-        Write-Log "Created UWP shortcut: $ShortcutName (Icon: $(if($iconPath){'Custom'}else{'Default'}))" -Level Success
-    }
-    catch {
-        Write-Log "Failed to create UWP shortcut for $ShortcutName : $($_.Exception.Message)" -Level Warning
-    }
-}
-
 # -------------------------------------------------------------------------
 # FUNCTION: New-AllAppShortcuts
 # -------------------------------------------------------------------------
 function New-AllAppShortcuts {
     Write-Log "Generating desktop shortcuts..." -Level Info
     
-    # Track created shortcuts to avoid duplicates
-    $createdShortcuts = @{}
+    $desktopPath = [Environment]::GetFolderPath("Desktop")
+    if ([string]::IsNullOrWhiteSpace($desktopPath)) { $desktopPath = "$env:USERPROFILE\Desktop" }
+    $publicDesktop = "$env:Public\Desktop"
     
-    # Helper to create shortcut only if not already created
-    function New-ShortcutIfNotExists {
-        param($Name, $TargetFile)
-        if ($createdShortcuts.ContainsKey($Name)) { return }
-        
-        # Check Public Desktop/User Desktop for existing shortcuts to prevent duplicates
-        $publicDesktop = "$env:Public\Desktop"
-        $userDesktop = [Environment]::GetFolderPath("Desktop")
-        
-        if (Test-Path (Join-Path $publicDesktop "$Name.lnk")) { 
-            Write-Log "Skipping $Name (Exists in Public Desktop)" -Level Debug
-            $createdShortcuts[$Name] = $true # Mark as done so we don't try UWP fallback
-            return 
+    # Track created shortcuts (by filename, not app name)
+    $createdShortcutFiles = @{}
+    
+    # Helper: Check if shortcut file already exists
+    function Test-ShortcutExists {
+        param([string]$ShortcutName)
+        $userPath = Join-Path $desktopPath "$ShortcutName.lnk"
+        $publicPath = Join-Path $publicDesktop "$ShortcutName.lnk"
+        return (Test-Path $userPath) -or (Test-Path $publicPath)
+    }
+    
+    # Helper: Create Win32 shortcut
+    function New-Win32Shortcut {
+        param([string]$Name, [string]$TargetFile)
+        if ($createdShortcutFiles.ContainsKey($Name)) { return $false }
+        if (Test-ShortcutExists -ShortcutName $Name) {
+            Write-Log "Skipping $Name (already exists)" -Level Debug
+            $createdShortcutFiles[$Name] = $true
+            return $false
         }
-        if (Test-Path (Join-Path $userDesktop "$Name.lnk")) { 
-            Write-Log "Skipping $Name (Exists in User Desktop)" -Level Debug
-            $createdShortcuts[$Name] = $true 
-            return 
-        }
+        if (-not (Test-Path $TargetFile -ErrorAction SilentlyContinue)) { return $false }
         
-        if (Test-Path $TargetFile -ErrorAction SilentlyContinue) {
+        try {
             New-DesktopShortcut -TargetFile $TargetFile -ShortcutName $Name
-            $createdShortcuts[$Name] = $true
+            $createdShortcutFiles[$Name] = $true
+            return $true
+        }
+        catch {
+            Write-Log "Failed Win32 shortcut $Name : $($_.Exception.Message)" -Level Warning
+            return $false
         }
     }
     
-    # 1. Office Apps (installed via ODT)
+    # Helper: Create UWP shortcut
+    function New-UWPShortcut {
+        param([string]$ShortcutName, [string]$AppUserModelId)
+        if ($createdShortcutFiles.ContainsKey($ShortcutName)) { return $false }
+        if (Test-ShortcutExists -ShortcutName $ShortcutName) {
+            Write-Log "Skipping UWP $ShortcutName (already exists)" -Level Debug
+            $createdShortcutFiles[$ShortcutName] = $true
+            return $false
+        }
+        
+        try {
+            $shortcutPath = Join-Path $desktopPath "$ShortcutName.lnk"
+            $wshShell = New-Object -ComObject WScript.Shell
+            $shortcut = $wshShell.CreateShortcut($shortcutPath)
+            $shortcut.TargetPath = "explorer.exe"
+            $shortcut.Arguments = "shell:AppsFolder\$AppUserModelId"
+            $shortcut.WindowStyle = 1
+            $shortcut.IconLocation = ""
+            $shortcut.Save()
+            $createdShortcutFiles[$ShortcutName] = $true
+            Write-Log "Created UWP shortcut: $ShortcutName" -Level Success
+            return $true
+        }
+        catch {
+            Write-Log "Failed UWP shortcut $ShortcutName : $($_.Exception.Message)" -Level Warning
+            return $false
+        }
+    }
+    
+    # =========================================================================
+    # PHASE 1: UWP / Store Apps (FIRST - they have unique names)
+    # =========================================================================
+    Write-Log "Phase 1: Creating UWP shortcuts..." -Level Debug
+    
+    # Get all Start Menu apps
+    $startApps = $null
+    try {
+        $startApps = Get-StartApps -ErrorAction Stop | Select-Object Name, AppID
+        Write-Log "Found $($startApps.Count) apps in Start Menu" -Level Debug
+    }
+    catch {
+        Write-Log "Get-StartApps failed: $($_.Exception.Message)" -Level Warning
+    }
+    
+    if ($startApps) {
+        # UWP apps with their search patterns -> Shortcut name
+        # Using UNIQUE shortcut names to avoid conflicts with Win32
+        $uwpApps = @(
+            @{ ShortcutName = "Outlook (New)"; Patterns = @("Outlook", "Outlook (new)", "Mail") }
+            @{ ShortcutName = "Teams"; Patterns = @("Microsoft Teams", "Teams") }
+            @{ ShortcutName = "Copilot"; Patterns = @("Copilot", "Microsoft Copilot") }
+            @{ ShortcutName = "PC Manager"; Patterns = @("PC Manager", "Microsoft PC Manager") }
+            @{ ShortcutName = "Clipchamp"; Patterns = @("Clipchamp", "Microsoft Clipchamp") }
+            @{ ShortcutName = "To Do"; Patterns = @("Microsoft To Do", "To Do", "Todos") }
+            @{ ShortcutName = "Sticky Notes"; Patterns = @("Sticky Notes", "Microsoft Sticky Notes") }
+            @{ ShortcutName = "OneNote"; Patterns = @("OneNote", "OneNote for Windows") }
+            @{ ShortcutName = "Defender"; Patterns = @("Microsoft Defender", "Windows Security") }
+        )
+        
+        foreach ($app in $uwpApps) {
+            $foundAumid = $null
+            
+            foreach ($pattern in $app.Patterns) {
+                # Try exact match first
+                $match = $startApps | Where-Object { $_.Name -eq $pattern } | Select-Object -First 1
+                if ($match) {
+                    $foundAumid = $match.AppID
+                    Write-Log "Found exact: $($app.ShortcutName) -> $($match.Name)" -Level Debug
+                    break
+                }
+                
+                # Fuzzy match
+                $match = $startApps | Where-Object { $_.Name -like "*$pattern*" } | 
+                Sort-Object { $_.Name.Length } | Select-Object -First 1
+                if ($match) {
+                    $foundAumid = $match.AppID
+                    Write-Log "Found fuzzy: $($app.ShortcutName) -> $($match.Name)" -Level Debug
+                    break
+                }
+            }
+            
+            if ($foundAumid) {
+                New-UWPShortcut -ShortcutName $app.ShortcutName -AppUserModelId $foundAumid | Out-Null
+            }
+            else {
+                Write-Log "UWP not found: $($app.ShortcutName)" -Level Debug
+            }
+        }
+    }
+    
+    # =========================================================================
+    # PHASE 2: Office Apps (Win32 via ODT)
+    # =========================================================================
+    Write-Log "Phase 2: Creating Office shortcuts..." -Level Debug
+    
     $officeRoot = "$env:ProgramFiles\Microsoft Office\root\Office16"
     $officeApps = @{
         "Word"       = "WINWORD.EXE"
@@ -3570,10 +3598,14 @@ function New-AllAppShortcuts {
     foreach ($appName in $officeApps.Keys) {
         $exe = $officeApps[$appName]
         $path = [System.IO.Path]::Combine($officeRoot, $exe)
-        New-ShortcutIfNotExists -Name $appName -TargetFile $path
+        New-Win32Shortcut -Name $appName -TargetFile $path | Out-Null
     }
     
-    # 2. Win32 Apps with multiple path candidates
+    # =========================================================================
+    # PHASE 3: Other Win32 Apps
+    # =========================================================================
+    Write-Log "Phase 3: Creating other Win32 shortcuts..." -Level Debug
+    
     $win32Apps = @{
         "Visual Studio Code Insiders" = @(
             "$env:LOCALAPPDATA\Programs\Microsoft VS Code Insiders\Code - Insiders.exe",
@@ -3581,154 +3613,47 @@ function New-AllAppShortcuts {
         )
         "Power BI Desktop"            = @(
             "$env:ProgramFiles\Microsoft Power BI Desktop\bin\PBIDesktop.exe",
-            "${env:ProgramFiles(x86)}\Microsoft Power BI Desktop\bin\PBIDesktop.exe",
-            "$env:LOCALAPPDATA\Microsoft\WindowsApps\PBIDesktop.exe"
+            "${env:ProgramFiles(x86)}\Microsoft Power BI Desktop\bin\PBIDesktop.exe"
         )
         "PowerToys"                   = @(
             "$env:ProgramFiles\PowerToys\PowerToys.exe",
-            "$env:LOCALAPPDATA\PowerToys\PowerToys.exe",
-            "${env:ProgramFiles(x86)}\PowerToys\PowerToys.exe"
+            "$env:LOCALAPPDATA\PowerToys\PowerToys.exe"
         )
         "Power Automate"              = @(
             "${env:ProgramFiles(x86)}\Power Automate Desktop\PAD.Console.Host.exe",
-            "$env:ProgramFiles\Power Automate Desktop\PAD.Console.Host.exe",
-            "$env:LOCALAPPDATA\Microsoft\Power Automate Desktop\PAD.Console.Host.exe"
+            "$env:ProgramFiles\Power Automate Desktop\PAD.Console.Host.exe"
         )
         "OneDrive"                    = @(
             "$env:LOCALAPPDATA\Microsoft\OneDrive\OneDrive.exe",
-            "${env:ProgramFiles(x86)}\Microsoft OneDrive\OneDrive.exe",
-            "$env:ProgramFiles\Microsoft OneDrive\OneDrive.exe"
-        )
-        "Skype"                       = @(
-            "${env:ProgramFiles(x86)}\Microsoft\Skype for Desktop\Skype.exe",
-            "$env:LOCALAPPDATA\Microsoft\Skype\Skype.exe",
-            "$env:APPDATA\Microsoft\Skype\Skype.exe"
-        )
-        "Visual Studio Enterprise"    = @(
-            "$env:ProgramFiles\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\devenv.exe",
-            "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\devenv.exe"
+            "${env:ProgramFiles(x86)}\Microsoft OneDrive\OneDrive.exe"
         )
     }
     
+    # Visual Studio via vswhere
+    try {
+        $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+        if (Test-Path $vswhere) {
+            $vsPath = & $vswhere -latest -property productPath 2>$null
+            if ($vsPath -and (Test-Path $vsPath)) {
+                New-Win32Shortcut -Name "Visual Studio" -TargetFile $vsPath | Out-Null
+            }
+        }
+    }
+    catch {}
+    
     foreach ($appName in $win32Apps.Keys) {
-        $found = $false
         foreach ($path in $win32Apps[$appName]) {
             if (Test-Path $path -ErrorAction SilentlyContinue) {
-                New-ShortcutIfNotExists -Name $appName -TargetFile $path
-                $found = $true
+                New-Win32Shortcut -Name $appName -TargetFile $path | Out-Null
                 break
             }
         }
-        if (-not $found) {
-            Write-Log "Win32 app not found: $appName (checked ${($win32Apps[$appName]).Count} paths)" -Level Debug
-        }
     }
     
-    # 3. UWP / Store Apps - Search Start Menu .lnk OR registered Appx (Get-StartApps)
-    # Map: 'Shortcut Name' = 'Output Name Pattern'
-    $uwpAppPatterns = @{
-        "Outlook"             = @("Outlook", "Outlook (New)")
-        "Microsoft Teams"     = @("Microsoft Teams", "Microsoft Teams (work or school)", "Teams")
-        "Microsoft Copilot"   = @("Copilot", "Microsoft Copilot")
-        "PC Manager"          = @("PC Manager", "Microsoft PC Manager")
-        "Microsoft Clipchamp" = @("Microsoft Clipchamp", "Clipchamp")
-        "Microsoft To Do"     = @("Microsoft To Do", "To Do")
-        "Sticky Notes"        = @("Sticky Notes", "Microsoft Sticky Notes")
-        "Power BI Desktop"    = @("Power BI Desktop", "Power BI")
-        "OneNote"             = @("OneNote", "OneNote for Windows 10")
-        "Microsoft Defender"  = @("Microsoft Defender", "Windows Security")
-    }
-    
-    # Pre-fetch installed Start Apps (AUMIDs) for robustness
-    Write-Log "Fetching installed Appx list..." -Level Debug
-    $startApps = Get-StartApps | Select-Object Name, AppID
-
-    # Start Menu locations to search for .lnk
-    $startMenuPaths = @(
-        "$env:APPDATA\Microsoft\Windows\Start Menu\Programs",
-        "$env:ProgramData\Microsoft\Windows\Start Menu\Programs"
-    )
-    
-    $desktopPath = [Environment]::GetFolderPath("Desktop")
-    if ([string]::IsNullOrWhiteSpace($desktopPath)) { $desktopPath = "$env:USERPROFILE\Desktop" }
-    
-    foreach ($shortcutName in $uwpAppPatterns.Keys) {
-        if ($createdShortcuts.ContainsKey($shortcutName)) { 
-            Write-Log "Skipping UWP check for $shortcutName (Already handled)" -Level Debug
-            continue 
-        }
-        
-        $patterns = $uwpAppPatterns[$shortcutName]
-        $foundShortcut = $null
-        $foundAumid = $null
-        
-        # Strategy A: Look for physical .lnk in Start Menu (Preferred for icons)
-        foreach ($startPath in $startMenuPaths) {
-            if (-not (Test-Path $startPath)) { continue }
-            
-            foreach ($pattern in $patterns) {
-                $searchPattern = "$pattern.lnk"
-                $found = Get-ChildItem -Path $startPath -Filter $searchPattern -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
-                if ($found) {
-                    $foundShortcut = $found.FullName
-                    Write-Log "Found .lnk for $shortcutName : $($found.Name)" -Level Debug
-                    break
-                }
-            }
-            if ($foundShortcut) { break }
-        }
-        
-        # Strategy B: Look for AUMID via Get-StartApps (If .lnk missing)
-        if (-not $foundShortcut) {
-            foreach ($pattern in $patterns) {
-                # Fuzzy match against Get-StartApps names
-                $match = $startApps | Where-Object { $_.Name -like "*$pattern*" } | Select-Object -First 1
-                if ($match) {
-                    $foundAumid = $match.AppID
-                    Write-Log "Found AUMID for $shortcutName : $foundAumid ($($match.Name))" -Level Debug
-                    break
-                }
-            }
-        }
-
-        # Create the shortcut
-        if ($foundShortcut) {
-            # Existing logic for .lnk source
-            try {
-                $destPath = [System.IO.Path]::Combine($desktopPath, "$shortcutName.lnk")
-                Copy-Item -Path $foundShortcut -Destination $destPath -Force -ErrorAction Stop
-                $createdShortcuts[$shortcutName] = $true
-                Write-Log "Created shortcut: $shortcutName (copied from Start Menu)" -Level Success
-            }
-            catch {
-                Write-Log "Failed to copy shortcut for $shortcutName : $($_.Exception.Message)" -Level Warning
-            }
-        }
-        elseif ($foundAumid) {
-            try {
-                $sPath = Join-Path $desktopPath "$shortcutName.lnk"
-                $wshShell = New-Object -ComObject WScript.Shell
-                $shortcut = $wshShell.CreateShortcut($sPath)
-                $shortcut.TargetPath = "explorer.exe"
-                $shortcut.Arguments = "shell:AppsFolder\$foundAumid"
-                $shortcut.WindowStyle = 1
-                $shortcut.IconLocation = "" 
-                $shortcut.Save()
-                $createdShortcuts[$shortcutName] = $true
-                Write-Log "Created AUMID shortcut: $shortcutName ($foundAumid)" -Level Success
-            }
-            catch {
-                Write-Log "Failed to create AUMID shortcut for $shortcutName : $($_.Exception.Message)" -Level Warning
-            }
-        }
-        else {
-            Write-Log "App not found: $shortcutName (No .lnk or AUMID match)" -Level Debug
-        }
-    }
-
+    # Summary
+    $totalCreated = $createdShortcutFiles.Count
+    Write-Log "Shortcut generation complete: $totalCreated shortcuts processed" -Level Info
 }
-    
-
 
 function Remove-AppShortcuts {
     Write-Log "Removing shortcuts for excluded/bloatware apps (Start Menu & Desktop)..." -Level Info
@@ -3739,8 +3664,11 @@ function Remove-AppShortcuts {
     
     # Get user's included apps (apps they selected for installation)
     $includedApps = @()
-    if ($Script:UserConfig.Apps) {
-        $includedApps = $Script:UserConfig.Apps
+    if ($Script:UserConfig.SelectedApps) {
+        # SelectedApps is a hashtable with app names as keys
+        $includedApps = $Script:UserConfig.SelectedApps.Keys | ForEach-Object { 
+            if ($Script:UserConfig.SelectedApps[$_]) { $_ }
+        }
     }
     
     # Check if OneNote was NOT selected (should be removed as bloatware)
@@ -4003,7 +3931,7 @@ function Install-Extras {
         'VS2022'      = @{ Id = 'Microsoft.VisualStudio.Enterprise.Insiders'; Source = 'winget'; Name = 'Visual Studio Enterprise 2026 Insiders' }
         'Copilot'     = @{ Id = '9NHT9RB2F4HD'; Source = 'msstore'; Name = 'Microsoft Copilot' }
         'Clipchamp'   = @{ Id = '9P1J8S7CCWWT'; Source = 'msstore'; Name = 'Microsoft Clipchamp' }
-        'Teams'       = @{ Id = 'XP8BT8DW290MPQ'; Source = 'msstore'; Name = 'Microsoft Teams' }
+        'Teams'       = @{ Id = 'Microsoft.Teams.New'; Source = 'winget'; Name = 'Microsoft Teams (New)' }
         'OneNote'     = @{ Id = 'XPFFZHVGQWWLHB'; Source = 'msstore'; Name = 'OneNote' }
     }
 
@@ -4079,10 +4007,7 @@ function Install-Extras {
             
             while (-not $pkgInstalled -and $installAttempts -lt $maxAttempts) {
                 $installAttempts++
-                $useSilent = if ($installAttempts -eq 1) { $true } else { $false }
-                
-                $wingetArgs = "install --id $pkgId --accept-package-agreements --accept-source-agreements --source $pkgSource --disable-interactivity"
-                if ($useSilent) { $wingetArgs += " --silent" }
+                $wingetArgs = "install --id $pkgId --accept-package-agreements --accept-source-agreements --source $pkgSource --disable-interactivity --silent"
                 if ($pkgSource -ne 'msstore') { $wingetArgs += " --force" }
                 
                 Write-Log "Running (attempt $installAttempts): winget $wingetArgs" -Level Debug
@@ -4122,7 +4047,7 @@ function Install-Extras {
                     }
                     default {
                         if ($installAttempts -lt $maxAttempts) {
-                            Write-Log "[RETRY] $pkgName installation failed with code $($proc.ExitCode), retrying without --silent" -Level Info
+                            Write-Log "[RETRY] $pkgName installation failed with code $($proc.ExitCode), retrying..." -Level Info
                         }
                         else {
                             Write-Log "[WARN] $pkgName installation failed after $maxAttempts attempts, exit code: $($proc.ExitCode)" -Level Warning
@@ -4132,12 +4057,11 @@ function Install-Extras {
                 }
 
                 # --- AUTO-LAUNCH PREVENTION (Watchdog) ---
-                # PowerToys and Power Automate love to launch immediately after install/update
-                if ($pkgName -match "PowerToys" -or $pkgName -match "Power Automate") {
+                if ($pkgName -match "PowerToys" -or $pkgName -match "Power Automate" -or $pkgName -match "Teams") {
                     Write-Log "Initializing auto-launch watchdog for $pkgName (20s)..." -Level Debug
                     $watchdogStart = Get-Date
                     while ((Get-Date) -lt $watchdogStart.AddSeconds(20)) {
-                        $targets = @('PowerToys', 'PowerToys.Settings', 'PAD.Console.Host', 'PAD.Machine.Management')
+                        $targets = @('PowerToys', 'PowerToys.Settings', 'PAD.Console.Host', 'PAD.Machine.Management', 'ms-teams', 'Teams')
                         foreach ($t in $targets) {
                             $proc = Get-Process -Name $t -ErrorAction SilentlyContinue
                             if ($proc) {
@@ -4486,8 +4410,6 @@ function Uninstall-SupportedApps {
     # 1. Define list of apps to check (IDs and Names for broad matching)
     $appsToRemove = @(
         @{ Id = 'Microsoft.PowerToys'; Name = 'PowerToys' },
-        @{ Id = 'Microsoft.VisualStudioCode'; Name = 'Visual Studio Code' },
-        @{ Id = 'Microsoft.VisualStudioCode.Insiders'; Name = 'Visual Studio Code Insiders' },
         @{ Id = 'Microsoft.PowerBI'; Name = 'Power BI Desktop' },
         @{ Id = 'Microsoft.Teams'; Name = 'Microsoft Teams' },
         @{ Id = 'XP8BT8DW290MPQ'; Name = 'Microsoft Teams' } # Store ID
@@ -4516,7 +4438,6 @@ function Uninstall-SupportedApps {
     Write-Log "Removing Store Applications..." -Level Debug
     $storePatterns = @(
         "*Microsoft.PowerToys*", 
-        "*Microsoft.VisualStudioCode*", 
         "*Microsoft.PowerBI*", 
         "*MicrosoftTeams*", 
         "*MSTeams*", 
@@ -4550,7 +4471,6 @@ function Remove-LeftoverShortcuts {
     
     $patterns = @(
         "*Visual Studio*", 
-        "*VS Code*", 
         "*PowerToys*", 
         "*Microsoft Teams*", 
         "*Teams*",
@@ -5001,9 +4921,5 @@ finally {
         $null = $_
     }
 }
-
-
-
-
 
 
