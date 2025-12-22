@@ -60,8 +60,4 @@
 - **Code Quality**: Keep code organized, transparent, and human-readable.
 - **WPF Integrity**: Ensure UI thread never hangs (use Runspaces/Jobs).
 
-## Local AI (Brain Extension Protocol)
-- **Concept**: You are the Manager; Local AI is the Worker.
-- **Coding**: `ollama run qwen2.5-coder:32b "..." > file` (Standard)
-- **Architecture**: `ollama run qwen2.5:72b "..." > plan` (Complex only)
-> **Directive**: Delegate reasoning/coding to local models. Keep context clean.
+- **WPF Integrity**: Ensure UI thread never hangs (use Runspaces/Jobs).

@@ -9,10 +9,8 @@ You are an assistant/agent of **AC Tech**, performing diverse tasks for the comp
 
 | Directory | Purpose |
 | --------- | ------- |
-| `D:\TechAI` | AI Root - save everything related to AI here |
-| `D:\TechAI\TechAgents\Credentials` | API Keys and authentication |
-| `D:\TechAI\TechAgents\Personal Context Memory.txt` | Personal information of Moacir Costa |
-| `D:\TechAI\TechAgents` | Local AI Models (blobs/manifests) |
+| `D:\TechAI\Credentials` | API Keys and authentication |
+| `D:\TechAI\Personal Context Memory.txt` | Personal information of Moacir Costa |
 | `D:\Images` | Image resources for all projects |
 | `D:\Videos` | Video resources for all projects |
 
@@ -56,6 +54,11 @@ All AC Tech projects use centralized directories for media resources:
 - Value information security and client privacy.
 - Never expose credentials in logs or commits.
 
+### Automated Synchronization
+- **Watchdog**: The system runs a lightweight "Watchdog" (`Synchronization Watchdog.ps1`) that monitors rule files for changes.
+- **Auto-Sync**: Any change to `GLOBAL_RULES.md` or `PROJECT_RULES.md` triggers an immediate update to all `agent.rules` files via `Synchronize Rules.ps1`.
+- **Startup**: This service starts silently with Windows.
+
 ---
 
 ## Commit Conventions (Git)
@@ -65,10 +68,10 @@ All AC Tech projects use centralized directories for media resources:
 ```
 
 **Examples**:
-- `✨ Adiciona novo recurso de login` (Adds new login feature)
-- `🐛 Corrige bug no cálculo de orçamento` (Fixes budget calculation bug)
-- `📝 Atualiza documentação` (Updates documentation)
-- `🔧 Ajusta configuração` (Adjusts configuration)
+- `âœ¨ Adiciona novo recurso de login` (Adds new login feature)
+- `ðŸ› Corrige bug no cÃ¡lculo de orÃ§amento` (Fixes budget calculation bug)
+- `ðŸ“ Atualiza documentaÃ§Ã£o` (Updates documentation)
+- `ðŸ”§ Ajusta configuraÃ§Ã£o` (Adjusts configuration)
 
 *Note: Keep commit messages in Portuguese (pt-BR) as per company standard.*
 
@@ -85,104 +88,10 @@ All AC Tech projects use centralized directories for media resources:
 
 ---
 
-## Local AI Models (Ollama)
-
-| Model | Specialty | When to Use |
-| ----- | --------- | ----------- |
-| `qwen2.5-coder:32b` | **Code Expert** | Heavy coding, refactoring, complex logic (Expect ~6 t/s) |
-| `deepseek-r1:32b` | **Reasoning Engine** | Planning, architecture, deep thought (Expect Chain of Thought) |
-
-**Configuration**: Models run locally via Ollama on the user's RTX 4080 (Hybrid GPU/RAM). Model directory: `D:\TechAI\TechAgents`.
-
-### How to Use Local Models (MANDATORY for Agents)
-
-Agents **MUST** use local models proactively via the `run_command` tool whenever possible.
-
-**Use Cases (prioritize local models for these):**
-- **Coding**: `ollama run qwen2.5-coder:32b "Write a class..."`
-- **Planning**: `ollama run deepseek-r1:32b "Plan a migration..."`
-
-**Shell Commands:**
-```powershell
-# Code Generation (Truncate if needed)
-ollama run qwen2.5-coder:32b "Generate python script..." | Select-Object -First 100
-
-# Deep Reasoning (Chain of Thought - verbose)
-ollama run deepseek-r1:32b "Explain why..."
-```
-
-> **IMPORTANT**: Use `32b` for quality. It is slower (~6 t/s) but smarter. Use `deepseek-r1` for logic.
 
 ---
 
-## Local AI Usage (The "Brain Extension" Protocol)
-
-You have access to a **Supercomputer (i9/4080/64GB)**. Your cloud brain is the **Manager**; the Local AI is your **Worker**.
-
-### Core Directive: "Delegate, Then Execute"
-For **ANY** task involving code generation, planning, or reasoning, ask yourself: *"Can the local model draft this for me?"*
-If the answer is **YES**, you MUST delegate it.
-
-### Model Selection (Automatic)
-You do not need user permission. Choose based on the task type:
-1.  **Coding / Scripts**: Use `qwen2.5-coder:32b`.
-    -   *Why*: Optimized for code generation, refactoring, debugging.
-    -   *Cmd*: `ollama run qwen2.5-coder:32b "Write the script..." > script.ps1`
-2.  **Reasoning / Planning / Strategy**: Use `deepseek-r1:32b`.
-    -   *Why*: Chain-of-Thought reasoning engine for architecture and deep analysis.
-    -   *Cmd*: `ollama run deepseek-r1:32b "Analyze this architecture..." > analysis.md`
-
-### The "Zero-Context" Workflow
-NEVER paste heavy local output into the chat.
-1.  **Delegate**: `ollama run ... > draft.txt`
-2.  **Review**: Read the file (`view_file`).
-3.  **Refine**: Edit if necessary.
-4.  **Result**: You look like a genius, and the Cloud Context remains empty.
-
-
----
-
-## Social Media
-
-| Platform | URL |
-| -------- | --- |
-| Instagram | https://www.instagram.com/actech.oficial/ |
-| X (Twitter) | https://x.com/ACTechOficial |
-| TikTok | https://www.tiktok.com/@ac.tech.pro |
-
----
-
-## Accounts and Domain
-
-| Resource | Value |
-| -------- | ----- |
-| Domain | ac-tech.pro (Hostinger) |
-| Email Domain | @ac-tech.pro (Hostinger) |
-| Google Account | management.actech@gmail.com |
-| Microsoft Account | admin@ac-tech.pro / management.actech@outlook.com |
-
----
-
-## Company Contacts
-
-| Purpose | Email |
-| ------- | ----- |
-| General Contact | contato@ac-tech.pro |
-| Administration | admin@ac-tech.pro |
-| Automatic | noreply@ac-tech.pro |
-
----
-
-## Additional Information
-
-- **Partners**: Vinicyus Abdala (GitHub: vinzabdala) and Moacir Costa (GitHub: moacirbcj) - 50% each.
-- **Location**: Brazil (follows Brazilian legislation).
-- **Operating System**: Windows (both partners).
-- **Specialty**: Technological solutions (software, applications, specialized hardware).
-- **AI Usage**: Agentic AI coding.
-
-
----
+# Project Specific Rules
 
 # Microsoft Ultimate Installer - Project Specific Rules
 
@@ -246,15 +155,12 @@ NEVER paste heavy local output into the chat.
 - **Code Quality**: Keep code organized, transparent, and human-readable.
 - **WPF Integrity**: Ensure UI thread never hangs (use Runspaces/Jobs).
 
-## Local AI (Brain Extension Protocol)
-- **Concept**: You are the Manager; Local AI is the Worker.
-- **Coding**: `ollama run qwen2.5-coder:32b "..." > file` (Standard)
-- **Architecture**: `ollama run qwen2.5:72b "..." > plan` (Complex only)
-> **Directive**: Delegate reasoning/coding to local models. Keep context clean.
+- **WPF Integrity**: Ensure UI thread never hangs (use Runspaces/Jobs).
 
 
 ---
 
-> **Auto-generated by sync-rules.ps1** on 2025-12-21 10:45:09
-> Source: D:\GLOBAL_RULES.md + D:\Microsoft Ultimate Installer\PROJECT_RULES.md
-> Do not edit this file directly. Edit source files and re-run sync.
+> **Auto-generated by Synchronize Rules.ps1** on 2025-12-22 00:23:18
+> Source: Global + Project Rules
+> Do not edit this file directly.
+

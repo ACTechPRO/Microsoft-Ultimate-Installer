@@ -2392,17 +2392,25 @@ function Start-OfficeUninstallation {
                 '9NRX63209R7B', # Outlook (New)
                 '9P6PMZTM93LR', # Microsoft Defender
                 '9NBLGGH5R558', # Microsoft To Do
-                '9PM860492SZD', # Microsoft PC Manager
-                '9NBLGGH4BI9O', # Microsoft Sticky Notes
+                '9PM860492SZD',     # Microsoft PC Manager
                 'Microsoft.PowerBI',
                 'Microsoft.PowerToys',
-                '9NHT9RB2F4HD', # Microsoft Copilot
+                '9NHT9RB2F4HD',     # Microsoft Copilot
                 'Microsoft.Skype',
-                '9P1J8S7CCWWT'  # Microsoft Clipchamp
+                '9P1J8S7CCWWT',     # Microsoft Clipchamp
+                'NetEase.UURemote', # StarDesk (Correct ID)
+                '9NBLGGH4QGHW'      # Microsoft Sticky Notes
             )
             foreach ($id in $extrasToUninstall) {
                 Write-Log "Winget Uninstall: $id" -Level Debug
                 Start-Process-CancelAware -FilePath $wingetExe -ArgumentList "uninstall --id $id --silent --accept-source-agreements" -WindowStyle Hidden | Out-Null
+            }
+            
+            # StarDesk Direct Removal Failsafe
+            $starDeskUninstall = "${env:ProgramFiles(x86)}\StarDesk\GameViewer\Uninstall.exe"
+            if (Test-Path $starDeskUninstall) {
+                Write-Log "Direct Uninstall: StarDesk (Failsafe)" -Level Debug
+                Start-Process-CancelAware -FilePath $starDeskUninstall -ArgumentList "/S" -WindowStyle Hidden -TimeoutSeconds 60
             }
         }
     }
@@ -3518,44 +3526,64 @@ function New-AllAppShortcuts {
     }
     
     # =========================================================================
-    # PHASE 1: UWP / Store Apps (FIRST - they have unique names)
+    # PHASE 1: UWP / Store Apps (FIRST - with AGGRESSIVE RETRY for newly installed apps)
     # =========================================================================
-    Write-Log "Phase 1: Creating UWP shortcuts..." -Level Debug
+    Write-Log "Phase 1: Creating UWP shortcuts (with aggressive retry)..." -Level Info
     
-    # Get all Start Menu apps
-    $startApps = $null
-    try {
-        $startApps = Get-StartApps -ErrorAction Stop | Select-Object Name, AppID
-        Write-Log "Found $($startApps.Count) apps in Start Menu" -Level Debug
-    }
-    catch {
-        Write-Log "Get-StartApps failed: $($_.Exception.Message)" -Level Warning
-    }
+    # UWP apps with their search patterns -> Shortcut name
+    $uwpApps = @(
+        @{ ShortcutName = "Outlook (New)"; Patterns = @("Outlook", "Outlook (new)", "Mail") }
+        @{ ShortcutName = "Teams"; Patterns = @("Microsoft Teams", "Teams") }
+        @{ ShortcutName = "Copilot"; Patterns = @("Copilot", "Microsoft Copilot") }
+        @{ ShortcutName = "PC Manager"; Patterns = @("PC Manager", "Microsoft PC Manager") }
+        @{ ShortcutName = "Clipchamp"; Patterns = @("Clipchamp", "Microsoft Clipchamp") }
+        @{ ShortcutName = "To Do"; Patterns = @("Microsoft To Do", "To Do", "Todos") }
+        @{ ShortcutName = "Sticky Notes"; Patterns = @("Sticky Notes", "Microsoft Sticky Notes") }
+        @{ ShortcutName = "OneNote"; Patterns = @("OneNote", "OneNote for Windows") }
+        @{ ShortcutName = "Defender"; Patterns = @("Microsoft Defender", "Windows Security") }
+    )
     
-    if ($startApps) {
-        # UWP apps with their search patterns -> Shortcut name
-        # Using UNIQUE shortcut names to avoid conflicts with Win32
-        $uwpApps = @(
-            @{ ShortcutName = "Outlook (New)"; Patterns = @("Outlook", "Outlook (new)", "Mail") }
-            @{ ShortcutName = "Teams"; Patterns = @("Microsoft Teams", "Teams") }
-            @{ ShortcutName = "Copilot"; Patterns = @("Copilot", "Microsoft Copilot") }
-            @{ ShortcutName = "PC Manager"; Patterns = @("PC Manager", "Microsoft PC Manager") }
-            @{ ShortcutName = "Clipchamp"; Patterns = @("Clipchamp", "Microsoft Clipchamp") }
-            @{ ShortcutName = "To Do"; Patterns = @("Microsoft To Do", "To Do", "Todos") }
-            @{ ShortcutName = "Sticky Notes"; Patterns = @("Sticky Notes", "Microsoft Sticky Notes") }
-            @{ ShortcutName = "OneNote"; Patterns = @("OneNote", "OneNote for Windows") }
-            @{ ShortcutName = "Defender"; Patterns = @("Microsoft Defender", "Windows Security") }
-        )
+    # INITIAL DELAY: Windows needs time to index newly installed apps
+    Write-Log "Waiting 30 seconds for Windows to register newly installed apps..." -Level Info
+    Update-Progress -Percent 85 -SubStatus "Waiting for apps to register..."
+    Start-Sleep -Seconds 30
+    
+    # Retry loop with aggressive timing
+    $maxRetries = 12
+    $retryDelay = 10
+    $pendingApps = [System.Collections.ArrayList]@($uwpApps)
+    $createdCount = 0
+    
+    for ($attempt = 1; $attempt -le $maxRetries; $attempt++) {
+        # Refresh Start Apps list each attempt
+        $startApps = $null
+        try {
+            $startApps = Get-StartApps -ErrorAction Stop | Select-Object Name, AppID
+            Write-Log "Attempt $attempt/$maxRetries : Found $($startApps.Count) apps in Start Menu, $($pendingApps.Count) shortcuts pending" -Level Debug
+        }
+        catch {
+            Write-Log "Get-StartApps failed: $($_.Exception.Message)" -Level Warning
+            Start-Sleep -Seconds 5
+            continue
+        }
         
-        foreach ($app in $uwpApps) {
+        if (-not $startApps -or $startApps.Count -eq 0) {
+            Write-Log "Get-StartApps returned empty, retrying..." -Level Warning
+            Start-Sleep -Seconds 5
+            continue
+        }
+        
+        $stillPending = [System.Collections.ArrayList]::new()
+        
+        foreach ($app in $pendingApps) {
             $foundAumid = $null
             
             foreach ($pattern in $app.Patterns) {
-                # Try exact match first
+                # Exact match first
                 $match = $startApps | Where-Object { $_.Name -eq $pattern } | Select-Object -First 1
                 if ($match) {
                     $foundAumid = $match.AppID
-                    Write-Log "Found exact: $($app.ShortcutName) -> $($match.Name)" -Level Debug
+                    Write-Log "EXACT MATCH: $($app.ShortcutName) -> $($match.Name) [$($match.AppID)]" -Level Debug
                     break
                 }
                 
@@ -3564,19 +3592,41 @@ function New-AllAppShortcuts {
                 Sort-Object { $_.Name.Length } | Select-Object -First 1
                 if ($match) {
                     $foundAumid = $match.AppID
-                    Write-Log "Found fuzzy: $($app.ShortcutName) -> $($match.Name)" -Level Debug
+                    Write-Log "FUZZY MATCH: $($app.ShortcutName) -> $($match.Name) [$($match.AppID)]" -Level Debug
                     break
                 }
             }
             
             if ($foundAumid) {
-                New-UWPShortcut -ShortcutName $app.ShortcutName -AppUserModelId $foundAumid | Out-Null
+                $result = New-UWPShortcut -ShortcutName $app.ShortcutName -AppUserModelId $foundAumid
+                if ($result) { $createdCount++ }
             }
             else {
-                Write-Log "UWP not found: $($app.ShortcutName)" -Level Debug
+                $stillPending.Add($app) | Out-Null
+            }
+        }
+        
+        $pendingApps = $stillPending
+        
+        if ($pendingApps.Count -eq 0) {
+            Write-Log "All $createdCount UWP shortcuts created on attempt $attempt" -Level Success
+            break
+        }
+        
+        if ($attempt -lt $maxRetries) {
+            $pendingNames = ($pendingApps | ForEach-Object { $_.ShortcutName }) -join ", "
+            Write-Log "Waiting ${retryDelay}s for $($pendingApps.Count) pending apps: $pendingNames" -Level Debug
+            Update-Progress -SubStatus "Waiting for: $pendingNames"
+            Start-Sleep -Seconds $retryDelay
+        }
+        else {
+            foreach ($app in $pendingApps) {
+                Write-Log "UWP NOT FOUND after $maxRetries attempts: $($app.ShortcutName)" -Level Warning
             }
         }
     }
+    
+    Write-Log "UWP shortcut phase complete: $createdCount created, $($pendingApps.Count) not found" -Level Info
     
     # =========================================================================
     # PHASE 2: Office Apps (Win32 via ODT)
@@ -3910,11 +3960,8 @@ function Install-Winget {
 }
 
 function Install-Extras {
-    Write-Log "Installing Winget packages..." -Level Info
-    Update-Progress -Status (L 'StatusInstallingExtras') -Percent 65 -SubStatus (L 'SubStatusClipchampPowerAutomate')
-    
-    # Build list of packages to install based on user configuration
-    $packagesToInstall = @()
+    Write-Log "Installing Winget packages (Parallel Mode)..." -Level Info
+    Update-Progress -Status (L 'StatusInstallingExtras') -Percent 65 -SubStatus "Preparing package list..."
     
     # ---------------------------
     # App Definitions (Winget/Store)
@@ -3935,164 +3982,169 @@ function Install-Extras {
         'OneNote'     = @{ Id = 'XPFFZHVGQWWLHB'; Source = 'msstore'; Name = 'OneNote' }
     }
 
-    # Add mapped apps
+    # Build package list from user selection
+    $packagesToInstall = @()
     $userApps = $Script:UserConfig.SelectedApps
     foreach ($key in $appsMap.Keys) {
         if ($userApps.ContainsKey($key) -and $userApps[$key]) {
             $packagesToInstall += $appsMap[$key]
         }
     }
-
-    # ---------------------------
-    # Legacy / Explicit Flags
-    # ---------------------------
     
-    # Check if Clipchamp should be installed (Legacy Flag or App check)
+    # Legacy flags
     if ($Script:UserConfig.IncludeClipchamp -and -not $userApps['Clipchamp']) {
-        # Only add if not already added via map (fix mismatched key loop)
         $packagesToInstall += @{ Id = '9P1J8S7CCWWT'; Source = 'msstore'; Name = 'Microsoft Clipchamp' }
     }
-    
-    # Check if Power Automate should be installed
     if ($Script:UserConfig.IncludePowerAutomate) {
         $packagesToInstall += @{ Id = 'Microsoft.PowerAutomateDesktop'; Source = 'winget'; Name = 'Power Automate Desktop' }
     }
     
     if ($packagesToInstall.Count -eq 0) {
-        Write-Log "No extra packages selected for installation - skipping" -Level Debug
+        Write-Log "No extra packages selected - skipping" -Level Debug
         return
     }
     
-    # Ensure winget is installed
+    # Ensure winget is available
     try {
         $wingetExe = Install-Winget
     }
     catch {
-        Write-Log "Cannot proceed with extras installation - winget unavailable: $($_.Exception.Message)" -Level Warning
+        Write-Log "Winget unavailable: $($_.Exception.Message)" -Level Warning
         return
     }
     
-    # Smooth Progress for Extras
-    $baseProgress = 65
-    $targetProgress = 75
-    $totalPackages = $packagesToInstall.Count
-    $completedPackages = 0
+    # ===========================================================================
+    # PARALLEL INSTALLATION
+    # ===========================================================================
+    Write-Log "Starting parallel installation of $($packagesToInstall.Count) packages..." -Level Info
+    Update-Progress -Status "Installing Applications (Parallel)" -Percent 67 -SubStatus "Launching installers..."
     
-    foreach ($pkg in $packagesToInstall) {
-        $pkgId = if ($pkg -is [hashtable]) { $pkg.Id } else { $pkg }
-        $pkgSource = if ($pkg -is [hashtable]) { $pkg.Source } else { 'winget' }
-        $pkgName = if ($pkg -is [hashtable]) { $pkg.Name } else { $pkg }
-        
-        Write-Log "Installing package: $pkgName" -Level Info
-        
-        # Calculate granular progress
-        $currentPercent = [math]::Round($baseProgress + (($completedPackages / $totalPackages) * ($targetProgress - $baseProgress)))
-        Update-Progress -Status "Installing Applications" -Percent $currentPercent -SubStatus "Installing $pkgName..."
-        try {
-            # First check if already installed (add --accept-source-agreements for msstore)
-            $listArgs = "list --id $pkgId --accept-source-agreements"
-            Start-Process-CancelAware -FilePath $wingetExe -ArgumentList $listArgs -WindowStyle Hidden -RedirectStandardOutput "$env:TEMP\winget_check.txt" | Out-Null
-            $installed = Get-Content "$env:TEMP\winget_check.txt" -Raw -ErrorAction SilentlyContinue
+    $processes = @{}
+    $retryQueue = @()
+    $maxParallel = 4  # Limit concurrent installs to avoid resource exhaustion
+    $timeout = 600    # 10 minute timeout per batch
+    
+    # Group by source for better resource management
+    $wingetApps = $packagesToInstall | Where-Object { $_.Source -eq 'winget' }
+    $msstoreApps = $packagesToInstall | Where-Object { $_.Source -eq 'msstore' }
+    
+    # Helper: Launch parallel installs for a batch
+    function Start-ParallelInstalls {
+        param([array]$Apps, [string]$WingetPath)
+        $procs = @{}
+        foreach ($pkg in $Apps) {
+            $args = "install --id $($pkg.Id) --accept-package-agreements --accept-source-agreements --source $($pkg.Source) --disable-interactivity --silent"
+            if ($pkg.Source -ne 'msstore') { $args += " --force" }
             
-            if ($installed -match [regex]::Escape($pkgId)) {
-                Write-Log "Package $pkgName is already installed - skipping" -Level Debug
-                continue
-            }
-            
-            # Install the package with correct source
-            # NOTE: --silent flag fails with WindowStyle Hidden for msstore; we'll retry without it
-            $pkgInstalled = $false
-            $installAttempts = 0
-            $maxAttempts = 2
-            
-            while (-not $pkgInstalled -and $installAttempts -lt $maxAttempts) {
-                $installAttempts++
-                $wingetArgs = "install --id $pkgId --accept-package-agreements --accept-source-agreements --source $pkgSource --disable-interactivity --silent"
-                if ($pkgSource -ne 'msstore') { $wingetArgs += " --force" }
-                
-                Write-Log "Running (attempt $installAttempts): winget $wingetArgs" -Level Debug
-                $proc = Start-Process-CancelAware -FilePath $wingetExe -ArgumentList $wingetArgs -WindowStyle Hidden
-                
-                Write-Log "Installation exit code: $($proc.ExitCode)" -Level Debug
-                
-                # Interpret exit codes
-                switch ($proc.ExitCode) {
-                    0 {
-                        Write-Log "[OK] $pkgName installed successfully" -Level Success
-                        $pkgInstalled = $true
-                    }
-                    -1978335212 {
-                        Write-Log "[INFO] ${pkgName}: Already installed or no applicable update" -Level Info
-                        $pkgInstalled = $true
-                    }
-                    -1978335189 {
-                        Write-Log "[INFO] ${pkgName}: No applicable update available" -Level Info
-                        $pkgInstalled = $true
-                    }
-                    -2147009217 {
-                        # 0x80073D3F (Policy Blocked / Region) - Common for Copilot
-                        if ($pkgName -match "Copilot") {
-                            Write-Log "[WARN] $pkgName skipped by Windows Policy/Region (0x80073D3F). Enable via Settings > Personalization > Taskbar." -Level Warning
-                            $pkgInstalled = $true
-                        }
-                        else {
-                            if ($installAttempts -lt $maxAttempts) {
-                                Write-Log "[RETRY] $pkgName failed (0x80073D3F), retrying..." -Level Info
-                            }
-                            else {
-                                Write-Log "[WARN] $pkgName failed (0x80073D3F) after attempts." -Level Warning
-                                $pkgInstalled = $true
-                            }
-                        }
-                    }
-                    default {
-                        if ($installAttempts -lt $maxAttempts) {
-                            Write-Log "[RETRY] $pkgName installation failed with code $($proc.ExitCode), retrying..." -Level Info
-                        }
-                        else {
-                            Write-Log "[WARN] $pkgName installation failed after $maxAttempts attempts, exit code: $($proc.ExitCode)" -Level Warning
-                            $pkgInstalled = $true  # Mark as done to exit loop
-                        }
-                    }
-                }
-
-                # --- AUTO-LAUNCH PREVENTION (Watchdog) ---
-                if ($pkgName -match "PowerToys" -or $pkgName -match "Power Automate" -or $pkgName -match "Teams") {
-                    Write-Log "Initializing auto-launch watchdog for $pkgName (20s)..." -Level Debug
-                    $watchdogStart = Get-Date
-                    while ((Get-Date) -lt $watchdogStart.AddSeconds(20)) {
-                        $targets = @('PowerToys', 'PowerToys.Settings', 'PAD.Console.Host', 'PAD.Machine.Management', 'ms-teams', 'Teams')
-                        foreach ($t in $targets) {
-                            $proc = Get-Process -Name $t -ErrorAction SilentlyContinue
-                            if ($proc) {
-                                Write-Log "Watchdog: Killing auto-launched process $t" -Level Info
-                                Stop-Process -Name $t -Force -ErrorAction SilentlyContinue
-                            }
-                        }
-                        Start-Sleep -Milliseconds 500
-                    }
-                }
-            }
+            Write-Log "Launching: $($pkg.Name)" -Level Debug
+            $proc = Start-Process -FilePath $WingetPath -ArgumentList $args -WindowStyle Hidden -PassThru
+            $procs[$pkg.Name] = @{ Process = $proc; Package = $pkg }
         }
-        catch {
-            Write-Log "Failed to install $pkgName : $($_.Exception.Message)" -Level Warning
-        }
-        $completedPackages++
+        return $procs
     }
     
-    # Post-Install Cleanup: Kill auto-launched apps
-    # PowerToys and Power Automate often auto-launch after silent install.
-    $appsToKill = @('PowerToys', 'PowerToys.Settings', 'PAD.Console.Host', 'PAD.Machine.Management')
-    foreach ($procName in $appsToKill) {
-        try {
+    # Helper: Wait for all processes with timeout
+    function Wait-AllProcesses {
+        param([hashtable]$Processes, [int]$Timeout)
+        $startTime = Get-Date
+        $failed = @()
+        $succeeded = @()
+        
+        while ($Processes.Count -gt 0 -and ((Get-Date) - $startTime).TotalSeconds -lt $Timeout) {
+            $completed = @()
+            foreach ($name in $Processes.Keys) {
+                $entry = $Processes[$name]
+                if ($entry.Process.HasExited) {
+                    $exitCode = $entry.Process.ExitCode
+                    if ($exitCode -eq 0 -or $exitCode -eq -1978335212 -or $exitCode -eq -1978335189) {
+                        Write-Log "[OK] $name installed" -Level Success
+                        $succeeded += $name
+                    }
+                    elseif ($exitCode -eq -2147009217 -and $name -match "Copilot") {
+                        Write-Log "[SKIP] $name blocked by policy" -Level Warning
+                        $succeeded += $name
+                    }
+                    else {
+                        Write-Log "[FAIL] $name exit code: $exitCode" -Level Warning
+                        $failed += $entry.Package
+                    }
+                    $completed += $name
+                }
+            }
+            foreach ($c in $completed) { $Processes.Remove($c) }
+            
+            if ($Processes.Count -gt 0) {
+                Start-Sleep -Seconds 2
+                # Update progress
+                $remaining = $Processes.Count
+                Update-Progress -SubStatus "Waiting for $remaining installers..."
+            }
+        }
+        
+        # Timeout cleanup
+        foreach ($name in $Processes.Keys) {
+            Write-Log "[TIMEOUT] $name - killing" -Level Warning
+            try { Stop-Process -Id $Processes[$name].Process.Id -Force -ErrorAction SilentlyContinue } catch {}
+            $failed += $Processes[$name].Package
+        }
+        
+        return @{ Succeeded = $succeeded; Failed = $failed }
+    }
+    
+    # Phase 1: Install winget source apps
+    if ($wingetApps.Count -gt 0) {
+        Write-Log "Phase 1: Installing $($wingetApps.Count) winget apps in parallel..." -Level Info
+        Update-Progress -Percent 68 -SubStatus "Installing winget apps..."
+        $processes = Start-ParallelInstalls -Apps $wingetApps -WingetPath $wingetExe
+        $result = Wait-AllProcesses -Processes $processes -Timeout $timeout
+        $retryQueue += $result.Failed
+    }
+    
+    # Phase 2: Install msstore apps
+    if ($msstoreApps.Count -gt 0) {
+        Write-Log "Phase 2: Installing $($msstoreApps.Count) Store apps in parallel..." -Level Info
+        Update-Progress -Percent 72 -SubStatus "Installing Store apps..."
+        $processes = Start-ParallelInstalls -Apps $msstoreApps -WingetPath $wingetExe
+        $result = Wait-AllProcesses -Processes $processes -Timeout $timeout
+        $retryQueue += $result.Failed
+    }
+    
+    # Phase 3: Retry failed installs (sequential, one attempt)
+    if ($retryQueue.Count -gt 0) {
+        Write-Log "Retrying $($retryQueue.Count) failed packages..." -Level Info
+        Update-Progress -Percent 74 -SubStatus "Retrying failed installs..."
+        foreach ($pkg in $retryQueue) {
+            $args = "install --id $($pkg.Id) --accept-package-agreements --accept-source-agreements --source $($pkg.Source) --disable-interactivity --silent"
+            $proc = Start-Process -FilePath $wingetExe -ArgumentList $args -WindowStyle Hidden -PassThru -Wait
+            if ($proc.ExitCode -eq 0) {
+                Write-Log "[RETRY OK] $($pkg.Name)" -Level Success
+            }
+            else {
+                Write-Log "[RETRY FAIL] $($pkg.Name) - code $($proc.ExitCode)" -Level Warning
+            }
+        }
+    }
+    
+    # Post-Install Cleanup: Time-limited watchdog (30 seconds)
+    # Prevents PowerToys/Teams from auto-launching, stops automatically after script ends
+    Update-Progress -Percent 75 -SubStatus "Cleanup watchdog (30s)..."
+    Write-Log "Starting 30-second cleanup watchdog for auto-launched apps..." -Level Debug
+    
+    $appsToKill = @('PowerToys', 'PowerToys.Settings', 'PowerToys.Runner', 'PAD.Console.Host', 'PAD.Machine.Management', 'ms-teams', 'Teams')
+    $watchdogEnd = (Get-Date).AddSeconds(30)
+    
+    while ((Get-Date) -lt $watchdogEnd) {
+        foreach ($procName in $appsToKill) {
             $running = Get-Process -Name $procName -ErrorAction SilentlyContinue
             if ($running) {
-                Write-Log "Stopping auto-launched app: $procName" -Level Info
+                Write-Log "Watchdog: Killing $procName" -Level Debug
                 Stop-Process -Name $procName -Force -ErrorAction SilentlyContinue
             }
         }
-        catch {}
+        Start-Sleep -Seconds 2
     }
+    
+    Write-Log "Parallel installation complete" -Level Success
 }
 
 # ============================================================================
