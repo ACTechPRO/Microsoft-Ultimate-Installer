@@ -3457,6 +3457,7 @@ function New-DesktopShortcut {
 # FUNCTION: New-AllAppShortcuts
 # -------------------------------------------------------------------------
 function New-AllAppShortcuts {
+    Write-Log "===== ENTERING New-AllAppShortcuts ====="  -Level Info
     Write-Log "Generating desktop shortcuts..." -Level Info
     
     $desktopPath = [Environment]::GetFolderPath("Desktop")
@@ -3555,11 +3556,23 @@ function New-AllAppShortcuts {
     $createdCount = 0
     
     for ($attempt = 1; $attempt -le $maxRetries; $attempt++) {
+        # Log pending apps on first attempt
+        if ($attempt -eq 1) {
+            $pendingNames = ($pendingApps | ForEach-Object { $_.ShortcutName }) -join ", "
+            Write-Log "UWP Shortcuts to create: $pendingNames" -Level Info
+        }
+        
         # Refresh Start Apps list each attempt
         $startApps = $null
         try {
             $startApps = Get-StartApps -ErrorAction Stop | Select-Object Name, AppID
             Write-Log "Attempt $attempt/$maxRetries : Found $($startApps.Count) apps in Start Menu, $($pendingApps.Count) shortcuts pending" -Level Debug
+            
+            # Log sample app names on first attempt for debugging
+            if ($attempt -eq 1 -and $startApps.Count -gt 0) {
+                $sampleNames = ($startApps | Select-Object -First 20 | ForEach-Object { $_.Name }) -join ", "
+                Write-Log "Sample Start Apps: $sampleNames" -Level Debug
+            }
         }
         catch {
             Write-Log "Get-StartApps failed: $($_.Exception.Message)" -Level Warning
@@ -4051,6 +4064,12 @@ function Install-Extras {
         $succeeded = @()
         
         while ($Processes.Count -gt 0 -and ((Get-Date) - $startTime).TotalSeconds -lt $Timeout) {
+            # INLINE WATCHDOG: Kill nuisances immediately while waiting
+            $nuisances = @('PowerToys', 'PowerToys.Settings', 'PowerToys.Runner', 'PAD.Console.Host', 'ms-teams', 'Teams', 'StarDesk', 'GameViewer')
+            foreach ($n in $nuisances) {
+                Get-Process -Name $n -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+            }
+
             $completed = @()
             foreach ($name in $Processes.Keys) {
                 $entry = $Processes[$name]
@@ -4125,23 +4144,14 @@ function Install-Extras {
         }
     }
     
-    # Post-Install Cleanup: Time-limited watchdog (30 seconds)
-    # Prevents PowerToys/Teams from auto-launching, stops automatically after script ends
-    Update-Progress -Percent 75 -SubStatus "Cleanup watchdog (30s)..."
-    Write-Log "Starting 30-second cleanup watchdog for auto-launched apps..." -Level Debug
+    # Post-Install Cleanup: Final Sweep
+    # Kill any lingering processes that might have started after the last install finished
+    Update-Progress -Percent 75 -SubStatus "Final cleanup..."
+    Write-Log "Performing final cleanup check..." -Level Debug
     
-    $appsToKill = @('PowerToys', 'PowerToys.Settings', 'PowerToys.Runner', 'PAD.Console.Host', 'PAD.Machine.Management', 'ms-teams', 'Teams')
-    $watchdogEnd = (Get-Date).AddSeconds(30)
-    
-    while ((Get-Date) -lt $watchdogEnd) {
-        foreach ($procName in $appsToKill) {
-            $running = Get-Process -Name $procName -ErrorAction SilentlyContinue
-            if ($running) {
-                Write-Log "Watchdog: Killing $procName" -Level Debug
-                Stop-Process -Name $procName -Force -ErrorAction SilentlyContinue
-            }
-        }
-        Start-Sleep -Seconds 2
+    $appsToKill = @('PowerToys', 'PowerToys.Settings', 'PowerToys.Runner', 'PAD.Console.Host', 'PAD.Machine.Management', 'ms-teams', 'Teams', 'StarDesk', 'GameViewer')
+    foreach ($procName in $appsToKill) {
+        Get-Process -Name $procName -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
     }
     
     Write-Log "Parallel installation complete" -Level Success
@@ -4855,6 +4865,14 @@ try {
     $Script:Stage = 'cleanup'
     Write-Log "Cleaning temporary files..." -Level Debug
     Update-Progress -Status (L 'StatusFinalizing') -Percent 95 -SubStatus (L 'SubStatusRemovingTemp')
+    
+    # PRESERVE LOG FILE before deleting temp folder (critical for debugging)
+    $desktopLogPath = Join-Path ([Environment]::GetFolderPath('Desktop')) "MicrosoftUltimateInstaller_Debug.log"
+    if (Test-Path $Script:Config.LogFile) {
+        Copy-Item -Path $Script:Config.LogFile -Destination $desktopLogPath -Force -ErrorAction SilentlyContinue
+        Write-Host "Log preserved to: $desktopLogPath" -ForegroundColor Cyan
+    }
+    
     Remove-Item $Script:Config.TempFolder -Recurse -Force -ErrorAction SilentlyContinue
     Test-CleanupIntegrity
 

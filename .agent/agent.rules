@@ -5,6 +5,11 @@ You are an assistant/agent of **AC Tech**, performing diverse tasks for the comp
 
 ---
 
+## Temporal Context
+- **Current Date**: Monday, December 22, 2025
+
+---
+
 ## Critical Directory Structure
 
 | Directory | Purpose |
@@ -43,8 +48,22 @@ All AC Tech projects use centralized directories for media resources:
 
 ### Tools
 - Maximize use of: MCP servers, IDE extensions, CLI tools, browser.
-- Use local AI models to get relevant context.
+- Use cloud models (Claude 4.5 Opus, Gemini 3 Pro) for all AI-assisted tasks.
 - Maximum authorization to modify any directory.
+
+---
+
+## Cloud-First Development Model
+
+### Primary Tools
+- **IDE**: Google Antigravity (Primary)
+- **Orchestration**: Vortex AI (for multi-agent tasks)
+- **Models**: Claude 4.5 Opus (reasoning), Gemini 3 Pro (coding/context)
+
+### Model Selection
+- Use **Claude 4.5 Opus** for: complex debugging, architectural decisions, code review
+- Use **Gemini 3 Pro** for: rapid prototyping, large codebase analysis, multi-file operations
+- **No local models** should be used unless explicitly requested
 
 ### Cleanup
 - **Always** remove temporary files, scripts, and reports generated for specific purposes.
@@ -53,11 +72,6 @@ All AC Tech projects use centralized directories for media resources:
 ### Security
 - Value information security and client privacy.
 - Never expose credentials in logs or commits.
-
-### Automated Synchronization
-- **Watchdog**: The system runs a lightweight "Watchdog" (`Synchronization Watchdog.ps1`) that monitors rule files for changes.
-- **Auto-Sync**: Any change to `GLOBAL_RULES.md` or `PROJECT_RULES.md` triggers an immediate update to all `agent.rules` files via `Synchronize Rules.ps1`.
-- **Startup**: This service starts silently with Windows.
 
 ---
 
@@ -81,86 +95,72 @@ All AC Tech projects use centralized directories for media resources:
 
 | Project | GitHub |
 | ------- | ------ |
-| AC Tech (Organization) | https://github.com/ac-tech-pro |
-| TechAir | https://github.com/moacirbcj/TechAir |
-| TechAI | https://github.com/moacirbcj/TechAI |
-| MS Ultimate Installer | https://github.com/moacirbcj/Microsoft-Ultimate-Installer |
+| AC Tech (Organization) | https://github.com/ACTechPRO |
+| TechAir | https://github.com/ACTechPRO/TechAir |
+| TechAI | https://github.com/ACTechPRO/TechAI |
+| MS Ultimate Installer | https://github.com/ACTechPRO/Microsoft-Ultimate-Installer |
+| TechQuotas Antigravity | https://github.com/ACTechPRO/TechQuotas-Antigravity |
 
 ---
+
+## Company Profile & Universal Context
+- **Company**: AC Tech (AC Tech Solutions)
+- **Owners**: Vinicyus Abdala & Moacir Costa (50/50 partnership)
+- **Mission**: Provide technological solutions including software, apps, and specialized hardware.
+- **Location**: Brazil (Follows Brazilian Legislation)
+- **Language**: Primary communication in Portuguese (Brazil) for documentation and commits.
+
+### Digital Presence
+- **Website**: [ac-tech.pro](https://ac-tech.pro) (Hosted on Hostinger)
+- **GitHub**: [ACTechPRO](https://github.com/ACTechPRO)
+- **Instagram**: [@actech.oficial](https://www.instagram.com/actech.oficial/)
+- **X (Twitter)**: [@ACTechOficial](https://x.com/ACTechOficial)
+
+### Contact Information
+- **General**: `contato@ac-tech.pro`
+- **Admin**: `admin@ac-tech.pro` / `management.actech@outlook.com`
+- **Google Account**: `management.actech@gmail.com`
+- **Automated**: `noreply@ac-tech.pro`
 
 
 ---
 
 # Project Specific Rules
 
-# Microsoft Ultimate Installer - Project Specific Rules
+# Microsoft Ultimate Installer - Project-Specific Rules
 
-## Project Information
-- **Type**: Single PowerShell Script for installing/removing Microsoft products
-- **Repository**: https://github.com/moacirbcj/Microsoft-Ultimate-Installer
+## Project Overview
+- **Name**: Microsoft 365 Ultimate Installer
+- **Repository**: https://github.com/ACTechPRO/Microsoft-Ultimate-Installer
+- **Local Path**: `D:\Microsoft Ultimate Installer`
+- **Type**: Monolithic PowerShell Script (`.ps1`).
+
+## Core Principles
+1.  **Single File Directive**: The entire logic MUST reside in one `.ps1` file. No external module dependencies (unless auto-downloaded).
+2.  **Self-Elevation**: Script must auto-request Admin privileges.
+3.  **Clean Execution**: Remove all temporary files (`C:\MSInstallerTemp`, etc.) upon checking exit.
+4.  **UI/UX**: WPF-based GUI. Modern, clean, professional.
+5.  **Language**: PT-BR default.
+
+## Features
+- **Office 365**: Installation, customization, activation (Massgrave method).
+- **Tools**: Install VS Code, 7-Zip, AnyDesk, etc.
+- **System**: Debloat Windows, Update Drivers.
+- **Shortcuts**: Create reliable shortcuts for all installed apps.
 
 ## Tech Stack
-- PowerShell (Single autonomous script)
-- Windows API (WPF/XAML)
-- Winget/Chocolatey (auto-managed)
+- **Language**: PowerShell 5.1 / 7+ compatible.
+- **GUI**: WPF (XAML embedded in PS1).
+- **External**: Uses `irm ... | iex` for activation scripts (MAS).
 
-## Media Resources
-- **Images**: `D:\Images\Microsoft Ultimate Installer`
-- **Videos**: `D:\Videos\Microsoft Ultimate Installer`
-
-## Operational Rules
-
-### Core Architecture
-- **Single Autonomous File**: The script (`Microsoft Ultimate Installer.ps1`) must be 100% self-contained. No external module dependencies.
-- **Portability**: Must run from ANY directory/computer. Path handling must be relative/dynamic.
-- **Compatibility**: Support ALL PowerShell versions (5.1+, Core).
-- **Privileges**: Auto-verify and request Administrator rights immediately.
-- **Self-Dependency**: Use script to identify/download/install any required tools (e.g., Winget) automatically.
-
-### Functionality
-- **Installation**: Install multiple Microsoft apps, ALWAYS selecting the latest available version (including Insiders).
-- **OS Management**: Allow changing Windows OS Version and Insiders Program channel.
-- **Privacy & Optimization**: 
-    - Offer options to maximize privacy (reduce data sent to MS) for provided apps.
-    - Minimize background usage of services like Click-to-Run.
-- **Modes**:
-    - **Express Install**: Pre-selected software + Windows version modification.
-    - **Complete Uninstall**: Forcibly remove ALL software offered by the script (deep clean: registries, folders) *EXCEPT* Visual Studio Code and Winget.
-- **Licensing**: Handle licensing for both Windows and installed Apps.
-
-### User Interface (WPF)
-- **Window Behavior**:
-    - Draggable by clicking *anywhere* (except buttons).
-    - **Transparency**: Windows become transparent when dragged (except footer).
-    - **Controls**: Always functional Minimize, Maximize, Close buttons (Top-Right).
-- **Branding (Base64 Embeds)**:
-    - **Header**: Use `D:\Images\Microsoft Ultimate Installer\Microsoft Ultimate Installer.png` (High Res).
-    - **Footer**: Use `D:\Images\AC Tech\AC Tech Transparente Invertido.ico` (High Res/Layers).
-    - Both logos must be present in ALL windows.
-- **Progress**: Show descriptive, verbose information on current stage.
-- **Stealth**: All background installations MUST be silent. Only the Script UI should be visible.
-- **Clarity**: Buttons must have descriptive labels.
-
-### System Integrity & Cleanup
-- **Shortcuts**: Create Desktop shortcuts for ALL installed apps. Use proper icons.
-- **Localization**: Auto-detect OS language and set script language accordingly.
-- **Cleanup**: 
-    - Self-clean after Success, Failure, or Cancel.
-    - *EXCEPT*: Do NOT remove VS Code or Winget.
-- **Logging**: 
-    - Generate `Microsoft Ultimate Installer Log.txt` on Desktop **ONLY** if installation FAILS.
-    - No logs for success/cancel.
-
-### Implementation Guidelines
-- **Code Quality**: Keep code organized, transparent, and human-readable.
-- **WPF Integrity**: Ensure UI thread never hangs (use Runspaces/Jobs).
-
-- **WPF Integrity**: Ensure UI thread never hangs (use Runspaces/Jobs).
+## Assets
+- **Header**: `Microsoft Ultimate Installer.png`
+- **Footer**: `AC Tech Transparente Invertido.ico`
 
 
 ---
 
-> **Auto-generated by Synchronize Rules.ps1** on 2025-12-22 00:23:18
+> **Auto-generated by Synchronize Rules.ps1** on 2025-12-22 04:14:16
 > Source: Global + Project Rules
 > Do not edit this file directly.
 

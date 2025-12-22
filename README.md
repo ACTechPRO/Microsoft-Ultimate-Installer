@@ -60,8 +60,8 @@ O **Microsoft Ultimate Installer** é uma ferramenta PowerShell avançada com in
 
 ## 🔗 Links Úteis
 
-*   [Repositório GitHub](https://github.com/moacirbcj/Microsoft-Ultimate-Installer)
-*   [Relatar Problemas (Issues)](https://github.com/moacirbcj/Microsoft-Ultimate-Installer/issues)
+*   [Repositório GitHub](https://github.com/ACTechPRO/Microsoft-Ultimate-Installer)
+*   [Relatar Problemas (Issues)](https://github.com/ACTechPRO/Microsoft-Ultimate-Installer/issues)
 
 ---
 
