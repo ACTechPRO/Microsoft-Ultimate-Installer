@@ -29,6 +29,13 @@ param(
 #Requires -Version 5.1
 #Requires -RunAsAdministrator
 
+# EARLY ERROR TRAP - Logs any startup errors to Desktop before console hides
+$ErrorActionPreference = 'Stop'
+trap {
+    $_ | Out-File "$env:USERPROFILE\Desktop\MUI_StartupError.txt" -Append
+    throw $_
+}
+
 Add-Type -AssemblyName PresentationFramework, PresentationCore, WindowsBase, System.Drawing
 
 # ============================================================================
