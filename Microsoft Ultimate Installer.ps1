@@ -148,7 +148,8 @@ function Disable-QuickEdit {
         }
     }
     catch {
-        # Fallback or ignore if P/Invoke fails (e.g. non-console host)
+        # Intentionally empty: P/Invoke may fail in non-console hosts (e.g., ISE)
+        $null = $_.Exception
     }
 }
 
@@ -2895,7 +2896,9 @@ function Show-Progress {
 
             # Enable Dragging
             $window.Add_MouseLeftButtonDown({
-                    param($s, $e)
+                    param($sender, $eventArgs)
+                    $null = $sender  # Required by WPF event signature
+                    $null = $eventArgs
                     & $SetTransparency $true $window
                     try { $window.DragMove() } catch {}
                     & $SetTransparency $false $window
@@ -4728,6 +4731,7 @@ try {
             Start-OfficeUninstallation
         }
         catch {
+            $Script:UninstallErrorOccurred = $true
             if ($_.Exception.Message -like "*cancelled by user*") {
                 Write-Log "Uninstallation cancelled by user" -Level Warning
             }
@@ -4744,13 +4748,18 @@ try {
 
         Write-Log "Uninstallation finished. Exiting." -Level Info
 
-        # Log Logic Fix: Remove log file if successful (User Request)
-        try {
-            if (Test-Path $Script:Config.LogFile) {
-                Remove-Item $Script:Config.LogFile -Force -ErrorAction SilentlyContinue
+        # Log Logic Fix: Remove log file ONLY if successful (User Request)
+        if (-not $Script:UninstallErrorOccurred) {
+            try {
+                if (Test-Path $Script:Config.LogFile) {
+                    Remove-Item $Script:Config.LogFile -Force -ErrorAction SilentlyContinue
+                }
             }
+            catch { $null = $_ }
         }
-        catch { $null = $_ }
+        else {
+            Write-Log "Log file preserved for debugging at: $($Script:Config.LogFile)" -Level Info
+        }
 
         exit 0
     }
