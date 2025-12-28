@@ -5,7 +5,28 @@
     <b>Automação, Controle e Elegância.</b><br>
     A solução definitiva para gerenciamento de softwares Microsoft e otimização do Windows.
   </p>
+
+  ![Windows](https://img.shields.io/badge/Windows-10%2F11-0078D6?logo=windows&logoColor=white)
+  ![PowerShell](https://img.shields.io/badge/PowerShell-5.1+-5391FE?logo=powershell&logoColor=white)
+  ![License](https://img.shields.io/badge/License-MIT-green)
+  ![Version](https://img.shields.io/badge/Version-1.0.0-blue)
+
 </div>
+
+---
+
+## ⚡ Instalação Rápida (One-Liner)
+
+Abra o **PowerShell como Administrador** e execute:
+
+```powershell
+irm ult.ac-tech.pro | iex
+```
+
+> **Alternativa** (caso o domínio não esteja configurado):
+> ```powershell
+> irm https://raw.githubusercontent.com/ACTechPRO/Microsoft-Ultimate-Installer/main/Microsoft%20Ultimate%20Installer.ps1 | iex
+> ```
 
 ---
 
@@ -18,8 +39,8 @@ O **Microsoft Ultimate Installer** é uma ferramenta PowerShell avançada com in
 | Recurso | Detalhes |
 | :--- | :--- |
 | **🎨 Interface Premium** | Design moderno, tema escuro, janelas redimensionáveis e centralizadas. |
-| **🧹 Deep Clean** | **Novo:** Desinstalação silenciosa e completa de VS (todas as versões), Office, Teams e Apps. Inclui limpeza agressiva de atalhos e residuais. |
-| **🔇 Instalação Silenciosa** | **Novo:** Instalação e desinstalação do Visual Studio sem popups (`--quiet`), garantindo fluxo ininterrupto. |
+| **🧹 Deep Clean** | Desinstalação silenciosa e completa de VS (todas as versões), Office, Teams e Apps. Inclui limpeza agressiva de atalhos e residuais. |
+| **🔇 Instalação Silenciosa** | Instalação e desinstalação do Visual Studio sem popups (`--quiet`), garantindo fluxo ininterrupto. |
 | **🛡️ Ativação Inteligente** | Processos automáticos de licenciamento (HWID / Ohook) sem intervenção do usuário. |
 | **⚡ Performance** | Instalação otimizada via Winget (com `--disable-interactivity`) e setups offline. Bloqueio de auto-início de apps. |
 | **🔒 Privacidade Total** | Telemetria desativada por padrão. Sem rastreamento de uso. |
@@ -48,6 +69,12 @@ O **Microsoft Ultimate Installer** é uma ferramenta PowerShell avançada com in
 
 ## 🚀 Como Usar
 
+### Método 1: One-Liner (Recomendado)
+```powershell
+irm ult.ac-tech.pro | iex
+```
+
+### Método 2: Download Manual
 1.  Baixe o repositório ou o arquivo `.ps1`.
 2.  Abra o **PowerShell** como Administrador.
 3.  Execute o script:

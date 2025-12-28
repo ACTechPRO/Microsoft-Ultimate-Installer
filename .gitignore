@@ -1,7 +1,13 @@
-# Arquivos de sistema
+# Sistema
 desktop.ini
 *.log
 
-# Arquivos temporários
+# Temporários
 *.tmp
 *.bak
+
+# Internal tooling (do not publish)
+.gemini/
+.agent/
+PROJECT_RULES.md
+.firebaserc
