@@ -1,7 +1,7 @@
 <#
 .SYNOPSIS
     Microsoft 365 Ultimate Installer
-    
+
 .DESCRIPTION
     Automated installation and licensing of Microsoft 365 Enterprise.
     Features:
@@ -11,11 +11,11 @@
     - Privacy: Maximum lockdown (Telemetry disabled)
     - Exclusions: OneDrive, OneNote, Skype, Sticky Notes (Blocked)
     - Licensing: Auto-activation for Windows (HWID) and Office (Ohook)
-    
+
 .PARAMETER Force
     Force clear any stuck instance mutex before running.
     Use this if you get "Another instance is already running" message.
-    
+
 .NOTES
     Version: 3.0.0 (Single script, hidden execution, improved cleanup)
     Author: AC Tech
@@ -135,11 +135,11 @@ function Disable-QuickEdit {
             }
 "@
         Add-Type -TypeDefinition $consoleType
-        
+
         $STD_INPUT_HANDLE = -10
         $ENABLE_QUICK_EDIT_MODE = 0x0040
         $ENABLE_INSERT_MODE = 0x0020
-        
+
         $handle = [ConsoleUtils]::GetStdHandle($STD_INPUT_HANDLE)
         $mode = 0
         if ([ConsoleUtils]::GetConsoleMode($handle, [ref]$mode)) {
@@ -174,13 +174,13 @@ $Script:Strings = @{
         WindowTitle                     = 'Microsoft Ultimate Installer v3.6'
         WindowSubtitle                  = 'Automated Installer & Activator'
         ConfigWindowTitle               = 'Installation Configuration'
-        
+
         # Installation modes
         ExpressMode                     = 'Express Installation (Recommended)'
         ExpressModeDesc                 = 'Install with default settings - Microsoft 365 with all apps'
         CustomMode                      = 'Custom Installation'
         CustomModeDesc                  = 'Choose version, languages and applications'
-        
+
         # Configuration labels
         SelectVersion                   = 'Select Office Version:'
         SelectLanguages                 = 'Select Languages:'
@@ -189,20 +189,20 @@ $Script:Strings = @{
         SelectApps                      = 'Select Applications:'
         SelectAll                       = 'Select All'
         DeselectAll                     = 'Deselect All'
-        
+
         # Buttons
         BtnStart                        = 'Start Installation'
         BtnCancel                       = 'Cancel'
         BtnBack                         = 'Back'
         BtnUseDefaults                  = 'Use Defaults'
-        
+
         # Office versions
         Version365Enterprise            = 'Microsoft 365 Enterprise'
         Version365Business              = 'Microsoft 365 Business'
         VersionProPlus2024              = 'Office LTSC Professional Plus 2024'
         VersionProPlus2021              = 'Office LTSC Professional Plus 2021'
         VersionProPlus2019              = 'Office Professional Plus 2019'
-        
+
         # Applications
         AppWord                         = 'Word'
         AppExcel                        = 'Excel'
@@ -217,7 +217,7 @@ $Script:Strings = @{
         AppVisio                        = 'Visio Professional'
         AppClipchamp                    = 'Clipchamp'
         AppPowerAutomate                = 'Power Automate Desktop'
-        
+
         # Progress messages
         StatusInitializing              = 'Getting things ready...'
         StatusPreparing                 = 'Preparing your environment...'
@@ -229,7 +229,7 @@ $Script:Strings = @{
         StatusCleaning                  = 'Performing Final Cleanup...'
         StatusFinalizing                = 'Finishing up...'
         StatusComplete                  = 'Success!'
-        
+
         SubStatusInternetSpeed          = 'This step downloads ~3GB of data. Please be patient.'
         SubStatusApplyingConfig         = 'Applying your custom settings and preferences...'
         SubStatusClipchampPowerAutomate = 'Setting up additional tools...'
@@ -239,7 +239,7 @@ $Script:Strings = @{
         SubStatusRemovingConflicts      = 'Removing old Office versions to avoid conflicts'
         SubStatusDownloadAttempt        = 'Downloading installation tools'
         SubStatusRevertingChanges       = 'Undoing changes due to error'
-        
+
         # Log messages
         LogInstallStarted               = '=== INSTALLATION STARTED ==='
         LogInstallComplete              = '=== INSTALLATION COMPLETED SUCCESSFULLY ==='
@@ -248,14 +248,14 @@ $Script:Strings = @{
         LogDuration                     = 'Total duration:'
         LogPhase                        = 'Phase'
         LogCompleted                    = 'completed'
-        
+
         # Errors
         ErrAnotherInstance              = 'Another instance is already running.'
         ErrInstallCancelled             = 'Installation was cancelled.'
         ErrAllChangesReverted           = 'All changes have been reverted and temporary files removed.'
         ErrInstallFailed                = 'Installation Failed!'
         ErrCheckLog                     = 'Check log file on Desktop for details:'
-        
+
         # Validation
         ValidSelectAtLeastOneApp        = 'Please select at least one application to install.'
         ValidSelectAtLeastOneLang       = 'Please select at least one language.'
@@ -264,17 +264,17 @@ $Script:Strings = @{
         ConfigureInstallation           = 'Configure Installation'
         FooterDevBy                     = 'Developed by AC Tech'
     }
-    
+
     'pt' = @{
         WindowTitle                     = 'Instalador Microsoft Ultimate'
         WindowSubtitle                  = 'Instalador e Ativador Automatizado'
         ConfigWindowTitle               = 'Configuração da Instalação'
-        
+
         ExpressMode                     = 'Instalação Expressa (Recomendado)'
         ExpressModeDesc                 = 'Instalar com configurações padrão - Microsoft 365 com todos os apps'
         CustomMode                      = 'Instalação Personalizada'
         CustomModeDesc                  = 'Escolher versão, idiomas e aplicativos'
-        
+
         SelectVersion                   = 'Selecione a Versão do Office:'
         SelectLanguages                 = 'Selecione os Idiomas:'
         PrimaryLanguage                 = 'Idioma Principal:'
@@ -282,18 +282,18 @@ $Script:Strings = @{
         SelectApps                      = 'Selecione os Aplicativos:'
         SelectAll                       = 'Selecionar Todos'
         DeselectAll                     = 'Desmarcar Todos'
-        
+
         BtnStart                        = 'Iniciar Instalação'
         BtnCancel                       = 'Cancelar'
         BtnBack                         = 'Voltar'
         BtnUseDefaults                  = 'Usar Padrão'
-        
+
         Version365Enterprise            = 'Microsoft 365 Enterprise'
         Version365Business              = 'Microsoft 365 Business'
         VersionProPlus2024              = 'Office LTSC Professional Plus 2024'
         VersionProPlus2021              = 'Office LTSC Professional Plus 2021'
         VersionProPlus2019              = 'Office Professional Plus 2019'
-        
+
         AppWord                         = 'Word'
         AppExcel                        = 'Excel'
         AppPowerPoint                   = 'PowerPoint'
@@ -307,7 +307,7 @@ $Script:Strings = @{
         AppVisio                        = 'Visio Professional'
         AppClipchamp                    = 'Clipchamp'
         AppPowerAutomate                = 'Power Automate Desktop'
-        
+
         StatusInitializing              = 'Inicializando...'
         StatusPreparing                 = 'Preparando...'
         StatusDownloadingODT            = 'Baixando Office Deployment Tool...'
@@ -318,7 +318,7 @@ $Script:Strings = @{
         StatusCleaning                  = 'Limpando...'
         StatusFinalizing                = 'Finalizando...'
         StatusComplete                  = 'Concluído!'
-        
+
         SubStatusInternetSpeed          = 'Isso pode levar alguns minutos dependendo da sua conexão'
         SubStatusApplyingConfig         = 'Configurando sua instalação personalizada'
         SubStatusClipchampPowerAutomate = 'Instalando editor de vídeo e ferramentas de automação'
@@ -328,7 +328,7 @@ $Script:Strings = @{
         SubStatusRemovingConflicts      = 'Removendo versões antigas do Office para evitar conflitos'
         SubStatusDownloadAttempt        = 'Baixando ferramentas de instalação'
         SubStatusRevertingChanges       = 'Desfazendo alterações devido a erro'
-        
+
         LogInstallStarted               = '=== INSTALAÇÃO INICIADA ==='
         LogInstallComplete              = '=== INSTALAÇÃO CONCLUÍDA COM SUCESSO ==='
         LogInstallCancelled             = '=== INSTALAÇÃO CANCELADA PELO USUÁRIO ==='
@@ -336,30 +336,30 @@ $Script:Strings = @{
         LogDuration                     = 'Duração total:'
         LogPhase                        = 'Fase'
         LogCompleted                    = 'concluída'
-        
+
         ErrAnotherInstance              = 'Outra instância já está em execução.'
         ErrInstallCancelled             = 'Instalação cancelada.'
         ErrAllChangesReverted           = 'Todas as alterações foram revertidas e arquivos temporários removidos.'
         ErrInstallFailed                = 'Falha na Instalação!'
         ErrCheckLog                     = 'Verifique o arquivo de log na Área de Trabalho:'
-        
+
         ValidSelectAtLeastOneApp        = 'Selecione pelo menos um aplicativo para instalar.'
         ValidSelectAtLeastOneLang       = 'Selecione pelo menos um idioma.'
         ValidProjectVisioNote           = 'Project e Visio requerem licenças separadas, mas serão ativados automaticamente.'
         ConfigureInstallation           = 'Configurar Instalação'
         FooterDevBy                     = 'Desenvolvido por AC Tech'
     }
-    
+
     'es' = @{
         WindowTitle                     = 'Instalador Microsoft 365 Ultimate'
         WindowSubtitle                  = 'Instalador y Activador Automatizado'
         ConfigWindowTitle               = 'Configuración de Instalación'
-        
+
         ExpressMode                     = 'Instalación Rápida (Recomendado)'
         ExpressModeDesc                 = 'Instalar con configuración predeterminada - Microsoft 365 con todas las apps'
         CustomMode                      = 'Instalación Personalizada'
         CustomModeDesc                  = 'Elegir versión, idiomas y aplicaciones'
-        
+
         SelectVersion                   = 'Seleccione la Versión de Office:'
         SelectLanguages                 = 'Seleccione los Idiomas:'
         PrimaryLanguage                 = 'Idioma Principal:'
@@ -367,18 +367,18 @@ $Script:Strings = @{
         SelectApps                      = 'Seleccione las Aplicaciones:'
         SelectAll                       = 'Seleccionar Todo'
         DeselectAll                     = 'Deseleccionar Todo'
-        
+
         BtnStart                        = 'Iniciar Instalación'
         BtnCancel                       = 'Cancelar'
         BtnBack                         = 'Volver'
         BtnUseDefaults                  = 'Usar Predeterminado'
-        
+
         Version365Enterprise            = 'Microsoft 365 Enterprise'
         Version365Business              = 'Microsoft 365 Business'
         VersionProPlus2024              = 'Office LTSC Professional Plus 2024'
         VersionProPlus2021              = 'Office LTSC Professional Plus 2021'
         VersionProPlus2019              = 'Office Professional Plus 2019'
-        
+
         AppWord                         = 'Word'
         AppExcel                        = 'Excel'
         AppPowerPoint                   = 'PowerPoint'
@@ -392,7 +392,7 @@ $Script:Strings = @{
         AppVisio                        = 'Visio Professional'
         AppClipchamp                    = 'Clipchamp'
         AppPowerAutomate                = 'Power Automate Desktop'
-        
+
         StatusInitializing              = 'Inicializando...'
         StatusPreparing                 = 'Preparando...'
         StatusDownloadingODT            = 'Descargando Office Deployment Tool...'
@@ -403,14 +403,14 @@ $Script:Strings = @{
         StatusCleaning                  = 'Limpiando...'
         StatusFinalizing                = 'Finalizando...'
         StatusComplete                  = '¡Completo!'
-        
+
         SubStatusInternetSpeed          = 'Velocidad depende de la conexión'
         SubStatusApplyingConfig         = 'Aplicando configuración'
         SubStatusClipchampPowerAutomate = 'Clipchamp y Power Automate'
         SubStatusWindowsOffice          = 'Activación Windows y Office'
         SubStatusRemovingTemp           = 'Eliminando archivos temporales'
         SubStatusAllComplete            = 'Todas las tareas completadas con éxito'
-        
+
         LogInstallStarted               = '=== INSTALACIÓN INICIADA ==='
         LogInstallComplete              = '=== INSTALACIÓN COMPLETADA CON ÉXITO ==='
         LogInstallCancelled             = '=== INSTALACIÓN CANCELADA POR USUARIO ==='
@@ -418,33 +418,33 @@ $Script:Strings = @{
         LogDuration                     = 'Duración total:'
         LogPhase                        = 'Fase'
         LogCompleted                    = 'completada'
-        
+
         ErrAnotherInstance              = 'Otra instancia ya está en ejecución.'
         ErrInstallCancelled             = 'Instalación cancelada.'
         ErrAllChangesReverted           = 'Todos los cambios fueron revertidos y archivos temporales eliminados.'
         ErrInstallFailed                = '¡Error en la Instalación!'
         ErrCheckLog                     = 'Revise el archivo de log en el Escritorio:'
-        
+
         ValidSelectAtLeastOneApp        = 'Seleccione al menos una aplicación para instalar.'
         ValidSelectAtLeastOneLang       = 'Seleccione al menos un idioma.'
         ValidProjectVisioNote           = 'Project y Visio requieren licencias separadas pero serán activados automáticamente.'
         ConfigureInstallation           = 'Configurar Instalación'
         FooterDevBy                     = 'Desarrollado por AC Tech'
     }
-    
+
     # 'ja' - Japanese localization removed due to encoding issues
 
-    
+
     'de' = @{
         WindowTitle                     = 'Microsoft 365 Ultimate Installer'
         WindowSubtitle                  = 'Automatischer Installer "&" Aktivator'
         ConfigWindowTitle               = 'Installationskonfiguration'
-        
+
         ExpressMode                     = 'Express-Installation (Empfohlen)'
         ExpressModeDesc                 = 'Mit Standardeinstellungen installieren - Microsoft 365 mit allen Apps'
         CustomMode                      = 'Benutzerdefinierte Installation'
         CustomModeDesc                  = 'Version, Sprachen und Anwendungen auswählen'
-        
+
         SelectVersion                   = 'Office-Version auswählen:'
         SelectLanguages                 = 'Sprachen auswählen:'
         PrimaryLanguage                 = 'Hauptsprache:'
@@ -452,18 +452,18 @@ $Script:Strings = @{
         SelectApps                      = 'Anwendungen auswählen:'
         SelectAll                       = 'Alle auswählen'
         DeselectAll                     = 'Alle abwählen'
-        
+
         BtnStart                        = 'Installation starten'
         BtnCancel                       = 'Abbrechen'
         BtnBack                         = 'Zurück'
         BtnUseDefaults                  = 'Standard verwenden'
-        
+
         Version365Enterprise            = 'Microsoft 365 Enterprise'
         Version365Business              = 'Microsoft 365 Business'
         VersionProPlus2024              = 'Office LTSC Professional Plus 2024'
         VersionProPlus2021              = 'Office LTSC Professional Plus 2021'
         VersionProPlus2019              = 'Office Professional Plus 2019'
-        
+
         AppWord                         = 'Word'
         AppExcel                        = 'Excel'
         AppPowerPoint                   = 'PowerPoint'
@@ -477,7 +477,7 @@ $Script:Strings = @{
         AppVisio                        = 'Visio Professional'
         AppClipchamp                    = 'Clipchamp'
         AppPowerAutomate                = 'Power Automate Desktop'
-        
+
 
         StatusInitializing              = 'Initialisierung...'
         StatusPreparing                 = 'Vorbereitung...'
@@ -489,14 +489,14 @@ $Script:Strings = @{
         StatusCleaning                  = 'Bereinigung...'
         StatusFinalizing                = 'Abschluss...'
         StatusComplete                  = 'Abgeschlossen!'
-        
+
         SubStatusInternetSpeed          = 'Geschwindigkeit abhängig von der Verbindung'
         SubStatusApplyingConfig         = 'Konfiguration wird angewendet'
         SubStatusClipchampPowerAutomate = 'Clipchamp "&" Power Automate'
         SubStatusWindowsOffice          = 'Windows- und Office-Aktivierung'
         SubStatusRemovingTemp           = 'Temporäre Dateien werden entfernt'
         SubStatusAllComplete            = 'Alle Aufgaben erfolgreich abgeschlossen'
-        
+
         LogInstallStarted               = '=== INSTALLATION GESTARTET ==='
         LogInstallComplete              = '=== INSTALLATION ERFOLGREICH ABGESCHLOSSEN ==='
         LogInstallCancelled             = '=== INSTALLATION VOM BENUTZER ABGEBROCHEN ==='
@@ -504,30 +504,30 @@ $Script:Strings = @{
         LogDuration                     = 'Gesamtdauer:'
         LogPhase                        = 'Phase'
         LogCompleted                    = 'abgeschlossen'
-        
+
         ErrAnotherInstance              = 'Eine andere Instanz wird bereits ausgeführt.'
         ErrInstallCancelled             = 'Installation abgebrochen.'
         ErrAllChangesReverted           = 'Alle Änderungen wurden rückgängig gemacht und temporäre Dateien entfernt.'
         ErrInstallFailed                = 'Installation fehlgeschlagen!'
         ErrCheckLog                     = 'Überprüfen Sie die Protokolldatei auf dem Desktop:'
-        
+
         ValidSelectAtLeastOneApp        = 'Bitte wählen Sie mindestens eine Anwendung aus.'
         ValidSelectAtLeastOneLang       = 'Bitte wählen Sie mindestens eine Sprache aus.'
         ValidProjectVisioNote           = 'Project und Visio erfordern separate Lizenzen, werden aber automatisch aktiviert.'
         ConfigureInstallation           = 'Installation konfigurieren'
         FooterDevBy                     = 'Entwickelt von AC Tech'
     }
-    
+
     'fr' = @{
         WindowTitle                     = 'Installateur Microsoft 365 Ultimate'
         WindowSubtitle                  = 'Installateur et Activateur Automatique'
         ConfigWindowTitle               = 'Configuration de l''Installation'
-        
+
         ExpressMode                     = 'Installation Express (Recommandé)'
         ExpressModeDesc                 = 'Installer avec les paramètres par défaut - Microsoft 365 avec toutes les apps'
         CustomMode                      = 'Installation Personnalisée'
         CustomModeDesc                  = 'Choisir version, langues et applications'
-        
+
         SelectVersion                   = 'Sélectionnez la Version Office:'
         SelectLanguages                 = 'Sélectionnez les Langues:'
         PrimaryLanguage                 = 'Langue Principale:'
@@ -535,18 +535,18 @@ $Script:Strings = @{
         SelectApps                      = 'Sélectionnez les Applications:'
         SelectAll                       = 'Tout Sélectionner'
         DeselectAll                     = 'Tout Désélectionner'
-        
+
         BtnStart                        = 'Démarrer l''Installation'
         BtnCancel                       = 'Annuler'
         BtnBack                         = 'Retour'
         BtnUseDefaults                  = 'Utiliser Défaut'
-        
+
         Version365Enterprise            = 'Microsoft 365 Enterprise'
         Version365Business              = 'Microsoft 365 Business'
         VersionProPlus2024              = 'Office LTSC Professional Plus 2024'
         VersionProPlus2021              = 'Office LTSC Professional Plus 2021'
         VersionProPlus2019              = 'Office Professional Plus 2019'
-        
+
         AppWord                         = 'Word'
         AppExcel                        = 'Excel'
         AppPowerPoint                   = 'PowerPoint'
@@ -560,7 +560,7 @@ $Script:Strings = @{
         AppVisio                        = 'Visio Professional'
         AppClipchamp                    = 'Clipchamp'
         AppPowerAutomate                = 'Power Automate Desktop'
-        
+
         StatusInitializing              = 'Initialisation...'
         StatusPreparing                 = 'Préparation...'
         StatusDownloadingODT            = 'Téléchargement Office Deployment Tool...'
@@ -571,14 +571,14 @@ $Script:Strings = @{
         StatusCleaning                  = 'Nettoyage...'
         StatusFinalizing                = 'Finalisation...'
         StatusComplete                  = 'Terminé!'
-        
+
         SubStatusInternetSpeed          = 'Vitesse dépend de la connexion'
         SubStatusApplyingConfig         = 'Application de la configuration'
         SubStatusClipchampPowerAutomate = 'Clipchamp & Power Automate'
         SubStatusWindowsOffice          = 'Activation Windows et Office'
         SubStatusRemovingTemp           = 'Suppression des fichiers temporaires'
         SubStatusAllComplete            = 'Toutes les tâches terminées avec succès'
-        
+
         LogInstallStarted               = '=== INSTALLATION DÉMARRÉE ==='
         LogInstallComplete              = '=== INSTALLATION TERMINÉE AVEC SUCCÈS ==='
         LogInstallCancelled             = '=== INSTALLATION ANNULÉE PAR L''UTILISATEUR ==='
@@ -586,33 +586,33 @@ $Script:Strings = @{
         LogDuration                     = 'Durée totale:'
         LogPhase                        = 'Phase'
         LogCompleted                    = 'terminée'
-        
+
         ErrAnotherInstance              = 'Une autre instance est déjà en cours.'
         ErrInstallCancelled             = 'Installation annulée.'
         ErrAllChangesReverted           = 'Toutes les modifications ont été annulées et les fichiers temporaires supprimés.'
         ErrInstallFailed                = 'Échec de l''Installation!'
         ErrCheckLog                     = 'Vérifiez le fichier journal sur le Bureau:'
-        
+
         ValidSelectAtLeastOneApp        = 'Veuillez sélectionner au moins une application.'
         ValidSelectAtLeastOneLang       = 'Veuillez sélectionner au moins une langue.'
         ValidProjectVisioNote           = 'Project et Visio nécessitent des licences séparées mais seront activés automatiquement.'
         ConfigureInstallation           = 'Configurer l''installation'
         FooterDevBy                     = 'Développé par AC Tech'
     }
-    
+
     # 'zh' - Chinese localization removed due to encoding issues
 
-    
+
     'it' = @{
         WindowTitle                     = 'Microsoft 365 Ultimate Installer'
         WindowSubtitle                  = 'Installatore e Attivatore Automatico'
         ConfigWindowTitle               = 'Configurazione Installazione'
-        
+
         ExpressMode                     = 'Installazione Rapida (Consigliato)'
         ExpressModeDesc                 = 'Installa con impostazioni predefinite - Microsoft 365 con tutte le app'
         CustomMode                      = 'Installazione Personalizzata'
         CustomModeDesc                  = 'Scegli versione, lingue e applicazioni'
-        
+
         SelectVersion                   = 'Seleziona Versione Office:'
         SelectLanguages                 = 'Seleziona Lingue:'
         PrimaryLanguage                 = 'Lingua Principale:'
@@ -620,18 +620,18 @@ $Script:Strings = @{
         SelectApps                      = 'Seleziona Applicazioni:'
         SelectAll                       = 'Seleziona Tutto'
         DeselectAll                     = 'Deseleziona Tutto'
-        
+
         BtnStart                        = 'Avvia Installazione'
         BtnCancel                       = 'Annulla'
         BtnBack                         = 'Indietro'
         BtnUseDefaults                  = 'Usa Predefiniti'
-        
+
         Version365Enterprise            = 'Microsoft 365 Enterprise'
         Version365Business              = 'Microsoft 365 Business'
         VersionProPlus2024              = 'Office LTSC Professional Plus 2024'
         VersionProPlus2021              = 'Office LTSC Professional Plus 2021'
         VersionProPlus2019              = 'Office Professional Plus 2019'
-        
+
         AppWord                         = 'Word'
         AppExcel                        = 'Excel'
         AppPowerPoint                   = 'PowerPoint'
@@ -645,7 +645,7 @@ $Script:Strings = @{
         AppVisio                        = 'Visio Professional'
         AppClipchamp                    = 'Clipchamp'
         AppPowerAutomate                = 'Power Automate Desktop'
-        
+
         StatusInitializing              = 'Inizializzazione...'
         StatusPreparing                 = 'Preparazione...'
         StatusDownloadingODT            = 'Download Office Deployment Tool...'
@@ -656,14 +656,14 @@ $Script:Strings = @{
         StatusCleaning                  = 'Pulizia...'
         StatusFinalizing                = 'Finalizzazione...'
         StatusComplete                  = 'Completato!'
-        
+
         SubStatusInternetSpeed          = 'Velocità dipende dalla connessione'
         SubStatusApplyingConfig         = 'Applicazione configurazione'
         SubStatusClipchampPowerAutomate = 'Clipchamp e Power Automate'
         SubStatusWindowsOffice          = 'Attivazione Windows e Office'
         SubStatusRemovingTemp           = 'Rimozione file temporanei'
         SubStatusAllComplete            = 'Tutte le attività completate con successo'
-        
+
         LogInstallStarted               = '=== INSTALLAZIONE AVVIATA ==='
         LogInstallComplete              = '=== INSTALLAZIONE COMPLETATA CON SUCCESSO ==='
         LogInstallCancelled             = '=== INSTALLAZIONE ANNULLATA DALL''UTENTE ==='
@@ -671,23 +671,23 @@ $Script:Strings = @{
         LogDuration                     = 'Durata totale:'
         LogPhase                        = 'Fase'
         LogCompleted                    = 'completata'
-        
+
         ErrAnotherInstance              = 'Un''altra istanza è già in esecuzione.'
         ErrInstallCancelled             = 'Installazione annullata.'
         ErrAllChangesReverted           = 'Tutte le modifiche sono state annullate e i file temporanei rimossi.'
         ErrInstallFailed                = 'Installazione Fallita!'
         ErrCheckLog                     = 'Controlla il file di log sul Desktop:'
-        
+
         ValidSelectAtLeastOneApp        = 'Seleziona almeno un''applicazione da installare.'
         ValidSelectAtLeastOneLang       = 'Seleziona almeno una lingua.'
         ValidProjectVisioNote           = 'Project e Visio richiedono licenze separate ma verranno attivati automaticamente.'
         ConfigureInstallation           = 'Configura installazione'
         FooterDevBy                     = 'Sviluppato da AC Tech'
     }
-    
+
     # 'ko' - Korean localization removed due to encoding issues
 
-    
+
     # 'ru' - Russian localization removed due to encoding issues
 
 }
@@ -698,17 +698,17 @@ function Get-LocalizedString {
         [Parameter(Mandatory)] [string]$Key,
         [string]$Lang = $Script:LangBase
     )
-    
+
     # Try exact language match first
     if ($Script:Strings.ContainsKey($Lang) -and $Script:Strings[$Lang].ContainsKey($Key)) {
         return $Script:Strings[$Lang][$Key]
     }
-    
+
     # Fallback to English
     if ($Script:Strings['en'].ContainsKey($Key)) {
         return $Script:Strings['en'][$Key]
     }
-    
+
     # Return key if not found
     return $Key
 }
@@ -834,7 +834,7 @@ function Restore-RegistryKey {
         if ($Script:RegistryBackups[$Path]) {
             if ($Script:RegistryBackups[$Path].Exists) {
                 Write-Log "Restoring registry key: $Path" -Level Debug
-                
+
                 # REFINEMENT: Remove properties not in original backup to ensure clean restoration
                 try {
                     $currentKey = Get-Item $Path -ErrorAction SilentlyContinue
@@ -849,7 +849,7 @@ function Restore-RegistryKey {
                     }
                 }
                 catch {}
-                
+
                 foreach ($item in $Script:RegistryBackups[$Path].Data) {
                     Set-ItemProperty -Path $Path -Name $item.Name -Value $item.Value -Type $item.Type -Force -ErrorAction SilentlyContinue
                 }
@@ -884,12 +884,12 @@ public class WindowEffects
         public IntPtr Data;
         public int SizeOfData;
     }
-    
+
     internal enum WindowCompositionAttribute
     {
         WCA_ACCENT_POLICY = 19
     }
-    
+
     internal enum AccentState
     {
         ACCENT_DISABLED = 0,
@@ -899,7 +899,7 @@ public class WindowEffects
         ACCENT_ENABLE_ACRYLICBLURBEHIND = 4,
         ACCENT_INVALID_STATE = 5
     }
-    
+
     [StructLayout(LayoutKind.Sequential)]
     internal struct AccentPolicy
     {
@@ -908,26 +908,26 @@ public class WindowEffects
         public int GradientColor;
         public int AnimationId;
     }
-    
+
     [DllImport("user32.dll")]
     internal static extern int SetWindowCompositionAttribute(IntPtr hwnd, ref WindowCompositionAttributeData data);
-    
+
     public static void EnableBlur(IntPtr hwnd, uint blurOpacity = 0, uint blurColor = 0x000000)
     {
         var accent = new AccentPolicy();
         // Use standard Blur (3) for maximum reliability across Win10/11 versions
         accent.AccentState = AccentState.ACCENT_ENABLE_BLURBEHIND;
         accent.GradientColor = 0; // Not needed for standard blur
-        
+
         var accentStructSize = Marshal.SizeOf(accent);
         var accentPtr = Marshal.AllocHGlobal(accentStructSize);
         Marshal.StructureToPtr(accent, accentPtr, false);
-        
+
         var data = new WindowCompositionAttributeData();
         data.Attribute = WindowCompositionAttribute.WCA_ACCENT_POLICY;
         data.SizeOfData = accentStructSize;
         data.Data = accentPtr;
-        
+
         try
         {
             SetWindowCompositionAttribute(hwnd, ref data);
@@ -950,7 +950,7 @@ public class WindowEffects
 
     public static void SetIcon(IntPtr hwnd, IntPtr hIconSmall, IntPtr hIconBig)
     {
-        try 
+        try
         {
              if (hIconSmall != IntPtr.Zero) SendMessage(hwnd, WM_SETICON, (IntPtr)ICON_SMALL, hIconSmall);
              if (hIconBig != IntPtr.Zero) SendMessage(hwnd, WM_SETICON, (IntPtr)ICON_BIG, hIconBig);
@@ -1004,7 +1004,7 @@ function Get-SystemInfo {
         $cs = Get-CimInstance Win32_ComputerSystem -ErrorAction SilentlyContinue
         $cpu = Get-CimInstance Win32_Processor -ErrorAction SilentlyContinue
         $bio = Get-CimInstance Win32_BIOS -ErrorAction SilentlyContinue
-        
+
         $diag = @"
 --- SYSTEM DIAGNOSTICS ---
 OS: $($os.Caption) ($($os.Version))
@@ -1031,7 +1031,7 @@ Time: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
 
 function Initialize-Log {
     $Script:Config.InstallStartTime = Get-Date
-    
+
     $header = @"
 ================================================================================
 MICROSOFT 365 ULTIMATE INSTALLER
@@ -1060,10 +1060,10 @@ function Write-Log {
         [Parameter(Mandatory)] [string]$Message,
         [ValidateSet('Info', 'Success', 'Warning', 'Error', 'Debug', 'Verbose')] [string]$Level = 'Info'
     )
-    
+
     $timestamp = Get-Date -Format 'HH:mm:ss'
     $logLine = "$timestamp [$Level] $Message"
-    
+
     try {
         if ($null -ne $Script:Config -and $null -ne $Script:Config.LogFile) {
             # Ensure log directory exists (defensive)
@@ -1081,7 +1081,7 @@ function Write-Log {
         Write-Host "LOGGING FAILED: $($_.Exception.Message)" -ForegroundColor Red
         Write-Host "ORIGINAL MESSAGE: $logLine" -ForegroundColor Gray
     }
-    
+
     # NOTE: Console output removed to keep terminal hidden
     # All logs go to file only. WPF progress window provides user feedback.
 }
@@ -1101,23 +1101,23 @@ function Write-Log {
 # -------------------------------------------------------------------------
 function Update-Progress {
     param($Status, $Percent, $SubStatus)
-    
+
     if ($Status) {
         Write-Log "Progress Status: $Status" -Level Info
         if ($Script:ProgressSync) { $Script:ProgressSync.Status = $Status }
     }
-    
+
     if ($Percent) {
         if ($Script:ProgressSync) { $Script:ProgressSync.Progress = $Percent }
     }
-    
+
     if ($SubStatus) {
         Write-Log "Progress SubStatus: $SubStatus" -Level Info
         if ($Script:ProgressSync) { $Script:ProgressSync.SubStatus = $SubStatus }
     }
-    
-    if ($Script:ProgressSync -and $Script:ProgressSync.RequestCancel) { 
-        throw "Installation cancelled by user" 
+
+    if ($Script:ProgressSync -and $Script:ProgressSync.RequestCancel) {
+        throw "Installation cancelled by user"
     }
 }
 
@@ -1149,9 +1149,9 @@ function Start-Process-CancelAware {
 
     Write-Log "Starting process: $FilePath $($ArgumentList -join ' ')" -Level Verbose
     $proc = Start-Process @procParams
-    
+
     $startTime = Get-Date
-    
+
     while (-not $proc.HasExited) {
         # Check cancellation flag from UI runspace
         if ($Script:ProgressSync.RequestCancel) {
@@ -1159,7 +1159,7 @@ function Start-Process-CancelAware {
             try { Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue } catch {}
             throw "Installation cancelled by user"
         }
-        
+
         # Check timeout
         if ($TimeoutSeconds -gt 0) {
             $duration = (Get-Date) - $startTime
@@ -1172,7 +1172,7 @@ function Start-Process-CancelAware {
 
         Start-Sleep -Milliseconds 250
     }
-    
+
     Write-Log "Process $($proc.ProcessName) (PID: $($proc.Id)) exited with code: $($proc.ExitCode)" -Level Verbose
     return $proc
 }
@@ -1198,7 +1198,7 @@ function Invoke-Download-CancelAware {
 
     while ($attempt -lt $maxAttempts) {
         $attempt++
-        
+
         # Check for cancellation before starting
         if ($Script:ProgressSync.RequestCancel) {
             Write-Log "Download cancelled before attempt: $Url" -Level Warning
@@ -1211,25 +1211,25 @@ function Invoke-Download-CancelAware {
             $wc.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Microsoft Ultimate Installer")
             $stream = $wc.OpenRead($Url)
             $fileStream = [System.IO.File]::Create($Path)
-            
+
             $buffer = New-Object byte[] 8192 # 8KB buffer for better performance
             $bytesRead = 0
-            
+
             while (($bytesRead = $stream.Read($buffer, 0, $buffer.Length)) -gt 0) {
                 if ($Script:ProgressSync.RequestCancel) {
                     $fileStream.Close()
                     $stream.Close()
                     $wc.Dispose()
-                    
+
                     # Cleanup partial file
                     if (Test-Path $Path) { Remove-Item $Path -Force }
-                    
+
                     Write-Log "Download cancelled: $Url" -Level Warning
                     return $false
                 }
                 $fileStream.Write($buffer, 0, $bytesRead)
             }
-            
+
             $fileStream.Close()
             $stream.Close()
             $wc.Dispose()
@@ -1240,13 +1240,13 @@ function Invoke-Download-CancelAware {
             if ($fileStream) { try { $fileStream.Close() } catch {} }
             if ($stream) { try { $stream.Close() } catch {} }
             if (Test-Path $Path) { Remove-Item $Path -Force -ErrorAction SilentlyContinue }
-            
+
             if ($attempt -lt $maxAttempts) {
                 Write-Log "Download attempt $attempt failed ($($_.Exception.Message)), retrying..." -Level Debug
                 Start-Sleep -Seconds 2
                 continue
             }
-            
+
             # Final fallback: Try Invoke-WebRequest (less cancel-friendly but more robust)
             try {
                 Write-Log "Trying fallback download method (Invoke-WebRequest)..." -Level Debug
@@ -1262,7 +1262,7 @@ function Invoke-Download-CancelAware {
             }
         }
     }
-    
+
     return $false
 }
 
@@ -1271,7 +1271,7 @@ function Invoke-Download-CancelAware {
 # ============================================================================
 
 function Show-ConfigWindow {
-    
+
     # -------------------------------------------------------------------------
     # MODERN XAML DEFINITION
     # -------------------------------------------------------------------------
@@ -1284,7 +1284,7 @@ Title="$strTitle" Height="920" Width="950"
 WindowStartupLocation="CenterScreen"
 WindowStyle="None" AllowsTransparency="True" ResizeMode="CanResize"
 Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
-    
+
     <!-- WindowChrome for resizing support without standard borders -->
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome GlassFrameThickness="0" CornerRadius="0" CaptionHeight="0" ResizeBorderThickness="5" />
@@ -1341,7 +1341,7 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
     <!-- ComboBox Style -->
     <Style TargetType="ComboBox">
         <Setter Property="Foreground" Value="White"/>
-        <Setter Property="Background" Value="#111111"/> 
+        <Setter Property="Background" Value="#111111"/>
         <Setter Property="BorderBrush" Value="#444444"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
@@ -1467,7 +1467,7 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
 </Setter.Value>
 </Setter>
 </Style>
-        
+
 <Style TargetType="Button" x:Key="Style.Button.Close" BasedOn="{StaticResource Style.Button.WindowControl}">
 <Style.Triggers>
 <Trigger Property="IsMouseOver" Value="True">
@@ -1588,7 +1588,7 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
 
 <!-- PAGES CONTAINER -->
 <Grid Grid.Row="1" Margin="20,10,20,10">
-                
+
             <!-- Page: Mode Selection (Overview) -->
             <Grid x:Name="PageMode" Visibility="Visible">
                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="600">
@@ -1659,7 +1659,7 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
 
 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Template="{DynamicResource ScrollViewerModern}">
 <StackPanel Margin="0,0,15,0">
-                            
+
 <!-- Version/Channel -->
 <TextBlock Text="Office Edition" Foreground="#888888" FontWeight="Bold" Margin="0,0,0,8"/>
 <ComboBox x:Name="cmbVersion" Height="35" Background="#333333" Foreground="White" BorderBrush="#555555" IsEditable="False">
@@ -1834,14 +1834,14 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
         )
         throw "XAML parsing failed: $xamlError"
     }
-    
+
     # -------------------------------------------------------------------------
     # ELEMENTS
     # -------------------------------------------------------------------------
     # Pages
     $pageMode = $window.FindName('PageMode')
     $pageCustom = $window.FindName('PageCustom')
-    
+
     # Controls
     $rbExpress = $window.FindName('rbExpress')
     $rbCustom = $window.FindName('rbCustom')
@@ -1917,16 +1917,16 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
                 if ([System.Management.Automation.PSTypeName]::new('WindowEffects').Type) {
                     # 1. Decouple from PowerShell Taskbar Group using AUMID
                     [WindowEffects]::SetAUMID("ACTech.MicrosoftUltimateInstaller.v2")
-                    
+
                     Add-Type -AssemblyName System.Drawing
-                    
+
                     $hIconSmall = [IntPtr]::Zero
                     $hIconBig = [IntPtr]::Zero
 
                     if ($Script:TaskbarIconBase64) {
                         try {
                             $icoBytes = [Convert]::FromBase64String($Script:TaskbarIconBase64)
-                            
+
                             # Small Icon (16x16)
                             $streamSmall = New-Object System.IO.MemoryStream(, $icoBytes)
                             $iconSmall = New-Object System.Drawing.Icon($streamSmall, 16, 16)
@@ -1963,14 +1963,14 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
                         $g2.Dispose()
                         $hIconBig = $bigBitmap.GetHicon()
                     }
-                    
+
                     # 3. Force Apply
                     $helper = New-Object System.Windows.Interop.WindowInteropHelper($window)
                     $hwnd = $helper.EnsureHandle()
                     [WindowEffects]::SetIcon($hwnd, $hIconSmall, $hIconBig)
-                    
-                    # Cleanup GDI objects? HICONs need to stay valid usually, 
-                    # but Windows copies them on SetIcon? Actually usually we should DestroyIcon later, 
+
+                    # Cleanup GDI objects? HICONs need to stay valid usually,
+                    # but Windows copies them on SetIcon? Actually usually we should DestroyIcon later,
                     # but letting them persist for app lifetime is fine here.
                 }
             }
@@ -2008,20 +2008,20 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
     # -------------------------------------------------------------------------
     # LOGIC EVENTS
     # -------------------------------------------------------------------------
-    
+
 
     # Helper for Transparency Toggle (Optimized Scope)
     $SetTransparency = {
         param($enable, $win)
-        
+
         if (-not $win) { return }
 
         # 1. Force retrieval of the MainBorder
         $targetBorder = $win.FindName('MainBorder')
-        
+
         if ($enable) {
             # Enable Blur (More Transparent: #88 alpha)
-            if ($targetBorder) { 
+            if ($targetBorder) {
                 $targetBorder.Background = New-Object System.Windows.Media.SolidColorBrush ([System.Windows.Media.ColorConverter]::ConvertFromString("#88151515"))
             }
             else {
@@ -2041,7 +2041,7 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
         }
         else {
             # Disable Blur (Solid Opaque)
-            if ($targetBorder) { 
+            if ($targetBorder) {
                 $targetBorder.Background = New-Object System.Windows.Media.SolidColorBrush ([System.Windows.Media.ColorConverter]::ConvertFromString("#FF151515"))
             }
         }
@@ -2064,8 +2064,8 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
     $window.Add_MouseLeftButtonDown($dragHandler)
 
     # 2. Window Controls
-    $btnClose.Add_Click({ 
-            $window.Close() 
+    $btnClose.Add_Click({
+            $window.Close()
             # Ensure we kill the entire process if this is the main window
             [System.Environment]::Exit(0)
         })
@@ -2100,14 +2100,14 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
                 # INITIAL STATE: OPAQUE (Blur technically enabled but covered by opaque background or just not enabled yet)
                 # We will only enable blur when needed or enable it but keep background opaque?
                 # Best approach: Keep background opaque #FF... by default.
-                
+
                 # NOTE: If we want "Solid" look by default, we just ensure window.Background is #FF...
                 # The XAML resource is now #FF151515 (Opaque)
-                
-                # We can enable blur potentially here if we want the underlying system to be ready, 
+
+                # We can enable blur potentially here if we want the underlying system to be ready,
                 # but if the background is solid, it won't show.
                 # However, for performance, maybe only enable it when dragging?
-                
+
                 # Let's just ensure the starting state is correct:
                 & $SetTransparency $false
             }
@@ -2165,7 +2165,7 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
                 # Express Mode Logic
                 $Script:ConfigResult.Cancelled = $false
                 $Script:ConfigResult.Mode = 'Express'
-                
+
                 # Setup Global UserConfig for Express Mode
                 $Script:UserConfig = @{
                     InstallMode          = 'Express'
@@ -2191,7 +2191,7 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
                         'Publisher'  = $false
                     }
                 }
-                
+
                 $window.DialogResult = $true
                 $window.Close()
             }
@@ -2199,7 +2199,7 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
                 # Deep Uninstall Mode
                 $Script:ConfigResult.Cancelled = $false
                 $Script:ConfigResult.Mode = 'Uninstall'
-                
+
                 # Close the config window and let the main script handle the uninstallation
                 $window.DialogResult = $true
                 $window.Close()
@@ -2237,10 +2237,10 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
     & $updateAdditionalLangs
 
     # 7. Global Select/Deselect
-    $appsList = @($chkWord, $chkExcel, $chkPowerPoint, $chkOutlook, $chkTeams, $chkOneNote, $chkOneDrive, 
+    $appsList = @($chkWord, $chkExcel, $chkPowerPoint, $chkOutlook, $chkTeams, $chkOneNote, $chkOneDrive,
         $chkAccess, $chkPublisher, $chkProject, $chkVisio, $chkClipchamp, $chkPowerAutomate,
         $chkDefender, $chkToDo, $chkPCManager, $chkStickyNotes, $chkPowerBI, $chkPowerToys, $chkVSCode, $chkVS2022, $chkCopilot)
-    
+
     $btnSelectAll.Add_Click({ foreach ($a in $appsList) { if ($a) { $a.IsChecked = $true } } })
     $btnDeselectAll.Add_Click({ foreach ($a in $appsList) { if ($a) { $a.IsChecked = $false } } })
 
@@ -2254,15 +2254,15 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
                 $Script:ConfigResult.Version = $parts[0]
                 $Script:ConfigResult.Channel = $parts[1]
             }
-        
+
             $Script:ConfigResult.Language = $cmbLanguage.SelectedItem.Tag
-            
+
             # Additional Languages
             $Script:ConfigResult.AdditionalLanguages = @()
-            $panelAdditionalLangs.Children | ForEach-Object { 
-                if ($_.IsChecked) { $Script:ConfigResult.AdditionalLanguages += $_.Tag } 
+            $panelAdditionalLangs.Children | ForEach-Object {
+                if ($_.IsChecked) { $Script:ConfigResult.AdditionalLanguages += $_.Tag }
             }
-        
+
             # Parse Windows Insider Selection (from radio buttons)
             $Script:ConfigResult.WindowsInsiderChannel = "None"
             $panelInsider.Children | ForEach-Object {
@@ -2315,7 +2315,7 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
         WindowsInsiderChannel = "None" # New: Insider Channel
         Apps                  = @{}
     }
-    
+
     # Set UI Language if possible (basic selection match)
     foreach ($item in $cmbLanguage.Items) {
         if ($item.Tag -eq $sysLang) {
@@ -2325,7 +2325,7 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
     }
 
     $window.ShowDialog() | Out-Null
-    
+
     # Return true/false based on DialogResult (which is true only if Next/Start clicked)
     if ($Script:ConfigResult.Cancelled) { return $false }
     return $true
@@ -2336,7 +2336,7 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
 # -------------------------------------------------------------------------
 function Start-OfficeUninstallation {
     param()
-    
+
     Write-Log "Starting ULTIMATE Deep Office Uninstallation (SCORCHED EARTH V3)..." -Level Info
 
     # 1. Kill Processes (The "Kill List")
@@ -2375,7 +2375,7 @@ function Start-OfficeUninstallation {
         Set-Service -Name $svc -StartupType Disabled -ErrorAction SilentlyContinue
         Stop-Service -Name $svc -Force -ErrorAction SilentlyContinue
     }
-    
+
     # 4. Remove Scheduled Tasks (Broad Sweep)
     Update-Progress "Cleaning up scheduled tasks..." 20
     $taskPatterns = @("*Office*", "*Teams*", "*OneDrive*", "*Visio*", "*Project*", "*PowerToys*", "*Clipchamp*")
@@ -2405,7 +2405,7 @@ function Start-OfficeUninstallation {
                 Write-Log "Winget Uninstall: $id" -Level Debug
                 Start-Process-CancelAware -FilePath $wingetExe -ArgumentList "uninstall --id $id --silent --accept-source-agreements" -WindowStyle Hidden | Out-Null
             }
-            
+
             # StarDesk Direct Removal Failsafe
             $starDeskUninstall = "${env:ProgramFiles(x86)}\StarDesk\GameViewer\Uninstall.exe"
             if (Test-Path $starDeskUninstall) {
@@ -2420,19 +2420,19 @@ function Start-OfficeUninstallation {
 
     # 5. Remove Store Apps (Optimized Batch Query)
     Update-Progress "Removing Microsoft Store applications..." 30
-    
+
     # Regex pattern to match all target apps using a single pass
     $appxRegex = "Microsoft\.Office|Microsoft\.OutlookForWindows|MicrosoftTeams|MSTeams|Skype|Clipchamp|Microsoft\.Todos|PowerAutomate|Flow|PowerBI|StickyNotes|MicrosoftDefender|PCManager|PowerToys|Publisher|Visio|Project|Copilot"
 
     try {
         Write-Log "Querying installed Appx packages (AllUsers)..." -Level Debug
         $allApps = Get-AppxPackage -AllUsers -ErrorAction SilentlyContinue
-        
-        $targetApps = $allApps | Where-Object { 
-            ($_.Name -match $appxRegex) -and 
-            ($_.Name -notmatch "VisualStudio") -and 
-            ($_.Name -notmatch "VSCode") -and 
-            ($_.Name -notmatch "SecHealthUI") -and 
+
+        $targetApps = $allApps | Where-Object {
+            ($_.Name -match $appxRegex) -and
+            ($_.Name -notmatch "VisualStudio") -and
+            ($_.Name -notmatch "VSCode") -and
+            ($_.Name -notmatch "SecHealthUI") -and
             ($_.Name -notmatch "WindowsDefender") # Exclude system Defender
         }
 
@@ -2470,20 +2470,20 @@ function Start-OfficeUninstallation {
     Update-Progress "Removing MSI Products..." 50
     # 7a. The GUID List (Standard Office)
     $msiGuids = @(
-        "{20150000-008C-0000-0000-0000000FF1CE}", "{20150000-008C-0C0A-0000-0000000FF1CE}", "{50150000-008F-0000-1000-0000000FF1CE}", "{90150000-007E-0000-0000-0000000FF1CE}", 
+        "{20150000-008C-0000-0000-0000000FF1CE}", "{20150000-008C-0C0A-0000-0000000FF1CE}", "{50150000-008F-0000-1000-0000000FF1CE}", "{90150000-007E-0000-0000-0000000FF1CE}",
         "{90150000-007E-0000-1000-0000000FF1CE}", "{90150000-008C-0000-0000-0000000FF1CE}", "{90150000-008C-0000-1000-0000000FF1CE}", "{90150000-008C-0409-0000-0000000FF1CE}",
         "{90160000-008C-0000-0000-0000000FF1CE}", "{90160000-008C-0000-1000-0000000FF1CE}", "{90160000-008C-0409-0000-0000000FF1CE}", "{90160000-008C-0409-1000-0000000FF1CE}",
-        "{90160000-007E-0000-0000-0000000FF1CE}", "{90160000-007E-0000-1000-0000000FF1CE}", 
+        "{90160000-007E-0000-0000-0000000FF1CE}", "{90160000-007E-0000-1000-0000000FF1CE}",
         "{65DA2EC9-0642-47E9-AAE2-B5267AA14D75}", "{E50AE784-FABE-46DA-A1F8-7B6B56DCB22E}" # Activation Assistants
     )
     foreach ($guid in $msiGuids) {
         Start-Process-CancelAware -FilePath "msiexec.exe" -ArgumentList "/x $guid /qn /norestart" -WindowStyle Hidden -TimeoutSeconds 300
     }
-    
+
     # 7b. Dynamic Search (Project, Visio, Teams Machine-Wide)
     $uninstallRoots = @("HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall", "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall")
     $msiKeywords = "Office|Project|Visio|Teams Machine-Wide|PowerToys|Power BI|Clipchamp|PC Manager"
-    
+
     foreach ($root in $uninstallRoots) {
         Get-ChildItem -Path $root -ErrorAction SilentlyContinue | ForEach-Object {
             $disp = $_.GetValue("DisplayName")
@@ -2500,7 +2500,7 @@ function Start-OfficeUninstallation {
     Update-Progress "Cleaning Filesystem..." 70
     $cleanPaths = @(
         "$env:ProgramFiles\Microsoft Office", "$env:ProgramFiles(x86)\Microsoft Office",
-        "$env:ProgramData\Microsoft\Office", "$env:ProgramData\Microsoft\ClickToRun", 
+        "$env:ProgramData\Microsoft\Office", "$env:ProgramData\Microsoft\ClickToRun",
         "$env:ProgramData\Microsoft\Teams", "$env:ProgramData\Microsoft\OneDrive",
         "$env:LOCALAPPDATA\Microsoft\Office", "$env:LOCALAPPDATA\Microsoft\Teams", "$env:LOCALAPPDATA\Microsoft\OneDrive",
         "$env:LOCALAPPDATA\Microsoft\PowerToys", "$env:LOCALAPPDATA\Microsoft\Power BI Desktop",
@@ -2508,18 +2508,18 @@ function Start-OfficeUninstallation {
         "$env:USERPROFILE\Microsoft Office", "$env:USERPROFILE\OneDrive"
     )
     foreach ($path in $cleanPaths) {
-        if (Test-Path $path) { 
+        if (Test-Path $path) {
             Remove-Item -Path $path -Recurse -Force -ErrorAction SilentlyContinue
             if (Test-Path $path) {
                 Start-Process-CancelAware -FilePath "cmd.exe" -ArgumentList "/c takeown /f `"$path`" /r /d y && icacls `"$path`" /grant administrators:F /t && rd /s /q `"$path`"" -WindowStyle Hidden
             }
         }
     }
-    
+
     # 9. Registry Blast (Regex V3)
     Update-Progress "Final Registry Clean..." 90
     $regRegex = "0FF1CE|O365|Microsoft ?Office|Microsoft ?365|Project|Visio|Clipchamp|Power ?Automate|Power ?Toys|Power ?BI|Skype|Teams|OneDrive|PC ?Manager|Sticky ?Notes"
-    
+
     # Delete specific roots first
     $regRoots = @(
         "HKLM:\SOFTWARE\Microsoft\Office", "HKLM:\SOFTWARE\Microsoft\ClickToRun", "HKLM:\SOFTWARE\Microsoft\Teams",
@@ -2540,10 +2540,10 @@ function Start-OfficeUninstallation {
 
     # 10. Remove ALL Microsoft/Office shortcuts from Start Menu & Desktop (Optimized Regex)
     Update-Progress "Removing all Microsoft/Office shortcuts..." 95
-    
+
     # Combined Regex for significantly faster matching (avoids nested loops)
     $shortcutRegex = "(?i)(Word|Excel|PowerPoint|Outlook|OneNote|Access|Publisher|Visio|Project|Teams|OneDrive|Skype|Power\s?BI|Power\s?Automate|PowerToys|Clipchamp|Sticky\s?Notes|Microsoft\s?365|Office|PC\s?Manager|Copilot|To\s?Do|Defender|Visual\s?Studio\s?Code|VS\s?Code)"
-    
+
     $shortcutPaths = @(
         "$env:ProgramData\Microsoft\Windows\Start Menu\Programs",
         (Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs'),
@@ -2551,7 +2551,7 @@ function Start-OfficeUninstallation {
         "$env:Public\Desktop",
         "$env:USERPROFILE\Desktop"
     )
-    
+
     foreach ($searchPath in $shortcutPaths) {
         if (Test-Path $searchPath) {
             $shortcuts = Get-ChildItem -Path $searchPath -Filter "*.lnk" -Recurse -ErrorAction SilentlyContinue
@@ -2578,19 +2578,19 @@ function Start-OfficeUninstallation {
 # -------------------------------------------------------------------------
 function Close-Progress {
     Write-Log "Closing progress window..." -Level Debug
-    
+
     try {
         if ($Script:ProgressSync) {
             $Script:ProgressSync.ShouldClose = $true
         }
-        
+
         if ($Script:ProgressHandle) {
             try {
                 $Script:ProgressHandle.AsyncWaitHandle.WaitOne(2000) | Out-Null
             }
             catch { }
         }
-        
+
         if ($Script:ProgressRunspace) {
             try {
                 $Script:ProgressRunspace.Close()
@@ -2599,10 +2599,10 @@ function Close-Progress {
             catch { }
             $Script:ProgressRunspace = $null
         }
-        
+
         $Script:ProgressSync = $null
         $Script:ProgressHandle = $null
-        
+
         Write-Log "Progress window closed" -Level Debug
     }
     catch {
@@ -2624,12 +2624,12 @@ function Start-ProgressWindow {
 
 function Show-Progress {
     param($Title, $Subtitle, $HeaderBase64, $FooterBase64, $AppIconBase64, $WindowEffectsSource, $Qm)
-    
+
     # Close existing standard progress if open (legacy)
     if ($Script:ProgressRunspace) { Close-Progress }
-    
+
     $initStatus = "Initializing..."
-    
+
     $Script:ProgressSync = [hashtable]::Synchronized(@{
             Status        = $initStatus
             Progress      = 0
@@ -2637,18 +2637,18 @@ function Show-Progress {
             ShouldClose   = $false
             RequestCancel = $false
         })
-    
+
     $Script:ProgressRunspace = [runspacefactory]::CreateRunspace()
     $Script:ProgressRunspace.ApartmentState = 'STA'
     $Script:ProgressRunspace.ThreadOptions = 'ReuseThread'
     $Script:ProgressRunspace.Open()
-    
+
     $code = {
         param($Sync, $Title, $Subtitle, $HeaderBase64, $FooterBase64, $AppIconBase64, $WindowEffectsSource, $Qm)
-        
+
         # Escape strings
         $Title = $Title -replace '&', '&amp;' -replace '<', '&lt;' -replace '>', '&gt;' -replace '"', '&quot;'
-        
+
         Add-Type -AssemblyName PresentationFramework, PresentationCore, WindowsBase, System.Drawing
 
 
@@ -2657,20 +2657,20 @@ function Show-Progress {
         if (-not ([System.Management.Automation.PSTypeName]::new('WindowEffects').Type)) {
             try { Add-Type -TypeDefinition $WindowEffectsSource -Language CSharp } catch {}
         }
-        
+
         # Load C# Types for Transparency (if available in this AppDomain)
         # Note: In a separate runspace, we might need to rely on the type being already loaded in the process or re-add it.
         # Ideally, we rely on the main runspace having loaded it. However, if 'WindowEffects' isn't visible, transparency won't blur.
-        
+
         $xaml = @"
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Title="$Title" Width="700" Height="280"
-        WindowStartupLocation="CenterScreen" 
+        WindowStartupLocation="CenterScreen"
         WindowStyle="None" AllowsTransparency="True" ResizeMode="CanResize"
         Background="Transparent" Topmost="True">
-    
+
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome GlassFrameThickness="0" CornerRadius="0" CaptionHeight="0" ResizeBorderThickness="5" />
     </shell:WindowChrome.WindowChrome>
@@ -2684,9 +2684,9 @@ function Show-Progress {
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" 
-                                BorderBrush="{TemplateBinding BorderBrush}" 
-                                BorderThickness="{TemplateBinding BorderThickness}" 
+                        <Border x:Name="border" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="4">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
@@ -2726,7 +2726,7 @@ function Show-Progress {
                 </Setter.Value>
             </Setter>
         </Style>
-        
+
         <Style TargetType="Button" x:Key="Style.Button.Close" BasedOn="{StaticResource Style.Button.WindowControl}">
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
@@ -2743,7 +2743,7 @@ function Show-Progress {
                 <RowDefinition Height="*"/>    <!-- Content -->
                 <RowDefinition Height="Auto"/> <!-- Footer -->
             </Grid.RowDefinitions>
-            
+
             <!-- Header -->
             <Grid Grid.Row="0" Margin="20,15,20,10">
                 <Grid.ColumnDefinitions>
@@ -2764,7 +2764,7 @@ function Show-Progress {
                     <Button x:Name="btnClose" Content="X" Width="46" Height="32" Style="{StaticResource Style.Button.Close}" FontSize="14"/>
                 </StackPanel>
             </Grid>
-            
+
             <!-- Content -->
             <Grid Grid.Row="1" Margin="30,10,30,10">
                 <Grid.RowDefinitions>
@@ -2774,23 +2774,23 @@ function Show-Progress {
                     <RowDefinition Height="*"/> <!-- Spacer -->
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                
+
                 <TextBlock x:Name="StatusText" Grid.Row="0" Text="Preparing installation..." FontSize="16" Foreground="White" Margin="0,0,0,15" FontWeight="Normal"/>
-                
+
                 <!-- Modern ProgressBar -->
                 <Border Grid.Row="1" Height="6" CornerRadius="3" Background="#333333" Margin="0,0,0,10">
                     <ProgressBar x:Name="ProgressBar" Background="Transparent" BorderThickness="0" Foreground="#0078D4" Maximum="100" Value="0" Opacity="1"/>
                 </Border>
-                 
+
                 <Grid Grid.Row="2" Margin="0,0,0,20">
                     <TextBlock x:Name="SubStatusText" Text="Please wait while we set things up..." FontSize="12" Foreground="#AAAAAA" HorizontalAlignment="Left"/>
                     <TextBlock x:Name="PercentText" Text="0%" FontSize="12" Foreground="#AAAAAA" HorizontalAlignment="Right"/>
                 </Grid>
-                
+
                 <Button x:Name="btnCancel" Grid.Row="4" Content="✕  Cancel Installation" Width="150" Height="32"
                         Style="{StaticResource ModernButtonStyle}" HorizontalAlignment="Right"/>
             </Grid>
-            
+
             <Border Grid.Row="2" Background="#FF151515" BorderBrush="#333333" BorderThickness="0,1,0,0" Padding="8">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                      <Image x:Name="imgFooter" Height="20" Margin="0,0,10,0" RenderOptions.BitmapScalingMode="HighQuality"/>
@@ -2801,12 +2801,12 @@ function Show-Progress {
     </Border>
 </Window>
 "@
-        
+
         try {
             [xml]$xamlDoc = $xaml
             $reader = New-Object System.Xml.XmlNodeReader $xamlDoc
             $window = [Windows.Markup.XamlReader]::Load($reader)
-            
+
             # Find Elements
             $statusText = $window.FindName('StatusText')
             $progressBar = $window.FindName('ProgressBar')
@@ -2864,15 +2864,15 @@ function Show-Progress {
             }
 
             # Events
-            
+
             # Helper for Transparency (Local Copy)
             $SetTransparency = {
                 param($enable, $win)
                 if (-not $win) { return }
                 $targetBorder = $win.FindName('MainBorder')
-                
+
                 if ($enable) {
-                    if ($targetBorder) { 
+                    if ($targetBorder) {
                         $targetBorder.Background = New-Object System.Windows.Media.SolidColorBrush ([System.Windows.Media.ColorConverter]::ConvertFromString("#88151515"))
                     }
                     if ([System.Management.Automation.PSTypeName]::new('WindowEffects').Type) {
@@ -2884,7 +2884,7 @@ function Show-Progress {
                     }
                 }
                 else {
-                    if ($targetBorder) { 
+                    if ($targetBorder) {
                         $targetBorder.Background = New-Object System.Windows.Media.SolidColorBrush ([System.Windows.Media.ColorConverter]::ConvertFromString("#FF151515"))
                     }
                 }
@@ -2892,7 +2892,7 @@ function Show-Progress {
             if ($btnCancel) {
                 $btnCancel.Add_Click({ $Sync.RequestCancel = $true })
             }
-            
+
             # Enable Dragging
             $window.Add_MouseLeftButtonDown({
                     param($s, $e)
@@ -2900,12 +2900,12 @@ function Show-Progress {
                     try { $window.DragMove() } catch {}
                     & $SetTransparency $false $window
                 })
-            
+
             # Window Control Buttons
             $btnMinimize = $window.FindName('btnMinimize')
             # $btnMaximize = $window.FindName('btnMaximize')
             $btnClose = $window.FindName('btnClose')
-            
+
             if ($btnMinimize) {
                 $btnMinimize.Add_Click({ $window.WindowState = [System.Windows.WindowState]::Minimized })
             }
@@ -2920,18 +2920,18 @@ function Show-Progress {
             #         })
             # }
             if ($btnClose) {
-                $btnClose.Add_Click({ 
+                $btnClose.Add_Click({
                         $Sync.RequestCancel = $true
                         $window.Close()
                     })
             }
-            
+
             # Handle window close event (X button on title bar / Alt+F4)
             $window.Add_Closing({
                     param($src, $e)
                     $Sync.RequestCancel = $true
                 })
-            
+
             # Timer to update progress from Sync hashtable
             $timer = New-Object System.Windows.Threading.DispatcherTimer
             $timer.Interval = [TimeSpan]::FromMilliseconds(200)
@@ -2968,13 +2968,13 @@ function Invoke-ODT-Download {
             # Download with cancel-aware helper
             $success = Invoke-Download-CancelAware -Url $url -Path $odtPath
             if (-not $success) { throw "Download cancelled or failed" }
-            
+
             # Validate download
             if (-not (Test-Path $odtPath)) {
                 Write-Log "Download failed - file not created" -Level Warning
                 continue
             }
-            
+
             $fileSize = (Get-Item $odtPath).Length
             if ($fileSize -lt 1000000) {
                 # Less than 1MB is suspicious
@@ -2982,7 +2982,7 @@ function Invoke-ODT-Download {
                 Remove-Item $odtPath -Force -ErrorAction SilentlyContinue
                 continue
             }
-            
+
             Write-Log "ODT downloaded successfully ($fileSize bytes)" -Level Success
             break
         }
@@ -2992,33 +2992,33 @@ function Invoke-ODT-Download {
             continue
         }
     }
-    
+
     if (-not (Test-Path $odtPath)) {
         throw "Failed to download Office Deployment Tool after all attempts"
     }
-    
+
     # Extract ODT
     try {
         Write-Log "Extracting Office Deployment Tool..." -Level Debug
         $extractPath = Join-Path $Script:Config.TempFolder 'ODT'
         New-Item $extractPath -ItemType Directory -Force | Out-Null
-        
+
         # Run ODT with extract parameter
         $proc = Start-Process-CancelAware -FilePath $odtPath -ArgumentList "/quiet /extract:`"$extractPath`"" -WindowStyle Hidden -WorkingDirectory $Script:Config.TempFolder
-        
+
         Write-Log "ODT extraction exit code: $($proc.ExitCode)" -Level Debug
-        
+
         # Validate extraction
         Start-Sleep -Milliseconds 500  # Give system time to complete extraction
         $setupExe = Join-Path $extractPath 'setup.exe'
-        
+
         if (-not (Test-Path $setupExe)) {
             Write-Log "setup.exe not found in $extractPath" -Level Error
             Write-Log "Contents of $extractPath :" -Level Debug
             Get-ChildItem $extractPath -Recurse | ForEach-Object { Write-Log "  - $($_.FullName)" -Level Debug }
             throw "setup.exe not found after extraction"
         }
-        
+
         Write-Log "setup.exe found: $setupExe" -Level Success
         return $setupExe
     }
@@ -3053,7 +3053,7 @@ function Get-ODT { Invoke-ODT-Download }
 function New-TempFolder {
     $tempPath = $Script:Config.TempFolder
     Write-Log "Initializing temporary folder: $tempPath" -Level Debug
-    
+
     if (Test-Path $tempPath) {
         try {
             Remove-Item $tempPath -Recurse -Force -ErrorAction SilentlyContinue
@@ -3062,7 +3062,7 @@ function New-TempFolder {
             Write-Log "Failed to clean existing temp folder: $($_.Exception.Message)" -Level Warning
         }
     }
-    
+
     try {
         New-Item -ItemType Directory -Path $tempPath -Force -ErrorAction Stop | Out-Null
         Write-Log "Temporary folder created successfully" -Level Debug
@@ -3076,7 +3076,7 @@ function New-TempFolder {
 function New-ConfigXML {
     Write-Log "Generating Configuration XML based on user settings..." -Level Debug
     $path = Join-Path $Script:Config.TempFolder 'configuration.xml'
-    
+
     # Get user configuration
     $version = $Script:UserConfig.OfficeVersion
     $channel = $Script:UserConfig.Channel
@@ -3085,7 +3085,7 @@ function New-ConfigXML {
     $selectedApps = $Script:UserConfig.SelectedApps
     $includeProject = $Script:UserConfig.IncludeProject
     $includeVisio = $Script:UserConfig.IncludeVisio
-    
+
     # Build language tags
     $langTags = "      <Language ID=`"$primaryLang`" />"
     foreach ($lang in $additionalLangs) {
@@ -3093,7 +3093,7 @@ function New-ConfigXML {
             $langTags += "`n      <Language ID=`"$lang`" />"
         }
     }
-    
+
     # Build exclude app tags based on user selection
     $excludeApps = ""
     $appMapping = @{
@@ -3109,14 +3109,14 @@ function New-ConfigXML {
         'Lync'       = 'Lync'
         'Groove'     = 'Groove'
     }
-    
+
     foreach ($app in $appMapping.Keys) {
         # If the app is NOT in the selected list, OR it is in the list but set to false, EXCLUDE it.
         if (-not $selectedApps.ContainsKey($app) -or -not $selectedApps[$app]) {
             $excludeApps += "`n      <ExcludeApp ID=`"$($appMapping[$app])`" />"
         }
     }
-    
+
     # ALWAYS exclude Classic Outlook (we use the New Outlook App)
     $excludeApps += "`n      <ExcludeApp ID=`"Outlook`" />"
     # Always exclude Lync and Groove if not explicitly selected
@@ -3130,7 +3130,7 @@ function New-ConfigXML {
             $excludeApps += "`n      <ExcludeApp ID=`"Groove`" />"
         }
     }
-    
+
     # Start building XML
     $xmlContent = @"
 <Configuration>
@@ -3139,7 +3139,7 @@ function New-ConfigXML {
 $langTags$excludeApps
     </Product>
 "@
-    
+
     # Add Project if selected and supported
     # NOTE: Project and Visio are standalone products, they should NOT have ExcludeApps
     if ($includeProject) {
@@ -3158,7 +3158,7 @@ $langTags
     </Product>
 "@
     }
-    
+
     # Add Visio if selected and supported
     # NOTE: Visio is a standalone product, it should NOT have ExcludeApps
     if ($includeVisio) {
@@ -3177,7 +3177,7 @@ $langTags
     </Product>
 "@
     }
-    
+
     # Add language pack for additional languages if any
     if ($additionalLangs.Count -gt 0) {
         $langPackTags = ""
@@ -3194,7 +3194,7 @@ $langTags
 "@
         }
     }
-    
+
     # Close Add section and add properties
     $xmlContent += @"
 
@@ -3218,7 +3218,7 @@ $langTags
   </AppSettings>
 </Configuration>
 "@
-    
+
     Set-Content -Path $path -Value $xmlContent -Encoding UTF8 -Force
     Write-Log "Configuration XML created: $path" -Level Success
     Write-Log "  Version: $version, Channel: $channel" -Level Debug
@@ -3232,9 +3232,9 @@ function Remove-Conflicting-Office {
     if ($Script:ProgressSync -and $Script:ProgressSync.RequestCancel) {
         throw "Installation cancelled by user"
     }
-    
+
     Write-Log "Checking for conflicting Office installations..." -Level Info
-    
+
     # Kill processes
     @('OneDrive', 'OneNote', 'Microsoft.Notes', 'Skype', 'lync', 'WINWORD', 'EXCEL', 'POWERPNT', 'OUTLOOK', 'ONENOTE') | ForEach-Object {
         $procs = Get-Process $_ -ErrorAction SilentlyContinue
@@ -3243,7 +3243,7 @@ function Remove-Conflicting-Office {
             $procs | Stop-Process -Force -ErrorAction SilentlyContinue
         }
     }
-    
+
     # Uninstall existing Office installations (Click-to-Run)
     Write-Log "Checking for existing Office Click-to-Run installations..." -Level Debug
     $officeC2R = Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Office\ClickToRun\Configuration' -ErrorAction SilentlyContinue
@@ -3270,7 +3270,7 @@ function Remove-Conflicting-Office {
                 "$($userProfile.FullName)\AppData\Local\Microsoft\Office"
                 "$($userProfile.FullName)\AppData\Roaming\Microsoft\Office"
             )
-            
+
             foreach ($path in $pathsToRemove) {
                 if (Test-Path $path) {
                     Write-Log "Removing leftover: $path" -Level Debug
@@ -3279,7 +3279,7 @@ function Remove-Conflicting-Office {
             }
         }
     }
-    
+
     # Common ProgramData
     $progDataOffice = "C:\ProgramData\Microsoft\Office"
     if (Test-Path $progDataOffice) {
@@ -3298,7 +3298,7 @@ function Remove-Windows-Bloatware {
         Write-Log "Uninstalling OneDrive..." -Level Debug
         Start-Process-CancelAware -FilePath $odSetup -ArgumentList "/uninstall" -WindowStyle Hidden
     }
-    
+
     # Remove Appx packages (including OneNote)
     Write-Log "Removing UWP app packages..." -Level Debug
     @('*OneDrive*', '*SkypeApp*', '*MicrosoftOfficeHub*') | ForEach-Object {
@@ -3315,7 +3315,7 @@ function Remove-Windows-Bloatware {
             $provisioned | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue | Out-Null
         }
     }
-    
+
     # Registry Blocks
     Write-Log "Applying registry policies..." -Level Debug
     $regPaths = @(
@@ -3325,11 +3325,11 @@ function Remove-Windows-Bloatware {
     foreach ($regPath in $regPaths) {
         if (-not (Test-Path $regPath)) { New-Item $regPath -Force | Out-Null }
     }
-    
+
     Set-ItemProperty 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive' -Name 'DisableFileSyncNGSC' -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
     Set-ItemProperty 'HKLM:\SOFTWARE\Policies\Microsoft\Office\16.0\Common\OfficeUpdate' -Name 'HideOneDrive' -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
     # OneNote hiding removed
-    
+
     Write-Log "Bloatware removal complete" -Level Success
 }
 
@@ -3337,16 +3337,16 @@ function Set-WindowsInsider {
     param(
         [string]$Channel = "None"
     )
-    
+
     Write-Log "Configuring Windows Insider Program: $Channel" -Level Info
     $regPath = "HKLM:\SOFTWARE\Microsoft\WindowsSelfHost\Applicability"
     $regPathUI = "HKLM:\SOFTWARE\Microsoft\WindowsSelfHost\UI\Selection"
 
-    
+
     if ($Channel -eq "None" -or $Channel -eq "Normal") {
         # Opt-out / Remove Insider settings
         Write-Log "Removing Windows Insider settings..." -Level Info
-        
+
         # Remove Applicability keys
         if (Test-Path $regPath) {
             Remove-ItemProperty -Path $regPath -Name "BranchName" -ErrorAction SilentlyContinue
@@ -3357,14 +3357,14 @@ function Set-WindowsInsider {
             Remove-ItemProperty -Path $regPath -Name "UIRing" -ErrorAction SilentlyContinue
             Set-ItemProperty -Path $regPath -Name "EnablePreviewBuilds" -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
         }
-        
+
         # Clean UI selection keys to reflect opt-out
         if (Test-Path $regPathUI) {
             Remove-ItemProperty -Path $regPathUI -Name "UIBranch" -ErrorAction SilentlyContinue
             Remove-ItemProperty -Path $regPathUI -Name "UIContentType" -ErrorAction SilentlyContinue
             Remove-ItemProperty -Path $regPathUI -Name "UIRing" -ErrorAction SilentlyContinue
         }
-        
+
         Write-Log "Insider Program settings removed." -Level Success
         return
     }
@@ -3373,7 +3373,7 @@ function Set-WindowsInsider {
     $branch = "ReleasePreview"
     $content = "Mainline"
     $ring = "External"
-    
+
     switch ($Channel) {
         "Dev" {
             $branch = "Dev"
@@ -3391,29 +3391,29 @@ function Set-WindowsInsider {
             $ring = "External"
         }
     }
-    
+
     # Create keys if missing
     if (-not (Test-Path $regPath)) { New-Item -Path $regPath -Force | Out-Null }
     if (-not (Test-Path $regPathUI)) { New-Item -Path $regPathUI -Force | Out-Null }
-    
+
     # Set Applicability
     Set-ItemProperty -Path $regPath -Name "EnablePreviewBuilds" -Value 2 -Type DWord -Force
     Set-ItemProperty -Path $regPath -Name "BranchName" -Value $branch -Type String -Force
     Set-ItemProperty -Path $regPath -Name "ContentType" -Value $content -Type String -Force
     Set-ItemProperty -Path $regPath -Name "Ring" -Value $ring -Type String -Force
-    
+
     # Set UI
     Set-ItemProperty -Path $regPathUI -Name "UIBranch" -Value $branch -Type String -Force
     Set-ItemProperty -Path $regPathUI -Name "UIContentType" -Value $content -Type String -Force
     Set-ItemProperty -Path $regPathUI -Name "UIRing" -Value $ring -Type String -Force
-    
+
     Write-Log "Windows Insider configured to: $Channel" -Level Success
 }
 
 
 function Start-CleanupOperations {
     Write-Log "Running post-installation cleanup..." -Level Info
-    
+
     # Force remove OneNote executable if it exists
     # OneNote removal removed
 
@@ -3431,13 +3431,13 @@ function New-DesktopShortcut {
         [string]$ShortcutName,
         [string]$Arguments = ""
     )
-    
+
     try {
         if (-not (Test-Path $TargetFile)) { return }
-        
+
         $desktopPath = [Environment]::GetFolderPath("Desktop")
         $shortcutPath = Join-Path $desktopPath "$ShortcutName.lnk"
-        
+
         $wshShell = New-Object -ComObject WScript.Shell
         $shortcut = $wshShell.CreateShortcut($shortcutPath)
         $shortcut.TargetPath = $TargetFile
@@ -3445,7 +3445,7 @@ function New-DesktopShortcut {
         $shortcut.WindowStyle = 1
         $shortcut.IconLocation = "$TargetFile,0"  # Explicit icon from target file
         $shortcut.Save()
-        
+
         Write-Log "Created desktop shortcut: $ShortcutName" -Level Success
     }
     catch {
@@ -3459,14 +3459,14 @@ function New-DesktopShortcut {
 function New-AllAppShortcuts {
     Write-Log "===== ENTERING New-AllAppShortcuts ====="  -Level Info
     Write-Log "Generating desktop shortcuts..." -Level Info
-    
+
     $desktopPath = [Environment]::GetFolderPath("Desktop")
     if ([string]::IsNullOrWhiteSpace($desktopPath)) { $desktopPath = "$env:USERPROFILE\Desktop" }
     $publicDesktop = "$env:Public\Desktop"
-    
+
     # Track created shortcuts (by filename, not app name)
     $createdShortcutFiles = @{}
-    
+
     # Helper: Check if shortcut file already exists
     function Test-ShortcutExists {
         param([string]$ShortcutName)
@@ -3474,7 +3474,7 @@ function New-AllAppShortcuts {
         $publicPath = Join-Path $publicDesktop "$ShortcutName.lnk"
         return (Test-Path $userPath) -or (Test-Path $publicPath)
     }
-    
+
     # Helper: Create Win32 shortcut
     function New-Win32Shortcut {
         param([string]$Name, [string]$TargetFile)
@@ -3485,7 +3485,7 @@ function New-AllAppShortcuts {
             return $false
         }
         if (-not (Test-Path $TargetFile -ErrorAction SilentlyContinue)) { return $false }
-        
+
         try {
             New-DesktopShortcut -TargetFile $TargetFile -ShortcutName $Name
             $createdShortcutFiles[$Name] = $true
@@ -3496,7 +3496,7 @@ function New-AllAppShortcuts {
             return $false
         }
     }
-    
+
     # Helper: Create UWP shortcut
     function New-UWPShortcut {
         param([string]$ShortcutName, [string]$AppUserModelId)
@@ -3506,7 +3506,7 @@ function New-AllAppShortcuts {
             $createdShortcutFiles[$ShortcutName] = $true
             return $false
         }
-        
+
         try {
             $shortcutPath = Join-Path $desktopPath "$ShortcutName.lnk"
             $wshShell = New-Object -ComObject WScript.Shell
@@ -3525,12 +3525,12 @@ function New-AllAppShortcuts {
             return $false
         }
     }
-    
+
     # =========================================================================
     # PHASE 1: UWP / Store Apps (FIRST - with AGGRESSIVE RETRY for newly installed apps)
     # =========================================================================
     Write-Log "Phase 1: Creating UWP shortcuts (with aggressive retry)..." -Level Info
-    
+
     # UWP apps with their search patterns -> Shortcut name
     $uwpApps = @(
         @{ ShortcutName = "Outlook (New)"; Patterns = @("Outlook", "Outlook (new)", "Mail") }
@@ -3543,31 +3543,31 @@ function New-AllAppShortcuts {
         @{ ShortcutName = "OneNote"; Patterns = @("OneNote", "OneNote for Windows") }
         @{ ShortcutName = "Defender"; Patterns = @("Microsoft Defender", "Windows Security") }
     )
-    
+
     # INITIAL DELAY: Windows needs time to index newly installed apps
     Write-Log "Waiting 30 seconds for Windows to register newly installed apps..." -Level Info
     Update-Progress -Percent 85 -SubStatus "Waiting for apps to register..."
     Start-Sleep -Seconds 30
-    
+
     # Retry loop with aggressive timing
     $maxRetries = 12
     $retryDelay = 10
     $pendingApps = [System.Collections.ArrayList]@($uwpApps)
     $createdCount = 0
-    
+
     for ($attempt = 1; $attempt -le $maxRetries; $attempt++) {
         # Log pending apps on first attempt
         if ($attempt -eq 1) {
             $pendingNames = ($pendingApps | ForEach-Object { $_.ShortcutName }) -join ", "
             Write-Log "UWP Shortcuts to create: $pendingNames" -Level Info
         }
-        
+
         # Refresh Start Apps list each attempt
         $startApps = $null
         try {
             $startApps = Get-StartApps -ErrorAction Stop | Select-Object Name, AppID
             Write-Log "Attempt $attempt/$maxRetries : Found $($startApps.Count) apps in Start Menu, $($pendingApps.Count) shortcuts pending" -Level Debug
-            
+
             # Log sample app names on first attempt for debugging
             if ($attempt -eq 1 -and $startApps.Count -gt 0) {
                 $sampleNames = ($startApps | Select-Object -First 20 | ForEach-Object { $_.Name }) -join ", "
@@ -3579,18 +3579,18 @@ function New-AllAppShortcuts {
             Start-Sleep -Seconds 5
             continue
         }
-        
+
         if (-not $startApps -or $startApps.Count -eq 0) {
             Write-Log "Get-StartApps returned empty, retrying..." -Level Warning
             Start-Sleep -Seconds 5
             continue
         }
-        
+
         $stillPending = [System.Collections.ArrayList]::new()
-        
+
         foreach ($app in $pendingApps) {
             $foundAumid = $null
-            
+
             foreach ($pattern in $app.Patterns) {
                 # Exact match first
                 $match = $startApps | Where-Object { $_.Name -eq $pattern } | Select-Object -First 1
@@ -3599,9 +3599,9 @@ function New-AllAppShortcuts {
                     Write-Log "EXACT MATCH: $($app.ShortcutName) -> $($match.Name) [$($match.AppID)]" -Level Debug
                     break
                 }
-                
+
                 # Fuzzy match
-                $match = $startApps | Where-Object { $_.Name -like "*$pattern*" } | 
+                $match = $startApps | Where-Object { $_.Name -like "*$pattern*" } |
                 Sort-Object { $_.Name.Length } | Select-Object -First 1
                 if ($match) {
                     $foundAumid = $match.AppID
@@ -3609,7 +3609,7 @@ function New-AllAppShortcuts {
                     break
                 }
             }
-            
+
             if ($foundAumid) {
                 $result = New-UWPShortcut -ShortcutName $app.ShortcutName -AppUserModelId $foundAumid
                 if ($result) { $createdCount++ }
@@ -3618,14 +3618,14 @@ function New-AllAppShortcuts {
                 $stillPending.Add($app) | Out-Null
             }
         }
-        
+
         $pendingApps = $stillPending
-        
+
         if ($pendingApps.Count -eq 0) {
             Write-Log "All $createdCount UWP shortcuts created on attempt $attempt" -Level Success
             break
         }
-        
+
         if ($attempt -lt $maxRetries) {
             $pendingNames = ($pendingApps | ForEach-Object { $_.ShortcutName }) -join ", "
             Write-Log "Waiting ${retryDelay}s for $($pendingApps.Count) pending apps: $pendingNames" -Level Debug
@@ -3638,14 +3638,14 @@ function New-AllAppShortcuts {
             }
         }
     }
-    
+
     Write-Log "UWP shortcut phase complete: $createdCount created, $($pendingApps.Count) not found" -Level Info
-    
+
     # =========================================================================
     # PHASE 2: Office Apps (Win32 via ODT)
     # =========================================================================
     Write-Log "Phase 2: Creating Office shortcuts..." -Level Debug
-    
+
     $officeRoot = "$env:ProgramFiles\Microsoft Office\root\Office16"
     $officeApps = @{
         "Word"       = "WINWORD.EXE"
@@ -3657,18 +3657,18 @@ function New-AllAppShortcuts {
         "Visio"      = "VISIO.EXE"
         "Project"    = "WINPROJ.EXE"
     }
-    
+
     foreach ($appName in $officeApps.Keys) {
         $exe = $officeApps[$appName]
         $path = [System.IO.Path]::Combine($officeRoot, $exe)
         New-Win32Shortcut -Name $appName -TargetFile $path | Out-Null
     }
-    
+
     # =========================================================================
     # PHASE 3: Other Win32 Apps
     # =========================================================================
     Write-Log "Phase 3: Creating other Win32 shortcuts..." -Level Debug
-    
+
     $win32Apps = @{
         "Visual Studio Code Insiders" = @(
             "$env:LOCALAPPDATA\Programs\Microsoft VS Code Insiders\Code - Insiders.exe",
@@ -3691,7 +3691,7 @@ function New-AllAppShortcuts {
             "${env:ProgramFiles(x86)}\Microsoft OneDrive\OneDrive.exe"
         )
     }
-    
+
     # Visual Studio via vswhere
     try {
         $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
@@ -3703,7 +3703,7 @@ function New-AllAppShortcuts {
         }
     }
     catch {}
-    
+
     foreach ($appName in $win32Apps.Keys) {
         foreach ($path in $win32Apps[$appName]) {
             if (Test-Path $path -ErrorAction SilentlyContinue) {
@@ -3712,57 +3712,59 @@ function New-AllAppShortcuts {
             }
         }
     }
-    
+
     # Summary
     $totalCreated = $createdShortcutFiles.Count
     Write-Log "Shortcut generation complete: $totalCreated shortcuts processed" -Level Info
 }
 
 function Remove-AppShortcuts {
+    [CmdletBinding(SupportsShouldProcess=$true)]
+    param()
     Write-Log "Removing shortcuts for excluded/bloatware apps (Start Menu & Desktop)..." -Level Info
 
     # Only remove shortcuts for apps that were EXCLUDED from installation
     # NOTE: We check user config to see if these apps were requested
     $shortcutTargets = @()
-    
+
     # Get user's included apps (apps they selected for installation)
     $includedApps = @()
     if ($Script:UserConfig.SelectedApps) {
         # SelectedApps is a hashtable with app names as keys
-        $includedApps = $Script:UserConfig.SelectedApps.Keys | ForEach-Object { 
+        $includedApps = $Script:UserConfig.SelectedApps.Keys | ForEach-Object {
             if ($Script:UserConfig.SelectedApps[$_]) { $_ }
         }
     }
-    
+
     # Check if OneNote was NOT selected (should be removed as bloatware)
     if ('OneNote' -notin $includedApps) {
         $shortcutTargets += 'OneNote', 'Microsoft OneNote'
     }
-    
+
     # Check if OneDrive was NOT selected
     if ('OneDrive' -notin $includedApps) {
         $shortcutTargets += 'OneDrive'
     }
-    
-    # Check if StickyNotes was NOT selected  
+
+    # Check if StickyNotes was NOT selected
     if ('StickyNotes' -notin $includedApps) {
         $shortcutTargets += 'Sticky Notes', 'StickyNotes', 'Microsoft Sticky Notes'
     }
-    
+
     # Check if Teams was NOT selected
     if ('Teams' -notin $includedApps) {
         $shortcutTargets += 'Teams', 'Microsoft Teams'
     }
-    
+
     # Check if Clipchamp was NOT selected
     if ('Clipchamp' -notin $includedApps) {
         $shortcutTargets += 'Clipchamp'
     }
-    
+
     # Add Office apps to removal list ONLY if they were excluded
     $officeAppMap = @{
         'Word'       = 'Word'
-        'Excel'      = 'Excel'  
+        'Excel'      = 'Excel'
         'PowerPoint' = 'PowerPoint'
         'Outlook'    = 'Outlook'
         'Access'     = 'Access'
@@ -3770,7 +3772,7 @@ function Remove-AppShortcuts {
         'Groove'     = 'OneDrive'
         'Lync'       = 'Skype'
     }
-    
+
     $excludedApps = $Script:UserConfig.ExcludedApps
     if ($excludedApps) {
         foreach ($excluded in $excludedApps) {
@@ -3806,7 +3808,7 @@ function Remove-AppShortcuts {
             }
         }
     }
-    
+
     Write-Log "Shortcut cleanup complete" -Level Success
 }
 
@@ -3815,45 +3817,45 @@ function Install-Office {
         [Parameter(Mandatory)] [string]$SetupPath,
         [Parameter(Mandatory)] [string]$ConfigPath
     )
-    
+
     Write-Log "Starting Office Installation (Download & Install)..." -Level Info
-    
+
     # Download Phase
     $dlStart = 25
     $dlTarget = 48
     Update-Progress -Status (L 'StatusDownloadingOffice') -Percent $dlStart -SubStatus (L 'SubStatusInternetSpeed')
     Write-Log "Running ODT download phase with config: $ConfigPath" -Level Debug
-    
+
     $proc = Start-Process -FilePath $SetupPath -ArgumentList "/download `"$ConfigPath`"" -WindowStyle Hidden -WorkingDirectory $Script:Config.TempFolder -PassThru
     $startTime = Get-Date
-    
+
     while (-not $proc.HasExited) {
         if ($Script:ProgressSync.RequestCancel) {
             try { Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue } catch {}
             throw "Installation cancelled by user"
         }
-        
+
         # Simulate progress: +1% every 4 seconds (approx 90s to reach target)
         $elapsed = ((Get-Date) - $startTime).TotalSeconds
         $currentProg = [math]::Min($dlTarget, [math]::Round($dlStart + ($elapsed / 4)))
         Update-Progress -Percent $currentProg
-        
+
         Start-Sleep -Milliseconds 500
     }
-    
+
     Write-Log "ODT download phase exit code: $($proc.ExitCode)" -Level Debug
-    
+
     if ($proc.ExitCode -ne 0 -and $proc.ExitCode -ne 3010) {
         Write-Log "Download warning/error code: $($proc.ExitCode)" -Level Debug
     }
-    
+
     # Install Phase
     $instStart = 50
     $instTarget = 64
     Update-Progress -Status (L 'StatusInstallingOffice') -Percent $instStart -SubStatus (L 'SubStatusApplyingConfig')
     Write-Log "Running ODT install phase" -Level Debug
     Write-Log "Installing Office... This typically takes 5-15 minutes. Please wait." -Level Info
-    
+
     $proc = Start-Process -FilePath $SetupPath -ArgumentList "/configure `"$ConfigPath`"" -WindowStyle Hidden -WorkingDirectory $Script:Config.TempFolder -PassThru
     $startTime = Get-Date
 
@@ -3862,34 +3864,34 @@ function Install-Office {
             try { Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue } catch {}
             throw "Installation cancelled by user"
         }
-        
+
         # Simulate progress: +1% every 30 seconds (slow install)
         $elapsed = ((Get-Date) - $startTime).TotalSeconds
         $currentProg = [math]::Min($instTarget, [math]::Round($instStart + ($elapsed / 30)))
         Update-Progress -Percent $currentProg
-        
+
         Start-Sleep -Milliseconds 1000
     }
-    
+
     Write-Log "ODT install phase exit code: $($proc.ExitCode)" -Level Debug
-    
+
     if ($proc.ExitCode -ne 0 -and $proc.ExitCode -ne 3010) {
         throw "Office installation failed with code $($proc.ExitCode)"
     }
-    
+
     Write-Log "Office installation complete" -Level Success
 }
 
 function Install-Winget {
     Write-Log "Checking Windows Package Manager (winget)..." -Level Info
-    
+
     # First try Get-Command (works in most cases)
     $wingetPath = Get-Command winget -ErrorAction SilentlyContinue
     if ($wingetPath) {
         Write-Log "Winget is already installed" -Level Success
         return $wingetPath.Source
     }
-    
+
     # Fallback: Check common installation paths directly (for elevated sessions where aliases may not work)
     $possiblePaths = @(
         "$env:LOCALAPPDATA\Microsoft\WindowsApps\winget.exe",
@@ -3902,28 +3904,28 @@ function Install-Winget {
             return $resolved
         }
     }
-    
+
     Write-Log "Winget not found - installing App Installer from Microsoft Store..." -Level Warning
-    
+
     try {
         # Download App Installer (includes winget)
         $appInstallerUrl = "https://aka.ms/getwinget"
         $appInstallerPath = Join-Path $Script:Config.TempFolder "Microsoft.DesktopAppInstaller.msixbundle"
-        
+
         Write-Log "Downloading App Installer..." -Level Debug
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
         $success = Invoke-Download-CancelAware -Url $appInstallerUrl -Path $appInstallerPath
         if (-not $success) { throw "Download cancelled or failed" }
-        
+
         Write-Log "Installing App Installer..." -Level Debug
         Add-AppxPackage -Path $appInstallerPath -ErrorAction Stop
-        
+
         # Wait for installation to complete
         Start-Sleep -Seconds 5
-        
+
         # Refresh PATH
         $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
-        
+
         $wingetPath = Get-Command winget -ErrorAction SilentlyContinue
         if ($wingetPath) {
             Write-Log "Winget installed successfully" -Level Success
@@ -3949,11 +3951,11 @@ function Install-Winget {
     catch {
         if ($_.Exception.Message -match "0x80073D06" -or $_.Exception.Message -match "higher version.*already installed") {
             Write-Log "Winget (App Installer) is already installed (newer version detected). Proceeding." -Level Success
-            
+
             # Try to resolve path again
             $wingetPath = Get-Command winget -ErrorAction SilentlyContinue
             if ($wingetPath) { return $wingetPath.Source }
-            
+
             $possiblePaths = @(
                 "$env:LOCALAPPDATA\Microsoft\WindowsApps\winget.exe",
                 "$env:ProgramFiles\WindowsApps\Microsoft.DesktopAppInstaller*\winget.exe"
@@ -3966,7 +3968,7 @@ function Install-Winget {
                 }
             }
         }
-        
+
         Write-Log "Failed to install winget: $($_.Exception.Message)" -Level Error
         throw
     }
@@ -3975,7 +3977,7 @@ function Install-Winget {
 function Install-Extras {
     Write-Log "Installing Winget packages (Parallel Mode)..." -Level Info
     Update-Progress -Status (L 'StatusInstallingExtras') -Percent 65 -SubStatus "Preparing package list..."
-    
+
     # ---------------------------
     # App Definitions (Winget/Store)
     # ---------------------------
@@ -4003,7 +4005,7 @@ function Install-Extras {
             $packagesToInstall += $appsMap[$key]
         }
     }
-    
+
     # Legacy flags
     if ($Script:UserConfig.IncludeClipchamp -and -not $userApps['Clipchamp']) {
         $packagesToInstall += @{ Id = '9P1J8S7CCWWT'; Source = 'msstore'; Name = 'Microsoft Clipchamp' }
@@ -4011,12 +4013,12 @@ function Install-Extras {
     if ($Script:UserConfig.IncludePowerAutomate) {
         $packagesToInstall += @{ Id = 'Microsoft.PowerAutomateDesktop'; Source = 'winget'; Name = 'Power Automate Desktop' }
     }
-    
+
     if ($packagesToInstall.Count -eq 0) {
         Write-Log "No extra packages selected - skipping" -Level Debug
         return
     }
-    
+
     # Ensure winget is available
     try {
         $wingetExe = Install-Winget
@@ -4025,22 +4027,22 @@ function Install-Extras {
         Write-Log "Winget unavailable: $($_.Exception.Message)" -Level Warning
         return
     }
-    
+
     # ===========================================================================
     # PARALLEL INSTALLATION
     # ===========================================================================
     Write-Log "Starting parallel installation of $($packagesToInstall.Count) packages..." -Level Info
     Update-Progress -Status "Installing Applications (Parallel)" -Percent 67 -SubStatus "Launching installers..."
-    
+
     $processes = @{}
     $retryQueue = @()
-    $maxParallel = 4  # Limit concurrent installs to avoid resource exhaustion
+
     $timeout = 600    # 10 minute timeout per batch
-    
+
     # Group by source for better resource management
     $wingetApps = $packagesToInstall | Where-Object { $_.Source -eq 'winget' }
     $msstoreApps = $packagesToInstall | Where-Object { $_.Source -eq 'msstore' }
-    
+
     # Helper: Launch parallel installs for a batch
     function Start-ParallelInstalls {
         param([array]$Apps, [string]$WingetPath)
@@ -4048,21 +4050,21 @@ function Install-Extras {
         foreach ($pkg in $Apps) {
             $args = "install --id $($pkg.Id) --accept-package-agreements --accept-source-agreements --source $($pkg.Source) --disable-interactivity --silent"
             if ($pkg.Source -ne 'msstore') { $args += " --force" }
-            
+
             Write-Log "Launching: $($pkg.Name)" -Level Debug
             $proc = Start-Process -FilePath $WingetPath -ArgumentList $args -WindowStyle Hidden -PassThru
             $procs[$pkg.Name] = @{ Process = $proc; Package = $pkg }
         }
         return $procs
     }
-    
+
     # Helper: Wait for all processes with timeout
     function Wait-AllProcesses {
         param([hashtable]$Processes, [int]$Timeout)
         $startTime = Get-Date
         $failed = @()
         $succeeded = @()
-        
+
         while ($Processes.Count -gt 0 -and ((Get-Date) - $startTime).TotalSeconds -lt $Timeout) {
             # INLINE WATCHDOG: Kill nuisances immediately while waiting
             $nuisances = @('PowerToys', 'PowerToys.Settings', 'PowerToys.Runner', 'PAD.Console.Host', 'ms-teams', 'Teams', 'StarDesk', 'GameViewer')
@@ -4091,7 +4093,7 @@ function Install-Extras {
                 }
             }
             foreach ($c in $completed) { $Processes.Remove($c) }
-            
+
             if ($Processes.Count -gt 0) {
                 Start-Sleep -Seconds 2
                 # Update progress
@@ -4099,17 +4101,17 @@ function Install-Extras {
                 Update-Progress -SubStatus "Waiting for $remaining installers..."
             }
         }
-        
+
         # Timeout cleanup
         foreach ($name in $Processes.Keys) {
             Write-Log "[TIMEOUT] $name - killing" -Level Warning
             try { Stop-Process -Id $Processes[$name].Process.Id -Force -ErrorAction SilentlyContinue } catch {}
             $failed += $Processes[$name].Package
         }
-        
+
         return @{ Succeeded = $succeeded; Failed = $failed }
     }
-    
+
     # Phase 1: Install winget source apps
     if ($wingetApps.Count -gt 0) {
         Write-Log "Phase 1: Installing $($wingetApps.Count) winget apps in parallel..." -Level Info
@@ -4118,7 +4120,7 @@ function Install-Extras {
         $result = Wait-AllProcesses -Processes $processes -Timeout $timeout
         $retryQueue += $result.Failed
     }
-    
+
     # Phase 2: Install msstore apps
     if ($msstoreApps.Count -gt 0) {
         Write-Log "Phase 2: Installing $($msstoreApps.Count) Store apps in parallel..." -Level Info
@@ -4127,7 +4129,7 @@ function Install-Extras {
         $result = Wait-AllProcesses -Processes $processes -Timeout $timeout
         $retryQueue += $result.Failed
     }
-    
+
     # Phase 3: Retry failed installs (sequential, one attempt)
     if ($retryQueue.Count -gt 0) {
         Write-Log "Retrying $($retryQueue.Count) failed packages..." -Level Info
@@ -4143,17 +4145,17 @@ function Install-Extras {
             }
         }
     }
-    
+
     # Post-Install Cleanup: Final Sweep
     # Kill any lingering processes that might have started after the last install finished
     Update-Progress -Percent 75 -SubStatus "Final cleanup..."
     Write-Log "Performing final cleanup check..." -Level Debug
-    
+
     $appsToKill = @('PowerToys', 'PowerToys.Settings', 'PowerToys.Runner', 'PAD.Console.Host', 'PAD.Machine.Management', 'ms-teams', 'Teams', 'StarDesk', 'GameViewer')
     foreach ($procName in $appsToKill) {
         Get-Process -Name $procName -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
     }
-    
+
     Write-Log "Parallel installation complete" -Level Success
 }
 
@@ -4166,7 +4168,7 @@ function Install-Extras {
 function Invoke-Licensing {
     Write-Log "Starting Licensing Check & Activation..." -Level Info
     Update-Progress -Status "Activating Products" -Percent 75 -SubStatus "Checking Windows and Office licenses..."
-    
+
     # Download MAS to ProgramData (NOT temp folder - MAS refuses to run from temp)
     $masFolder = Join-Path $env:ProgramData 'MicrosoftActivation'
     if (-not (Test-Path $masFolder)) {
@@ -4174,14 +4176,14 @@ function Invoke-Licensing {
     }
     $masPath = Join-Path $masFolder 'MAS_AIO.cmd'
     $downloaded = $false
-    
+
     foreach ($url in $Script:Config.MASUrls) {
         try {
             Write-Log "Attempting MAS download from: $url" -Level Debug
             [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
             $success = Invoke-Download-CancelAware -Url $url -Path $masPath
             if (-not $success) { throw "Download returned false" }
-            
+
             # FILE VERIFICATION: Check existence and reasonable size (MAS AIO is > 100KB usually)
             if (-not (Test-Path $masPath) -or (Get-Item $masPath).Length -lt 1024) {
                 throw "Downloaded file is missing or too small (<1KB) - possible corruption"
@@ -4195,7 +4197,7 @@ function Invoke-Licensing {
             Write-Log "MAS download failed from this source: $($_.Exception.Message)" -Level Warning
         }
     }
-    
+
     if (-not $downloaded) {
         Write-Log "Could not download valid activation script. Skipping licensing." -Level Error
         return
@@ -4208,7 +4210,7 @@ function Invoke-Licensing {
         if ($targetEdition -and $targetEdition -ne '') {
             Write-Log "Applying Windows Edition: $targetEdition" -Level Info
             Update-Progress -Status (L 'StatusActivating') -Percent 78 -SubStatus "Switching Windows to $targetEdition..."
-            
+
             $editionKeys = @{
                 'Pro'           = 'VK7JG-NPHTM-C97JM-9MPGT-3V66T'
                 'Home'          = 'YTMG3-N6DKC-DKB77-7M9GH-8HVX7'
@@ -4216,15 +4218,15 @@ function Invoke-Licensing {
                 'Education'     = 'YNMGQ-8RYV3-4PGQ3-C8XTP-7CFBY'
                 'IoTEnterprise' = 'XQQ2F-VNMJ3-C7R3R-VV3BZ-T4R6J'
             }
-            
+
             if ($editionKeys.ContainsKey($targetEdition)) {
                 $genericKey = $editionKeys[$targetEdition]
                 Write-Log "Using Generic Key: $genericKey" -Level Debug
-                
+
                 # Attempt 1: changepk.exe
                 Write-Log "Attempting edition change via ChangePK..." -Level Debug
                 $proc = Start-Process-CancelAware -FilePath "changepk.exe" -ArgumentList "/ProductKey $genericKey" -WindowStyle Hidden
-                
+
                 if ($proc.ExitCode -eq 0) {
                     Write-Log "ChangePK completed successfully." -Level Success
                     $editionChanged = $true
@@ -4237,7 +4239,7 @@ function Invoke-Licensing {
                 if (-not $editionChanged) {
                     Write-Log "Attempting edition change via SLMGR..." -Level Debug
                     $procSlmgr = Start-Process-CancelAware -FilePath "cscript.exe" -ArgumentList "//nologo $env:SystemRoot\System32\slmgr.vbs /ipk $genericKey" -WindowStyle Hidden
-                    
+
                     if ($procSlmgr.ExitCode -eq 0) {
                         Write-Log "SLMGR key installation successful." -Level Success
                         $editionChanged = $true
@@ -4246,7 +4248,7 @@ function Invoke-Licensing {
                         Write-Log "SLMGR failed with exit code: $($procSlmgr.ExitCode)" -Level Error
                     }
                 }
-                
+
                 Start-Sleep -Seconds 5
             }
         }
@@ -4254,18 +4256,18 @@ function Invoke-Licensing {
     catch {
         Write-Log "Windows edition change failed: $($_.Exception.Message)" -Level Warning
     }
-    
+
     # 2. Activate Windows (HWID)
     # 2. Activate Windows (HWID)
     Write-Log "Checking Windows Activation State..." -Level Debug
-    
+
     # Robust WMI Query to capture all statuses (User reported Enterprise failure)
     $licenses = $null
     try {
         $licenses = Get-CimInstance SoftwareLicensingProduct | Where-Object { $_.PartialProductKey -and $_.ApplicationId -eq '55c92734-d682-4d71-983e-d6ec3f16059f' }
         if ($licenses) {
-            $licenses | ForEach-Object { 
-                Write-Log "  [WMI] Found License: Name='$($_.Name)' | Status=$($_.LicenseStatus) | Desc='$($_.Description)'" -Level Debug 
+            $licenses | ForEach-Object {
+                Write-Log "  [WMI] Found License: Name='$($_.Name)' | Status=$($_.LicenseStatus) | Desc='$($_.Description)'" -Level Debug
             }
         }
         else {
@@ -4275,7 +4277,7 @@ function Invoke-Licensing {
     catch {
         Write-Log "  [WMI] Query Failed: $($_.Exception.Message)" -Level Error
     }
-    
+
     # Determine if ANY license is valid (Status 1 = Licensed)
     $isLicensed = $false
     if ($licenses) {
@@ -4284,7 +4286,7 @@ function Invoke-Licensing {
             $isLicensed = $true
         }
     }
-    
+
     # Logic: Preserve license if explicitly Licensed AND no edition change. Activate otherwise.
     if ($isLicensed -and -not $editionChanged) {
         Write-Log "Windows is already activated (Valid permanent/active license found). Preserving existing license." -Level Success
@@ -4301,7 +4303,7 @@ function Invoke-Licensing {
                 Write-Log "Unlicensed Enterprise edition detected ($currentCaption). Applying generic KMS client key to facilitate HWID..." -Level Info
                 $entKey = "XGVPP-NMH47-7TTHJ-W3FW7-8HV2C" # Generic Enterprise
                 if ($currentCaption -like "*IoT*") { $entKey = "XQQ2F-VNMJ3-C7R3R-VV3BZ-T4R6J" } # Generic IoT Enterprise
-                        
+
                 Write-Log "Installing generic key: $entKey" -Level Debug
                 $procKey = Start-Process-CancelAware -FilePath "cscript.exe" -ArgumentList "//nologo $env:SystemRoot\System32\slmgr.vbs /ipk $entKey" -WindowStyle Hidden
                 Write-Log "Generic key installation exit code: $($procKey.ExitCode)" -Level Debug
@@ -4310,9 +4312,9 @@ function Invoke-Licensing {
         catch { Write-Log "Enterprise key preparation failed: $($_.Exception.Message)" -Level Warning }
 
         Update-Progress -Status "Activating Products" -Percent 80 -SubStatus "Activating Windows (Permanent Digital License)..."
-        
+
         $actLog = Join-Path $Script:Config.TempFolder 'WindowsActivation_Debug.log'
-        
+
         # Attempt 1: HWID
         Write-Log "Attempting Windows Activation via MAS /HWID..." -Level Info
         try {
@@ -4321,11 +4323,11 @@ function Invoke-Licensing {
         catch {
             Write-Log "Windows Activation (HWID) timed out or failed: $($_.Exception.Message)" -Level Warning
         }
-                
+
         # Check result
         Start-Sleep -Seconds 2
         $afterStatus = Get-CimInstance SoftwareLicensingProduct | Where-Object { $_.PartialProductKey -and $_.Name -like "*Windows*" } | Select-Object -ExpandProperty LicenseStatus -Unique
-                
+
         # Attempt 2: KMS38 (Fallback)
         if ($afterStatus -ne 1) {
             Write-Log "HWID activation failed or could not be verified (Status: $afterStatus). Trying KMS38 fallback..." -Level Warning
@@ -4336,45 +4338,45 @@ function Invoke-Licensing {
             catch {
                 Write-Log "Windows Activation (KMS38) timed out or failed: $($_.Exception.Message)" -Level Warning
             }
-                    
+
             Start-Sleep -Seconds 2
             $afterStatus = Get-CimInstance SoftwareLicensingProduct | Where-Object { $_.PartialProductKey -and $_.Name -like "*Windows*" } | Select-Object -ExpandProperty LicenseStatus -Unique
         }
 
-        if ($afterStatus -eq 1) { 
-            Write-Log "Windows successfully activated." -Level Success 
+        if ($afterStatus -eq 1) {
+            Write-Log "Windows successfully activated." -Level Success
         }
-        else { 
-            Write-Log "Windows activation failed. Final status: $afterStatus." -Level Error 
+        else {
+            Write-Log "Windows activation failed. Final status: $afterStatus." -Level Error
             Write-Log "Dumping activation log snippet:" -Level Debug
             if (Test-Path $actLog) {
                 Get-Content $actLog | Select-Object -Last 20 | ForEach-Object { Write-Log "     [MAS] $_" -Level Debug }
             }
         }
     }
-    
+
     # 3. Activate Office (Ohook)
     # Robust Detection: Check standard paths, Common Files (C2R), Registry, OR if user explicitly requested Office
     $officePathStd = (Test-Path "$env:ProgramFiles\Microsoft Office") -or (Test-Path "${env:ProgramFiles(x86)}\Microsoft Office")
     $officePathC2R = (Test-Path "$env:ProgramFiles\Common Files\Microsoft Shared\ClickToRun\OfficeC2RClient.exe") -or (Test-Path "${env:ProgramFiles(x86)}\Common Files\Microsoft Shared\ClickToRun\OfficeC2RClient.exe")
     $officeReg = (Test-Path 'HKLM:\SOFTWARE\Microsoft\Office\ClickToRun')
     $userIntent = $Script:UserConfig.OfficeVersion -and $Script:UserConfig.OfficeVersion -ne 'None'
-    
+
     if ($officePathStd -or $officePathC2R -or $officeReg -or $userIntent) {
-        
+
         # Check existing status first (Preservation Logic)
         $officePreStatus = Get-CimInstance SoftwareLicensingProduct | Where-Object { $_.Name -like "Office 16, Office16*" -and $_.PartialProductKey -and $_.LicenseStatus -eq 1 }
-        
+
         # Activate if: User just installed it (Intent) OR It's currently unlicensed
         if ($userIntent -or -not $officePreStatus) {
-            
+
             if ($userIntent) { Write-Log "Activation triggered by new Office installation/configuration." -Level Info }
             else { Write-Log "Office detected but unlicensed. Initiating activation..." -Level Info }
-            
+
             Update-Progress -Status (L 'StatusActivating') -Percent 85 -SubStatus 'Office (Ohook)...'
-            
+
             $ohookLog = Join-Path $Script:Config.TempFolder 'OfficeActivation_Debug.log'
-            
+
             Write-Log "Attempting Office Activation via MAS /Ohook..." -Level Info
             try {
                 $proc = Start-Process-CancelAware -FilePath "cmd.exe" -ArgumentList "/c", "call `"$masPath`" /Ohook /S" -WindowStyle Hidden -RedirectStandardOutput $ohookLog -TimeoutSeconds 180
@@ -4382,7 +4384,7 @@ function Invoke-Licensing {
             catch {
                 Write-Log "Office Activation (Ohook) timed out or failed: $($_.Exception.Message)" -Level Warning
             }
-            
+
             if ($proc) {
                 Write-Log "  -> Office activation process exit code: $($proc.ExitCode)" -Level Debug
             }
@@ -4393,12 +4395,12 @@ function Invoke-Licensing {
                     $logContent | Select-Object -Last 20 | ForEach-Object { Write-Log "     [MAS] $_" -Level Debug }
                 }
             }
-                
+
             # Post-Verification
             $officeLi = Get-CimInstance SoftwareLicensingProduct | Where-Object { $_.Name -like "*Office*" -and $_.LicenseStatus -eq 1 }
             if ($officeLi) { Write-Log "Office successfully activated." -Level Success }
             else { Write-Log "Office activation verification failed (or could not be verified via WMI)." -Level Warning }
-        
+
         }
         else {
             Write-Log "Office is already activated and no new installation was requested. Preserving existing license." -Level Success
@@ -4407,8 +4409,8 @@ function Invoke-Licensing {
     else {
         Write-Log "Office installation not found and not selected in config. Skipping Office activation." -Level Warning
     }
-    
-    
+
+
     # Cleanup MAS folder
     try {
         if (Test-Path $masFolder) {
@@ -4417,38 +4419,38 @@ function Invoke-Licensing {
         }
     }
     catch {}
-    
+
     Write-Log "Licensing operations complete" -Level Success
 }
 
 function Uninstall-VisualStudios {
     Write-Log "Detecting Visual Studio installations..." -Level Info
-    
+
     # Path to vswhere
     $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
     if (-not (Test-Path $vswhere)) {
         Write-Log "Visual Studio Installer (vswhere) not found. Skipping VS cleanup." -Level Warning
         return
     }
-    
+
     # Find all instances
     try {
         $instances = & $vswhere -all -property installationPath
         if ($instances) {
             foreach ($path in $instances) {
                 if ([string]::IsNullOrWhiteSpace($path)) { continue }
-                
+
                 Write-Log "Found Visual Studio at: $path" -Level Info
-                
+
                 # For older versions or if standard path differs, try finding setup info
                 # But typically we use the centralized installer:
                 $centralInstaller = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\setup.exe"
-                
+
                 if (Test-Path $centralInstaller) {
                     Write-Log "  -> Uninstalling..." -Level Info
                     # Argument format: uninstall --installPath <path> --quiet --norestart
                     $uninstallArgs = "uninstall --installPath `"$path`" --quiet --norestart --force"
-                    
+
                     $proc = Start-Process-CancelAware -FilePath $centralInstaller -ArgumentList $uninstallArgs -WindowStyle Hidden
                     Write-Log "  -> Uninstallation exit code: $($proc.ExitCode)" -Level Debug
                 }
@@ -4468,7 +4470,7 @@ function Uninstall-VisualStudios {
 
 function Uninstall-SupportedApps {
     Write-Log "Scanning for supported applications to remove..." -Level Info
-    
+
     # 1. Define list of apps to check (IDs and Names for broad matching)
     $appsToRemove = @(
         @{ Id = 'Microsoft.PowerToys'; Name = 'PowerToys' },
@@ -4476,17 +4478,17 @@ function Uninstall-SupportedApps {
         @{ Id = 'Microsoft.Teams'; Name = 'Microsoft Teams' },
         @{ Id = 'XP8BT8DW290MPQ'; Name = 'Microsoft Teams' } # Store ID
     )
-    
+
     # 2. Winget / Win32 Removal
     $winget = "$env:LOCALAPPDATA\Microsoft\WindowsApps\winget.exe"
     if (Test-Path $winget) {
         foreach ($app in $appsToRemove) {
             Write-Log "Checking for $($app.Name)..." -Level Debug
-            
+
             # Try generic uninstall by ID first
             $argsId = "uninstall --id $($app.Id) --silent --accept-source-agreements --disable-interactivity"
             $procId = Start-Process-CancelAware -FilePath $winget -ArgumentList $argsId -WindowStyle Hidden
-            
+
             # If failed or if we want to ensure older versions by name are caught:
             # (Winget uninstall by name can be ambiguous, so use with caution, but user requested diligence)
             if ($procId.ExitCode -ne 0) {
@@ -4495,23 +4497,23 @@ function Uninstall-SupportedApps {
             }
         }
     }
-    
+
     # 3. Store App Removal (Aggressive wildcard matching)
     Write-Log "Removing Store Applications..." -Level Debug
     $storePatterns = @(
-        "*Microsoft.PowerToys*", 
-        "*Microsoft.PowerBI*", 
-        "*MicrosoftTeams*", 
-        "*MSTeams*", 
-        "*Microsoft.Copilot*", 
-        "*Clipchamp*", 
-        "*Microsoft.Todos*", 
-        "*Microsoft.MicrosoftStickyNotes*", 
+        "*Microsoft.PowerToys*",
+        "*Microsoft.PowerBI*",
+        "*MicrosoftTeams*",
+        "*MSTeams*",
+        "*Microsoft.Copilot*",
+        "*Clipchamp*",
+        "*Microsoft.Todos*",
+        "*Microsoft.MicrosoftStickyNotes*",
         "*Microsoft.GamingApp*", # Xbox
         "*Microsoft.XboxGIT*",
         "*Skype*"
     )
-    
+
     foreach ($pattern in $storePatterns) {
         Get-AppxPackage -Name $pattern -AllUsers -ErrorAction SilentlyContinue | ForEach-Object {
             Write-Log "Removing Appx: $($_.Name)" -Level Info
@@ -4520,28 +4522,30 @@ function Uninstall-SupportedApps {
 }
 
 function Remove-LeftoverShortcuts {
+    [CmdletBinding(SupportsShouldProcess=$true)]
+    param()
     Write-Log "Cleaning up leftover shortcuts..." -Level Info
-    
+
     $commonDesktop = [Environment]::GetFolderPath('CommonDesktopDirectory')
     $userDesktop = [Environment]::GetFolderPath('Desktop')
-    
+
     # Start Menu paths (ProgramData and User)
     $commonStart = "$env:ProgramData\Microsoft\Windows\Start Menu\Programs"
     $userStart = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs"
-    
+
     $paths = @($commonDesktop, $userDesktop, $commonStart, $userStart)
-    
+
     $patterns = @(
-        "*Visual Studio*", 
-        "*PowerToys*", 
-        "*Microsoft Teams*", 
+        "*Visual Studio*",
+        "*PowerToys*",
+        "*Microsoft Teams*",
         "*Teams*",
-        "*Outlook*", 
-        "*Excel*", 
-        "*Word*", 
-        "*PowerPoint*", 
-        "*OneNote*", 
-        "*Project*", 
+        "*Outlook*",
+        "*Excel*",
+        "*Word*",
+        "*PowerPoint*",
+        "*OneNote*",
+        "*Project*",
         "*Visio*",
         "*Copilot*",
         "*Skype*",
@@ -4549,7 +4553,7 @@ function Remove-LeftoverShortcuts {
         "*Microsoft To Do*",
         "*PC Manager*"
     )
-    
+
     foreach ($path in $paths) {
         if (Test-Path $path) {
             foreach ($pattern in $patterns) {
@@ -4569,17 +4573,17 @@ function Remove-LeftoverShortcuts {
 
 function Test-CleanupIntegrity {
     param([int]$Attempt = 1, [int]$MaxAttempts = 3)
-    
+
     Write-Log "Verifying cleanup (attempt $Attempt of $MaxAttempts)..." -Level Debug
-    
+
     $orphanedFiles = @()
     $tempPath = $Script:Config.TempFolder
-    
+
     # Check if temp folder still exists
     if (Test-Path $tempPath) {
         $orphanedFiles += Get-ChildItem $tempPath -Recurse -Exclude (Split-Path $Script:Config.LogFile -Leaf) -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName
     }
-    
+
     # Check for leftover Office installation files
     $odtPaths = @(
         "$env:TEMP\odt_setup.exe",
@@ -4590,7 +4594,7 @@ function Test-CleanupIntegrity {
     foreach ($path in $odtPaths) {
         if (Test-Path $path) { $orphanedFiles += $path }
     }
-    
+
     if ($orphanedFiles.Count -gt 0) {
         Write-Log "Found $($orphanedFiles.Count) orphaned files, removing..." -Level Warning
         foreach ($file in $orphanedFiles) {
@@ -4619,7 +4623,7 @@ function Test-CleanupIntegrity {
 function Restore-SystemState {
     Write-Log "Restoring system to previous state..." -Level Info
     Update-Progress -Status (L 'StatusCleaning') -Percent 98 -SubStatus (L 'SubStatusRevertingChanges')
-    
+
     # Restore registry keys
     Write-Log "Restoring registry keys..." -Level Debug
     @(
@@ -4627,7 +4631,7 @@ function Restore-SystemState {
         'HKLM:\SOFTWARE\Policies\Microsoft\Office\16.0\Common\OfficeUpdate',
         'HKLM:\SOFTWARE\Microsoft\WindowsSelfHost\Applicability',
         'HKLM:\SOFTWARE\Microsoft\WindowsSelfHost\UI\Selection'
-    ) | ForEach-Object { 
+    ) | ForEach-Object {
         try {
             Restore-RegistryKey -Path $_
         }
@@ -4635,7 +4639,7 @@ function Restore-SystemState {
             Write-Log "Warning restoring ${_}: $($_.Exception.Message)" -Level Warning
         }
     }
-    
+
     # Clean up temporary files
     Write-Log "Removing temporary installation files..." -Level Debug
     try {
@@ -4647,7 +4651,7 @@ function Restore-SystemState {
     catch {
         Write-Log "Warning removing temp folder: $($_.Exception.Message)" -Level Warning
     }
-    
+
     # Remove any leftover Office installation folders
     $leftoverPaths = @(
         (Join-Path $env:LOCALAPPDATA "Temp\M365Ultimate_Installation"),
@@ -4657,7 +4661,7 @@ function Restore-SystemState {
         (Join-Path $env:USERPROFILE "Office"),
         (Join-Path $env:LOCALAPPDATA "Microsoft\Office\16.0\OfficeFileCache")
     )
-    
+
     foreach ($path in $leftoverPaths) {
         if (Test-Path $path) {
             try {
@@ -4669,10 +4673,10 @@ function Restore-SystemState {
             }
         }
     }
-    
+
     # Verify cleanup
     Test-CleanupIntegrity
-    
+
     Write-Log "System restoration complete" -Level Success
 }
 
@@ -4685,7 +4689,7 @@ try {
     $Script:Stage = 'start'
     Initialize-Log
     Write-Log "=== INSTALLATION STARTED ===" -Level Info
-    
+
     # Show configuration window (Blocking)
     $configSuccess = Show-ConfigWindow
     if (-not $configSuccess) {
@@ -4699,22 +4703,22 @@ try {
     # -------------------------------------------------------------------------
     if ($Script:ConfigResult.Mode -eq 'Uninstall') {
         Write-Log "Starting Deep Uninstall Mode..." -Level Info
-        
+
         # Start Progress UI
         Start-ProgressWindow
         Update-Progress -Status "Uninstalling Office..." -Percent 0 -SubStatus "Initializing..."
-        
+
         try {
             # 1. New Comprehensive Uninstall Steps
             Update-Progress -Status "Uninstalling Visual Studio..." -Percent 10 -SubStatus "Detecting versions..."
             Uninstall-VisualStudios
-            
+
             Update-Progress -Status "Uninstalling Apps..." -Percent 30 -SubStatus "Removing supported apps..."
             Uninstall-SupportedApps
-            
+
             Update-Progress -Status "Cleaning Shortcuts..." -Percent 40 -SubStatus "Removing leftover shortcuts..."
             Remove-LeftoverShortcuts
-            
+
             # 2. Existing Office Uninstall
             Update-Progress -Status "Uninstalling Office..." -Percent 50 -SubStatus "Removing Office suite..."
             Start-OfficeUninstallation
@@ -4729,17 +4733,17 @@ try {
                 [System.Windows.MessageBox]::Show("We encountered an issue during the uninstallation process.`n`nPlease check the log file (visible on your Desktop or in Temp) for specific error details.", "Uninstallation Issue", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Error)
             }
         }
-        
+
         # Cleanup
         Close-Progress
         if (Test-Path $Script:Config.TempFolder) { Remove-Item $Script:Config.TempFolder -Recurse -Force -ErrorAction SilentlyContinue }
-        
+
         Write-Log "Uninstallation finished. Exiting." -Level Info
-        
+
         # Log Logic Fix: Remove log file if successful (User Request)
         try {
-            if (Test-Path $Script:Config.LogFile) { 
-                Remove-Item $Script:Config.LogFile -Force -ErrorAction SilentlyContinue 
+            if (Test-Path $Script:Config.LogFile) {
+                Remove-Item $Script:Config.LogFile -Force -ErrorAction SilentlyContinue
             }
         }
         catch { $null = $_ }
@@ -4765,11 +4769,11 @@ try {
 
     # Start progress window (Background) for Installation
     Start-ProgressWindow
-    
+
     $Script:Stage = 'temp-folder'
     Update-Progress -Status (L 'StatusPreparing') -Percent 5 -SubStatus (L 'StatusInitializing')
     New-TempFolder
-    
+
     # Check for user cancel
     if ($Script:ProgressSync.RequestCancel) { throw "Installation cancelled by user" }
 
@@ -4783,7 +4787,7 @@ try {
     else {
         Write-Log "No Office version selected. Skipping removal of existing Office installations." -Level Info
     }
-    
+
     # Check for user cancel
     if ($Script:ProgressSync.RequestCancel) { throw "Installation cancelled by user" }
 
@@ -4792,7 +4796,7 @@ try {
         Write-Log "Phase 2: Preparing Office Installation" -Level Info
         $setup = Get-ODT
         $xmlConfigPath = New-ConfigXML
-        
+
         # Check for user cancel
         if ($Script:ProgressSync.RequestCancel) { throw "Installation cancelled by user" }
 
@@ -4824,11 +4828,11 @@ try {
     else {
         Write-Log "Skipping Office Installation Phases (User selection: None)" -Level Info
     }
-    
+
     # Run cleanup immediately after install to ensure OneNote is removed even if later stages fail
     Start-CleanupOperations
     Remove-AppShortcuts
-    
+
     # Remove Windows Bloatware (OneDrive, Appx) only after successful install
     Remove-Windows-Bloatware
 
@@ -4839,7 +4843,7 @@ try {
     Write-Log "Phase 4: Installing extras" -Level Info
     Install-Extras
     Write-Log "Phase 4 completed" -Level Info
-    
+
     # Check for user cancel
     if ($Script:ProgressSync.RequestCancel) { throw "Installation cancelled by user" }
 
@@ -4847,7 +4851,7 @@ try {
     Write-Log "Phase 5: Licensing activation" -Level Info
     Invoke-Licensing
     Write-Log "Phase 5 completed" -Level Info
-    
+
     # Check for user cancel
     if ($Script:ProgressSync.RequestCancel) { throw "Installation cancelled by user" }
 
@@ -4858,39 +4862,39 @@ try {
         Start-CleanupOperations
         Remove-AppShortcuts
     }
-    
+
     # Generate user-requested desktop shortcuts
     New-AllAppShortcuts
 
     $Script:Stage = 'cleanup'
     Write-Log "Cleaning temporary files..." -Level Debug
     Update-Progress -Status (L 'StatusFinalizing') -Percent 95 -SubStatus (L 'SubStatusRemovingTemp')
-    
+
     # PRESERVE LOG FILE before deleting temp folder (critical for debugging)
     $desktopLogPath = Join-Path ([Environment]::GetFolderPath('Desktop')) "MicrosoftUltimateInstaller_Debug.log"
     if (Test-Path $Script:Config.LogFile) {
         Copy-Item -Path $Script:Config.LogFile -Destination $desktopLogPath -Force -ErrorAction SilentlyContinue
         Write-Host "Log preserved to: $desktopLogPath" -ForegroundColor Cyan
     }
-    
+
     Remove-Item $Script:Config.TempFolder -Recurse -Force -ErrorAction SilentlyContinue
     Test-CleanupIntegrity
 
     Update-Progress -Status (L 'StatusComplete') -Percent 100 -SubStatus (L 'SubStatusAllComplete')
-    
+
     $duration = (Get-Date) - $Script:Config.InstallStartTime
     Write-Log "=== INSTALLATION COMPLETED SUCCESSFULLY ===" -Level Success
     Write-Log "Total duration: $('{0:hh\:mm\:ss}' -f $duration)" -Level Info
-    
+
     Start-Sleep -Seconds 2
     Close-Progress
-    
+
     # Log file is NO LONGER copied to Desktop on success (User Request)
     # It remains in TempFolder for debugging if needed, or is cleaned up by OS eventually.
-    
+
     # Remove log file on success (optional cleanup) - keeping it in temp for now is safer/standard
     # if (Test-Path $Script:Config.LogFile) { Remove-Item $Script:Config.LogFile -Force -ErrorAction SilentlyContinue }
-    
+
     # Remove log file on success (no log left behind) - DISABLED for Debugging
     # try {
     #     if (Test-Path $Script:Config.LogFile) {
@@ -4906,14 +4910,14 @@ try {
 catch {
     $err = $_.Exception.Message
     $duration = (Get-Date) - $Script:Config.InstallStartTime
-    
+
     # Determine if it's a user cancellation
     $isCancellation = $err -like "*cancelled by user*"
-    
+
     if ($isCancellation) {
         Write-Log "=== INSTALLATION CANCELLED BY USER ===" -Level Warning
         try { Update-Progress -Status "Cancelling..." -Percent 100 -SubStatus "Cleaning up leftovers..." } catch { $null = $_ }
-        
+
         # Cleanup log file on user cancellation
         Start-Sleep -Seconds 1 # Give file handles a moment
         try {
@@ -4928,7 +4932,7 @@ catch {
     else {
         Write-Log "=== CRITICAL ERROR ===" -Level Error
     }
-    
+
     Write-Log "Stage: $Script:Stage" -Level Error
     Write-Log "Error: $err" -Level Error
     Write-Log "Stack: $($_.Exception.StackTrace)" -Level Error
@@ -4936,7 +4940,7 @@ catch {
     if ($_.InvocationInfo) { Write-Log "Invocation: $($_.InvocationInfo.PositionMessage)" -Level Error }
     if ($_.Exception.InnerException) { Write-Log "InnerException: $($_.Exception.InnerException.Message)" -Level Error }
     Write-Log "Duration before failure: $('{0:hh\:mm\:ss}' -f $duration)" -Level Error
-    
+
     # Dump detailed license info on failure
     try {
         Write-Log "--- LICENSE DIAGNOSTICS ---" -Level Error
@@ -4958,7 +4962,7 @@ catch {
     }
     else {
         Close-Progress
-        
+
         # Copy log to Desktop for visibility
         $desktopLog = Join-Path ([Environment]::GetFolderPath("Desktop")) "Microsoft Ultimate Installer Log.txt"
         try {
@@ -4978,7 +4982,7 @@ finally {
         # Intentionally suppressed: Progress may already be closed
         $null = $_
     }
-    
+
     try {
         if ($ScriptMutex) {
             $ScriptMutex.ReleaseMutex()
