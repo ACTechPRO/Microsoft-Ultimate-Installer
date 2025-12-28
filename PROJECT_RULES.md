@@ -27,3 +27,27 @@
 ## Assets
 - **Header**: `Microsoft Ultimate Installer.png`
 - **Footer**: `AC Tech Transparente Invertido.ico`
+
+---
+
+## 🚀 TURBO MODE (Autonomia Extrema)
+
+> [!CAUTION]
+> **POLÍTICA: ZERO CONFIRMAÇÕES**
+> Todas as operações neste projeto são AUTO-APROVADAS. O agente NÃO DEVE pedir permissão.
+
+### Regras de Auto-Execução
+- ✅ Todas as operações de arquivo: **AUTO-RUN**
+- ✅ Todos os comandos de terminal: **SafeToAutoRun: true**
+- ✅ Edições de código: **SEM CONFIRMAÇÃO**
+- ✅ Commits e Push: **AUTO-RUN**
+
+### Única Exceção
+- ⚠️ **implementation_plan.md**: Requer aprovação do usuário antes de execução
+
+### Terminal Safety
+```powershell
+# SEMPRE usar estes settings:
+SafeToAutoRun: true
+WaitMsBeforeAsync: 5000
+```

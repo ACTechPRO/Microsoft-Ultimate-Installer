@@ -676,22 +676,33 @@ $Script:ExcludableApps = @{
 # REGISTRY BACKUP & RESTORATION
 # ============================================================================
 $Script:RegistryBackups = @{}
-function Save-RegistryKey {
-    param([Parameter(Mandatory)] [string]$Path)
+function Set-RegistryValue {
+    [CmdletBinding(SupportsShouldProcess)]
+    param($Path, $Name, $Value, $Type = 'String')
     try {
+        # Backup the existing value if it exists
         if (Test-Path $Path) {
-            $Script:RegistryBackups[$Path] = @{
-                Exists = $true
-                Data   = Export-RegistryBranch -Path $Path
+            $currentValue = Get-ItemProperty -Path $Path -Name $Name -ErrorAction SilentlyContinue
+            if ($currentValue) {
+                $Script:RegistryBackups[$Path] = @{
+                    Exists = $true
+                    Data   = @{ Name = $Name; Value = $currentValue.$Name; Type = $currentValue.GetType().Name }
+                }
             }
-            Write-Log "Registry backed up: $Path" -Level Debug
+            else {
+                $Script:RegistryBackups[$Path] = @{ Exists = $false }
+            }
         }
         else {
             $Script:RegistryBackups[$Path] = @{ Exists = $false }
         }
+
+        # Set the new value
+        Set-ItemProperty -Path $Path -Name $Name -Value $Value -Type $Type -Force -ErrorAction Stop
+        Write-InstallLog "Registry value set: $Path\$Name = $Value (Type: $Type)" -Level Debug
     }
     catch {
-        Write-Log "Failed to backup registry key $Path : $($_.Exception.Message)" -Level Debug
+        Write-InstallLog "Failed to set registry value $Path\$Name : $($_.Exception.Message)" -Level Debug
     }
 }
 function Export-RegistryBranch {
@@ -712,7 +723,7 @@ function Export-RegistryBranch {
         }
     }
     catch {
-        Write-Log "Failed to export registry branch $Path : $($_.Exception.Message)" -Level Debug
+        Write-InstallLog "Failed to export registry branch $Path : $($_.Exception.Message)" -Level Debug
     }
     return $items
 }
@@ -721,7 +732,7 @@ function Restore-RegistryKey {
     try {
         if ($Script:RegistryBackups[$Path]) {
             if ($Script:RegistryBackups[$Path].Exists) {
-                Write-Log "Restoring registry key: $Path" -Level Debug
+                Write-InstallLog "Restoring registry key: $Path" -Level Debug
                 # REFINEMENT: Remove properties not in original backup to ensure clean restoration
                 try {
                     $currentKey = Get-Item $Path -ErrorAction SilentlyContinue
@@ -735,7 +746,7 @@ function Restore-RegistryKey {
                         }
                     }
                 }
-                catch {}
+                catch { Write-InstallLog "Error clearing registry property: $($_.Exception.Message)" -Level Debug }
                 foreach ($item in $Script:RegistryBackups[$Path].Data) {
                     Set-ItemProperty -Path $Path -Name $item.Name -Value $item.Value -Type $item.Type -Force -ErrorAction SilentlyContinue
                 }
@@ -743,14 +754,14 @@ function Restore-RegistryKey {
             else {
                 # Key didn't exist before, remove it if it exists now
                 if (Test-Path $Path) {
-                    Write-Log "Removing registry key that didn't exist before: $Path" -Level Debug
+                    Write-InstallLog "Removing registry key that didn't exist before: $Path" -Level Debug
                     Remove-Item $Path -Force -ErrorAction SilentlyContinue
                 }
             }
         }
     }
     catch {
-        Write-Log "Failed to restore registry key $Path : $($_.Exception.Message)" -Level Debug
+        Write-InstallLog "Failed to restore registry key $Path : $($_.Exception.Message)" -Level Debug
     }
 }
 # ============================================================================
@@ -912,9 +923,9 @@ Mode:       $($Script:ConfigResult.Mode)
         New-Item -Path $logDir -ItemType Directory -Force | Out-Null
     }
     Set-Content -Path $Script:Config.LogFile -Value $header -Encoding UTF8 -Force
-    Write-Log "Logging initialized." -Level Success
+    Write-InstallLog "Logging initialized." -Level Success
 }
-function Write-Log {
+function Write-InstallLog {
     param(
         [Parameter(Mandatory)] [string]$Message,
         [ValidateSet('Info', 'Success', 'Warning', 'Error', 'Debug', 'Verbose')] [string]$Level = 'Info'
@@ -952,16 +963,17 @@ function Write-Log {
 # FUNCTION: Update-Progress
 # -------------------------------------------------------------------------
 function Update-Progress {
+    [CmdletBinding(SupportsShouldProcess)]
     param($Status, $Percent, $SubStatus)
     if ($Status) {
-        Write-Log "Progress Status: $Status" -Level Info
+        Write-InstallLog "Progress Status: $Status" -Level Info
         if ($Script:ProgressSync) { $Script:ProgressSync.Status = $Status }
     }
     if ($Percent) {
         if ($Script:ProgressSync) { $Script:ProgressSync.Progress = $Percent }
     }
     if ($SubStatus) {
-        Write-Log "Progress SubStatus: $SubStatus" -Level Info
+        Write-InstallLog "Progress SubStatus: $SubStatus" -Level Info
         if ($Script:ProgressSync) { $Script:ProgressSync.SubStatus = $SubStatus }
     }
     if ($Script:ProgressSync -and $Script:ProgressSync.RequestCancel) {
@@ -971,16 +983,18 @@ function Update-Progress {
 # HELPER FUNCTIONS: CANCEL-AWARE EXECUTION & DOWNLOAD
 # ============================================================================
 function Start-Process-CancelAware {
+    [CmdletBinding(SupportsShouldProcess)]
     param(
         [string]$FilePath,
         [string[]]$ArgumentList,
         [string]$WindowStyle = 'Hidden',
-        [switch]$PassThru,
+        [switch]$PassThru, # Note: Always uses PassThru internally
         [int]$TimeoutSeconds = 0,
         [string]$RedirectStandardOutput = $null,
         [string]$RedirectStandardError = $null,
         [string]$WorkingDirectory = $Script:Config.TempFolder
     )
+    $null = $PassThru # Suppress PSScriptAnalyzer unused param warning (always uses PassThru internally)
     $procParams = @{
         FilePath     = $FilePath
         ArgumentList = $ArgumentList
@@ -990,28 +1004,28 @@ function Start-Process-CancelAware {
     if ($RedirectStandardOutput) { $procParams['RedirectStandardOutput'] = $RedirectStandardOutput }
     if ($RedirectStandardError) { $procParams['RedirectStandardError'] = $RedirectStandardError }
     if ($WorkingDirectory) { $procParams['WorkingDirectory'] = $WorkingDirectory }
-    Write-Log "Starting process: $FilePath $($ArgumentList -join ' ')" -Level Verbose
+    Write-InstallLog "Starting process: $FilePath $($ArgumentList -join ' ')" -Level Verbose
     $proc = Start-Process @procParams
     $startTime = Get-Date
     while (-not $proc.HasExited) {
         # Check cancellation flag from UI runspace
         if ($Script:ProgressSync.RequestCancel) {
-            Write-Log "Cancellation requested. Terminating process: $($proc.ProcessName)" -Level Warning
-            try { Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue } catch {}
+            Write-InstallLog "Cancellation requested. Terminating process: $($proc.ProcessName)" -Level Warning
+            try { Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue } catch { Write-InstallLog "Process stop error: $($_.Exception.Message)" -Level Debug }
             throw "Installation cancelled by user"
         }
         # Check timeout
         if ($TimeoutSeconds -gt 0) {
             $duration = (Get-Date) - $startTime
             if ($duration.TotalSeconds -gt $TimeoutSeconds) {
-                Write-Log "Process timeout ($TimeoutSeconds s). Terminating: $($proc.ProcessName)" -Level Error
-                try { Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue } catch {}
+                Write-InstallLog "Process timeout ($TimeoutSeconds s). Terminating: $($proc.ProcessName)" -Level Error
+                try { Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue } catch { Write-InstallLog "Process timeout stop error: $($_.Exception.Message)" -Level Debug }
                 throw "Process execution timed out"
             }
         }
         Start-Sleep -Milliseconds 250
     }
-    Write-Log "Process $($proc.ProcessName) (PID: $($proc.Id)) exited with code: $($proc.ExitCode)" -Level Verbose
+    Write-InstallLog "Process $($proc.ProcessName) (PID: $($proc.Id)) exited with code: $($proc.ExitCode)" -Level Verbose
     return $proc
 }
 function Invoke-Download-CancelAware {
@@ -1034,7 +1048,7 @@ function Invoke-Download-CancelAware {
         $attempt++
         # Check for cancellation before starting
         if ($Script:ProgressSync.RequestCancel) {
-            Write-Log "Download cancelled before attempt: $Url" -Level Warning
+            Write-InstallLog "Download cancelled before attempt: $Url" -Level Warning
             return $false
         }
         try {
@@ -1052,7 +1066,7 @@ function Invoke-Download-CancelAware {
                     $wc.Dispose()
                     # Cleanup partial file
                     if (Test-Path $Path) { Remove-Item $Path -Force }
-                    Write-Log "Download cancelled: $Url" -Level Warning
+                    Write-InstallLog "Download cancelled: $Url" -Level Warning
                     return $false
                 }
                 $fileStream.Write($buffer, 0, $bytesRead)
@@ -1064,24 +1078,24 @@ function Invoke-Download-CancelAware {
         }
         catch {
             # Clean up on error
-            if ($fileStream) { try { $fileStream.Close() } catch {} }
-            if ($stream) { try { $stream.Close() } catch {} }
+            if ($fileStream) { try { $fileStream.Close() } catch { Write-InstallLog "File stream close error: $($_.Exception.Message)" -Level Debug } }
+            if ($stream) { try { $stream.Close() } catch { Write-InstallLog "Stream close error: $($_.Exception.Message)" -Level Debug } }
             if (Test-Path $Path) { Remove-Item $Path -Force -ErrorAction SilentlyContinue }
             if ($attempt -lt $maxAttempts) {
-                Write-Log "Download attempt $attempt failed ($($_.Exception.Message)), retrying..." -Level Debug
+                Write-InstallLog "Download attempt $attempt failed ($($_.Exception.Message)), retrying..." -Level Debug
                 Start-Sleep -Seconds 2
                 continue
             }
             # Final fallback: Try Invoke-WebRequest (less cancel-friendly but more robust)
             try {
-                Write-Log "Trying fallback download method (Invoke-WebRequest)..." -Level Debug
+                Write-InstallLog "Trying fallback download method (Invoke-WebRequest)..." -Level Debug
                 Invoke-WebRequest -Uri $Url -OutFile $Path -UseBasicParsing -ErrorAction Stop
                 if (Test-Path $Path) {
                     return $true
                 }
             }
             catch {
-                Write-Log "Download failed after $maxAttempts attempts: $($_.Exception.Message)" -Level Error
+                Write-InstallLog "Download failed after $maxAttempts attempts: $($_.Exception.Message)" -Level Error
                 if (Test-Path $Path) { Remove-Item $Path -Force -ErrorAction SilentlyContinue }
                 return $false
             }
@@ -1608,7 +1622,7 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
     catch {
         $xamlError = $_.Exception.Message
         if ($_.Exception.InnerException) { $xamlError += "`nInner: $($_.Exception.InnerException.Message)" }
-        Write-Log "XAML PARSE ERROR: $xamlError" -Level Error
+        Write-InstallLog "XAML PARSE ERROR: $xamlError" -Level Error
         [System.Windows.MessageBox]::Show(
             "Failed to load UI (XAML Parse Error).`n`n$xamlError",
             'Microsoft Ultimate Installer - UI Error',
@@ -1792,9 +1806,7 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
                     $hwnd = (New-Object System.Windows.Interop.WindowInteropHelper($win)).Handle
                     [WindowEffects]::EnableBlur($hwnd, 0, 0)
                 }
-                catch {
-                    # Silent catch
-                }
+                catch { Write-InstallLog "Window Blur skipped" -Level Debug }
             }
         }
         else {
@@ -1808,9 +1820,10 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
     $TitleBar = $window.FindName("TitleBar")
     $dragHandler = {
         param($s, $e)
+        $null = $s # Suppress PSScriptAnalyzer unused param warning (required by event signature)
         if ($e.ButtonState -eq 'Pressed') {
             & $SetTransparency -enable $true -win $window
-            try { $window.DragMove() } catch {}
+            try { $window.DragMove() } catch { Write-InstallLog "Dragging error" -Level Debug }
             & $SetTransparency -enable $false -win $window
         }
     }
@@ -1826,6 +1839,7 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
             [System.Environment]::Exit(0)
         })
     $btnMinimize.Add_Click({ $window.WindowState = 'Minimized' })
+    # $btnMaximize = $window.FindName('btnMaximize')
     # $btnMaximize.Add_Click({
     #         if ($window.WindowState -eq 'Normal') {
     #             $window.WindowState = 'Maximized'
@@ -1855,7 +1869,6 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
                 # INITIAL STATE: OPAQUE (Blur technically enabled but covered by opaque background or just not enabled yet)
                 # We will only enable blur when needed or enable it but keep background opaque?
                 # Best approach: Keep background opaque #FF... by default.
-                # NOTE: If we want "Solid" look by default, we just ensure window.Background is #FF...
                 # The XAML resource is now #FF151515 (Opaque)
                 # We can enable blur potentially here if we want the underlying system to be ready,
                 # but if the background is solid, it won't show.
@@ -1864,7 +1877,7 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
                 & $SetTransparency $false
             }
             catch {
-                Write-Log "Visual effects error: $_" -Level Warning
+                Write-InstallLog "Visual effects error: $_" -Level Warning
             }
         })
     # 3.5 Fix Rounded Corner Transparency Artifact
@@ -1873,6 +1886,7 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
     if ($MainBorder) {
         $MainBorder.Add_Loaded({
                 param($senderObj, $e)
+                $null = $e # Suppress PSScriptAnalyzer unused param warning (required by event signature)
                 $border = $senderObj
                 $radius = 10
                 $geometry = New-Object System.Windows.Media.RectangleGeometry
@@ -1883,6 +1897,7 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
             })
         $MainBorder.Add_SizeChanged({
                 param($senderObj, $e)
+                $null = $e # Suppress PSScriptAnalyzer unused param warning (required by event signature)
                 $border = $senderObj
                 $radius = 10
                 $geometry = New-Object System.Windows.Media.RectangleGeometry
@@ -2062,8 +2077,9 @@ Background="Transparent" FontFamily="Segoe UI Variable, Segoe UI, Arial">
 # FUNCTION: Start-OfficeUninstallation
 # -------------------------------------------------------------------------
 function Start-OfficeUninstallation {
+    [CmdletBinding(SupportsShouldProcess)]
     param()
-    Write-Log "Starting ULTIMATE Deep Office Uninstallation (SCORCHED EARTH V3)..." -Level Info
+    Write-InstallLog "Starting ULTIMATE Deep Office Uninstallation (SCORCHED EARTH V3)..." -Level Info
     # 1. Kill Processes (The "Kill List")
     Update-Progress "Stopping Microsoft Office applications..." 5
     $processes = @(
@@ -2087,7 +2103,7 @@ function Start-OfficeUninstallation {
     $oneDriveSetup = "$env:SystemRoot\SysWOW64\OneDriveSetup.exe"
     if (-not (Test-Path $oneDriveSetup)) { $oneDriveSetup = "$env:SystemRoot\System32\OneDriveSetup.exe" }
     if (Test-Path $oneDriveSetup) {
-        Write-Log "Running OneDrive Uninstaller..." -Level Debug
+        Write-InstallLog "Running OneDrive Uninstaller..." -Level Debug
         Start-Process-CancelAware -FilePath $oneDriveSetup -ArgumentList "/uninstall" -WindowStyle Hidden
     }
     # 3. Stop Services
@@ -2122,26 +2138,26 @@ function Start-OfficeUninstallation {
                 '9NBLGGH4QGHW'      # Microsoft Sticky Notes
             )
             foreach ($id in $extrasToUninstall) {
-                Write-Log "Winget Uninstall: $id" -Level Debug
+                Write-InstallLog "Winget Uninstall: $id" -Level Debug
                 Start-Process-CancelAware -FilePath $wingetExe -ArgumentList "uninstall --id $id --silent --accept-source-agreements" -WindowStyle Hidden | Out-Null
             }
             # StarDesk Direct Removal Failsafe
             $starDeskUninstall = "${env:ProgramFiles(x86)}\StarDesk\GameViewer\Uninstall.exe"
             if (Test-Path $starDeskUninstall) {
-                Write-Log "Direct Uninstall: StarDesk (Failsafe)" -Level Debug
+                Write-InstallLog "Direct Uninstall: StarDesk (Failsafe)" -Level Debug
                 Start-Process-CancelAware -FilePath $starDeskUninstall -ArgumentList "/S" -WindowStyle Hidden -TimeoutSeconds 60
             }
         }
     }
     catch {
-        Write-Log "Winget uninstall phase skipped: $($_.Exception.Message)" -Level Debug
+        Write-InstallLog "Winget uninstall phase skipped: $($_.Exception.Message)" -Level Debug
     }
     # 5. Remove Store Apps (Optimized Batch Query)
     Update-Progress "Removing Microsoft Store applications..." 30
     # Regex pattern to match all target apps using a single pass
     $appxRegex = "Microsoft\.Office|Microsoft\.OutlookForWindows|MicrosoftTeams|MSTeams|Skype|Clipchamp|Microsoft\.Todos|PowerAutomate|Flow|PowerBI|StickyNotes|MicrosoftDefender|PCManager|PowerToys|Publisher|Visio|Project|Copilot"
     try {
-        Write-Log "Querying installed Appx packages (AllUsers)..." -Level Debug
+        Write-InstallLog "Querying installed Appx packages (AllUsers)..." -Level Debug
         $allApps = Get-AppxPackage -AllUsers -ErrorAction SilentlyContinue
         $targetApps = $allApps | Where-Object {
             ($_.Name -match $appxRegex) -and
@@ -2151,13 +2167,13 @@ function Start-OfficeUninstallation {
             ($_.Name -notmatch "WindowsDefender") # Exclude system Defender
         }
         foreach ($app in $targetApps) {
-            Write-Log "Removing Appx: $($app.Name)" -Level Debug
+            Write-InstallLog "Removing Appx: $($app.Name)" -Level Debug
             $app | Remove-AppxPackage -AllUsers -ErrorAction SilentlyContinue
             $app | Remove-AppxPackage -ErrorAction SilentlyContinue
         }
     }
     catch {
-        Write-Log "Appx removal failed: $($_.Exception.Message)" -Level Debug
+        Write-InstallLog "Appx removal failed: $($_.Exception.Message)" -Level Debug
     }
     # 6. LICENSE & CREDENTIAL NUKE
     Update-Progress "Clearing licenses and credentials..." 40
@@ -2198,7 +2214,7 @@ function Start-OfficeUninstallation {
             $disp = $_.GetValue("DisplayName")
             if ($disp -match $msiKeywords -and $disp -notmatch "Visual Studio" -and $disp -notmatch "VS Code") {
                 if ($_.PSChildName -match "{.*}") {
-                    Write-Log "Dynamic MSI Uninstall: $disp" -Level Debug
+                    Write-InstallLog "Dynamic MSI Uninstall: $disp" -Level Debug
                     Start-Process-CancelAware -FilePath "msiexec.exe" -ArgumentList "/x $($_.PSChildName) /qn /norestart" -WindowStyle Hidden -TimeoutSeconds 300
                 }
             }
@@ -2237,7 +2253,7 @@ function Start-OfficeUninstallation {
         Get-ChildItem -Path $root -ErrorAction SilentlyContinue | ForEach-Object {
             $name = $_.GetValue("DisplayName")
             if ($name -match $regRegex -and $name -notmatch "Visual Studio" -and $name -notmatch "VS Code" -and $name -notmatch "WebView2") {
-                Write-Log "Deleting Registry Key: $name" -Level Debug
+                Write-InstallLog "Deleting Registry Key: $name" -Level Debug
                 Remove-Item -Path $_.PSPath -Recurse -Force -ErrorAction SilentlyContinue
             }
         }
@@ -2260,22 +2276,22 @@ function Start-OfficeUninstallation {
                 if ($shortcut.Name -match $shortcutRegex) {
                     try {
                         Remove-Item $shortcut.FullName -Force -ErrorAction Stop
-                        Write-Log "Removed shortcut: $($shortcut.FullName)" -Level Debug
+                        Write-InstallLog "Removed shortcut: $($shortcut.FullName)" -Level Debug
                     }
-                    catch {}
+                    catch { Write-InstallLog "Deep Cleanup Shortcut/File Error: $($_.Exception.Message)" -Level Debug }
                 }
             }
         }
     }
     Update-Progress "Office uninstallation complete." 100
-    Write-Log "ULTIMATE Deep Office uninstallation (V3 Scorched Earth) finished." -Level Success
+    Write-InstallLog "ULTIMATE Deep Office uninstallation (V3 Scorched Earth) finished." -Level Success
     Start-Sleep -Seconds 2
 }
 # -------------------------------------------------------------------------
 # FUNCTION: Close-Progress
 # -------------------------------------------------------------------------
 function Close-Progress {
-    Write-Log "Closing progress window..." -Level Debug
+    Write-InstallLog "Closing progress window..." -Level Debug
     try {
         if ($Script:ProgressSync) {
             $Script:ProgressSync.ShouldClose = $true
@@ -2284,37 +2300,35 @@ function Close-Progress {
             try {
                 $Script:ProgressHandle.AsyncWaitHandle.WaitOne(2000) | Out-Null
             }
-            catch { }
+            catch { Write-InstallLog "Wait handle error: $($_.Exception.Message)" -Level Debug }
         }
         if ($Script:ProgressRunspace) {
             try {
                 $Script:ProgressRunspace.Close()
                 $Script:ProgressRunspace.Dispose()
             }
-            catch { }
+            catch { Write-InstallLog "Runspace disposal error: $($_.Exception.Message)" -Level Debug }
             $Script:ProgressRunspace = $null
         }
         $Script:ProgressSync = $null
         $Script:ProgressHandle = $null
-        Write-Log "Progress window closed" -Level Debug
+        Write-InstallLog "Progress window closed" -Level Debug
     }
     catch {
-        Write-Log "Error closing progress window: $($_.Exception.Message)" -Level Warning
+        Write-InstallLog "Error closing progress window: $($_.Exception.Message)" -Level Warning
     }
 }
 function Start-ProgressWindow {
+    [CmdletBinding(SupportsShouldProcess)]
     param(
-        [string]$Title = "Microsoft Ultimate Installer $($Script:Version)",
-        [string]$Subtitle = "Installing Office...",
-        [string]$AppIconBase64 = $Script:AppIconBase64,
-        [string]$Qm = $PSScriptRoot
+        [string]$Title = "Microsoft Ultimate Installer $($Script:Version)"
     )
     # Pass the global Base64 strings to the inner function
     # Header = Microsoft Ultimate Installer icon, Footer = AC Tech logo
-    Show-Progress -Title $Title -Subtitle $Subtitle -HeaderBase64 $Script:TaskbarIconBase64 -FooterBase64 $Script:ACTechFooterBase64 -AppIconBase64 $AppIconBase64 -WindowEffectsSource $Script:WindowEffectsCode -Qm $Qm
+    Show-Progress -Title $Title -HeaderBase64 $Script:TaskbarIconBase64 -FooterBase64 $Script:ACTechFooterBase64 -WindowEffectsSource $Script:WindowEffectsCode
 }
 function Show-Progress {
-    param($Title, $Subtitle, $HeaderBase64, $FooterBase64, $AppIconBase64, $WindowEffectsSource, $Qm)
+    param($Title, $HeaderBase64, $FooterBase64, $WindowEffectsSource)
     # Close existing standard progress if open (legacy)
     if ($Script:ProgressRunspace) { Close-Progress }
     $initStatus = "Initializing..."
@@ -2330,13 +2344,14 @@ function Show-Progress {
     $Script:ProgressRunspace.ThreadOptions = 'ReuseThread'
     $Script:ProgressRunspace.Open()
     $code = {
-        param($Sync, $Title, $Subtitle, $HeaderBase64, $FooterBase64, $AppIconBase64, $WindowEffectsSource, $Qm)
+        param($Sync, $Title, $HeaderBase64, $FooterBase64, $WindowEffectsSource)
+        $null = $Sync # Suppress PSScriptAnalyzer unused variable warning (used in child scope)
         # Escape strings
         $Title = $Title -replace '&', '&amp;' -replace '<', '&lt;' -replace '>', '&gt;' -replace '"', '&quot;'
         Add-Type -AssemblyName PresentationFramework, PresentationCore, WindowsBase, System.Drawing
         # Load WindowEffects in this runspace if needed
         if (-not ([System.Management.Automation.PSTypeName]::new('WindowEffects').Type)) {
-            try { Add-Type -TypeDefinition $WindowEffectsSource -Language CSharp } catch {}
+            try { Add-Type -TypeDefinition $WindowEffectsSource -Language CSharp } catch { $null = $_ }
         }
         # Load C# Types for Transparency (if available in this AppDomain)
         # Note: In a separate runspace, we might need to rely on the type being already loaded in the process or re-add it.
@@ -2495,7 +2510,7 @@ function Show-Progress {
                     $iconBitmap.Freeze()
                     $window.Icon = $iconBitmap
                 }
-                catch {}
+                catch { $null = $_ }
             }
             # Load Images
             if ($HeaderBase64) {
@@ -2510,7 +2525,7 @@ function Show-Progress {
                     $bitmap.Freeze()
                     if ($imgHeader) { $imgHeader.Source = $bitmap }
                 }
-                catch {}
+                catch { $null = $_ }
             }
             if ($FooterBase64) {
                 try {
@@ -2524,7 +2539,7 @@ function Show-Progress {
                     $bitmap.Freeze()
                     if ($imgFooter) { $imgFooter.Source = $bitmap }
                 }
-                catch {}
+                catch { $null = $_ }
             }
             # Events
             # Helper for Transparency (Local Copy)
@@ -2541,7 +2556,7 @@ function Show-Progress {
                             $hwnd = (New-Object System.Windows.Interop.WindowInteropHelper($win)).Handle
                             [WindowEffects]::EnableBlur($hwnd, 0, 0)
                         }
-                        catch {}
+                        catch { $null = $_ }
                     }
                 }
                 else {
@@ -2555,11 +2570,11 @@ function Show-Progress {
             }
             # Enable Dragging
             $window.Add_MouseLeftButtonDown({
-                    param($sender, $eventArgs)
-                    $null = $sender  # Required by WPF event signature
-                    $null = $eventArgs
+                    param($objSender, $eArgs)
+                    $null = $objSender  # Required by WPF event signature
+                    $null = $eArgs
                     & $SetTransparency $true $window
-                    try { $window.DragMove() } catch {}
+                    try { $window.DragMove() } catch { $null = $_ }
                     & $SetTransparency $false $window
                 })
             # Window Control Buttons
@@ -2602,11 +2617,11 @@ function Show-Progress {
             $timer.Start()
             $window.ShowDialog() | Out-Null
         }
-        catch {
-            # Silence runspace errors
-        }
+        catch { $null = $_ }
+        # Silence runspace errors
+
     }
-    $ps = [powershell]::Create().AddScript($code).AddArgument($Script:ProgressSync).AddArgument($Title).AddArgument($Subtitle).AddArgument($HeaderBase64).AddArgument($FooterBase64).AddArgument($AppIconBase64).AddArgument($WindowEffectsSource).AddArgument($Qm)
+    $ps = [powershell]::Create().AddScript($code).AddArgument($Script:ProgressSync).AddArgument($Title).AddArgument($HeaderBase64).AddArgument($FooterBase64).AddArgument($WindowEffectsSource)
     $ps.Runspace = $Script:ProgressRunspace
     $Script:ProgressHandle = $ps.BeginInvoke()
 }
@@ -2624,21 +2639,21 @@ function Invoke-ODT-Download {
             if (-not $success) { throw "Download cancelled or failed" }
             # Validate download
             if (-not (Test-Path $odtPath)) {
-                Write-Log "Download failed - file not created" -Level Warning
+                Write-InstallLog "Download failed - file not created" -Level Warning
                 continue
             }
             $fileSize = (Get-Item $odtPath).Length
             if ($fileSize -lt 1000000) {
                 # Less than 1MB is suspicious
-                Write-Log "Downloaded file too small ($fileSize bytes)" -Level Warning
+                Write-InstallLog "Downloaded file too small ($fileSize bytes)" -Level Warning
                 Remove-Item $odtPath -Force -ErrorAction SilentlyContinue
                 continue
             }
-            Write-Log "ODT downloaded successfully ($fileSize bytes)" -Level Success
+            Write-InstallLog "ODT downloaded successfully ($fileSize bytes)" -Level Success
             break
         }
         catch {
-            Write-Log "Download error: $($_.Exception.Message)" -Level Warning
+            Write-InstallLog "Download error: $($_.Exception.Message)" -Level Warning
             Remove-Item $odtPath -Force -ErrorAction SilentlyContinue
             continue
         }
@@ -2648,22 +2663,22 @@ function Invoke-ODT-Download {
     }
     # Extract ODT
     try {
-        Write-Log "Extracting Office Deployment Tool..." -Level Debug
+        Write-InstallLog "Extracting Office Deployment Tool..." -Level Debug
         $extractPath = Join-Path $Script:Config.TempFolder 'ODT'
         New-Item $extractPath -ItemType Directory -Force | Out-Null
         # Run ODT with extract parameter
         $proc = Start-Process-CancelAware -FilePath $odtPath -ArgumentList "/quiet /extract:`"$extractPath`"" -WindowStyle Hidden -WorkingDirectory $Script:Config.TempFolder
-        Write-Log "ODT extraction exit code: $($proc.ExitCode)" -Level Debug
+        Write-InstallLog "ODT extraction exit code: $($proc.ExitCode)" -Level Debug
         # Validate extraction
         Start-Sleep -Milliseconds 500  # Give system time to complete extraction
         $setupExe = Join-Path $extractPath 'setup.exe'
         if (-not (Test-Path $setupExe)) {
-            Write-Log "setup.exe not found in $extractPath" -Level Error
-            Write-Log "Contents of $extractPath :" -Level Debug
-            Get-ChildItem $extractPath -Recurse | ForEach-Object { Write-Log "  - $($_.FullName)" -Level Debug }
+            Write-InstallLog "setup.exe not found in $extractPath" -Level Error
+            Write-InstallLog "Contents of $extractPath :" -Level Debug
+            Get-ChildItem $extractPath -Recurse | ForEach-Object { Write-InstallLog "  - $($_.FullName)" -Level Debug }
             throw "setup.exe not found after extraction"
         }
-        Write-Log "setup.exe found: $setupExe" -Level Success
+        Write-InstallLog "setup.exe found: $setupExe" -Level Success
         return $setupExe
     }
     catch {
@@ -2674,9 +2689,9 @@ function Invoke-ODT-Download {
 # FUNCTION: Get-ODT (Alias for Invoke-ODT-Download)
 # -------------------------------------------------------------------------
 # -------------------------------------------------------------------------
-# FUNCTION: Test-FileExists
+# FUNCTION: Test-File
 # -------------------------------------------------------------------------
-function Test-FileExists {
+function Test-File {
     param(
         [Parameter(Mandatory)][string]$Path,
         [string]$Label = 'File'
@@ -2684,34 +2699,38 @@ function Test-FileExists {
     if (-not (Test-Path $Path)) {
         throw "$Label not found at: $Path"
     }
-    Write-Log "$Label validated: $Path" -Level Debug
+    Write-InstallLog "$Label validated: $Path" -Level Debug
 }
 function Get-ODT { Invoke-ODT-Download }
 # -------------------------------------------------------------------------
 # FUNCTION: New-TempFolder
 # -------------------------------------------------------------------------
 function New-TempFolder {
+    [CmdletBinding(SupportsShouldProcess)]
+    param()
     $tempPath = $Script:Config.TempFolder
-    Write-Log "Initializing temporary folder: $tempPath" -Level Debug
+    Write-InstallLog "Initializing temporary folder: $tempPath" -Level Debug
     if (Test-Path $tempPath) {
         try {
             Remove-Item $tempPath -Recurse -Force -ErrorAction SilentlyContinue
         }
         catch {
-            Write-Log "Failed to clean existing temp folder: $($_.Exception.Message)" -Level Warning
+            Write-InstallLog "Failed to clean existing temp folder: $($_.Exception.Message)" -Level Warning
         }
     }
     try {
         New-Item -ItemType Directory -Path $tempPath -Force -ErrorAction Stop | Out-Null
-        Write-Log "Temporary folder created successfully" -Level Debug
+        Write-InstallLog "Temporary folder created successfully" -Level Debug
     }
     catch {
-        Write-Log "Failed to create temp folder: $($_.Exception.Message)" -Level Error
+        Write-InstallLog "Failed to create temp folder: $($_.Exception.Message)" -Level Error
         throw
     }
 }
 function New-ConfigXML {
-    Write-Log "Generating Configuration XML based on user settings..." -Level Debug
+    [CmdletBinding(SupportsShouldProcess)]
+    param()
+    Write-InstallLog "Generating Configuration XML based on user settings..." -Level Debug
     $path = Join-Path $Script:Config.TempFolder 'configuration.xml'
     # Get user configuration
     $version = $Script:UserConfig.OfficeVersion
@@ -2842,41 +2861,43 @@ $langTags
 </Configuration>
 "@
     Set-Content -Path $path -Value $xmlContent -Encoding UTF8 -Force
-    Write-Log "Configuration XML created: $path" -Level Success
-    Write-Log "  Version: $version, Channel: $channel" -Level Debug
-    Write-Log "  Primary Language: $primaryLang, Additional: $($additionalLangs -join ', ')" -Level Debug
-    Write-Log "  Include Project: $includeProject, Include Visio: $includeVisio" -Level Debug
+    Write-InstallLog "Configuration XML created: $path" -Level Success
+    Write-InstallLog "  Version: $version, Channel: $channel" -Level Debug
+    Write-InstallLog "  Primary Language: $primaryLang, Additional: $($additionalLangs -join ', ')" -Level Debug
+    Write-InstallLog "  Include Project: $includeProject, Include Visio: $includeVisio" -Level Debug
     return $path
 }
 function Remove-Conflicting-Office {
+    [CmdletBinding(SupportsShouldProcess)]
+    param()
     # Check for cancel before starting
     if ($Script:ProgressSync -and $Script:ProgressSync.RequestCancel) {
         throw "Installation cancelled by user"
     }
-    Write-Log "Checking for conflicting Office installations..." -Level Info
+    Write-InstallLog "Checking for conflicting Office installations..." -Level Info
     # Kill processes
     @('OneDrive', 'OneNote', 'Microsoft.Notes', 'Skype', 'lync', 'WINWORD', 'EXCEL', 'POWERPNT', 'OUTLOOK', 'ONENOTE') | ForEach-Object {
         $procs = Get-Process $_ -ErrorAction SilentlyContinue
         if ($procs) {
-            Write-Log "Stopping process: $_" -Level Debug
+            Write-InstallLog "Stopping process: $_" -Level Debug
             $procs | Stop-Process -Force -ErrorAction SilentlyContinue
         }
     }
     # Uninstall existing Office installations (Click-to-Run)
-    Write-Log "Checking for existing Office Click-to-Run installations..." -Level Debug
+    Write-InstallLog "Checking for existing Office Click-to-Run installations..." -Level Debug
     $officeC2R = Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Office\ClickToRun\Configuration' -ErrorAction SilentlyContinue
     if ($officeC2R) {
-        Write-Log "Found existing Office Click-to-Run installation - attempting silent removal" -Level Info
+        Write-InstallLog "Found existing Office Click-to-Run installation - attempting silent removal" -Level Info
         $c2rPath = Join-Path $env:ProgramFiles 'Common Files\Microsoft Shared\ClickToRun\OfficeClickToRun.exe'
         if (Test-Path $c2rPath) {
-            Write-Log "Running Office C2R uninstall..." -Level Debug
+            Write-InstallLog "Running Office C2R uninstall..." -Level Debug
             $proc = Start-Process-CancelAware -FilePath $c2rPath -ArgumentList 'scenario=install', 'scenariosubtype=ARP', 'productstouninstall=O365ProPlusRetail,OneNoteRetail,ProjectProRetail,VisioProRetail', '/quiet' -WindowStyle Hidden
             Start-Sleep -Seconds 3
-            Write-Log "Office C2R uninstall completed (Exit Code: $($proc.ExitCode))" -Level Debug
+            Write-InstallLog "Office C2R uninstall completed (Exit Code: $($proc.ExitCode))" -Level Debug
         }
     }
     # Deep Cleanup: User Profiles (including Default)
-    Write-Log "Performing Deep Cleanup of Office/OneDrive remnants..." -Level Info
+    Write-InstallLog "Performing Deep Cleanup of Office/OneDrive remnants..." -Level Info
     $usersDir = "C:\Users"
     if (Test-Path $usersDir) {
         $profiles = Get-ChildItem -Path $usersDir -Directory -Force
@@ -2889,7 +2910,7 @@ function Remove-Conflicting-Office {
             )
             foreach ($path in $pathsToRemove) {
                 if (Test-Path $path) {
-                    Write-Log "Removing leftover: $path" -Level Debug
+                    Write-InstallLog "Removing leftover: $path" -Level Debug
                     Remove-Item -Path $path -Recurse -Force -ErrorAction SilentlyContinue
                 }
             }
@@ -2898,37 +2919,39 @@ function Remove-Conflicting-Office {
     # Common ProgramData
     $progDataOffice = "C:\ProgramData\Microsoft\Office"
     if (Test-Path $progDataOffice) {
-        Write-Log "Removing ProgramData Office leftovers..." -Level Debug
+        Write-InstallLog "Removing ProgramData Office leftovers..." -Level Debug
         Remove-Item -Path $progDataOffice -Recurse -Force -ErrorAction SilentlyContinue
     }
 }
 function Remove-Windows-Bloatware {
-    Write-Log "Removing Windows bloatware (OneDrive, OneNote, StickyNotes)..." -Level Info
+    [CmdletBinding(SupportsShouldProcess)]
+    param()
+    Write-InstallLog "Removing Windows bloatware (OneDrive, OneNote, StickyNotes)..." -Level Info
     # Uninstall OneDrive
     $odSetup = "$env:SystemRoot\SysWOW64\OneDriveSetup.exe"
     if (-not (Test-Path $odSetup)) { $odSetup = "$env:SystemRoot\System32\OneDriveSetup.exe" }
     if (Test-Path $odSetup) {
-        Write-Log "Uninstalling OneDrive..." -Level Debug
+        Write-InstallLog "Uninstalling OneDrive..." -Level Debug
         Start-Process-CancelAware -FilePath $odSetup -ArgumentList "/uninstall" -WindowStyle Hidden
     }
     # Remove Appx packages (including OneNote)
-    Write-Log "Removing UWP app packages..." -Level Debug
+    Write-InstallLog "Removing UWP app packages..." -Level Debug
     @('*OneDrive*', '*SkypeApp*', '*MicrosoftOfficeHub*') | ForEach-Object {
         $pkgName = $_
         $packages = Get-AppxPackage $pkgName -AllUsers -ErrorAction SilentlyContinue
         if ($packages) {
-            Write-Log "Removing package: $pkgName" -Level Debug
+            Write-InstallLog "Removing package: $pkgName" -Level Debug
             $packages | Remove-AppxPackage -AllUsers -ErrorAction SilentlyContinue
         }
         # Also try removing provisioned packages
         $provisioned = Get-AppxProvisionedPackage -Online | Where-Object { $_.DisplayName -like $pkgName }
         if ($provisioned) {
-            Write-Log "Removing provisioned package: $pkgName" -Level Debug
+            Write-InstallLog "Removing provisioned package: $pkgName" -Level Debug
             $provisioned | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue | Out-Null
         }
     }
     # Registry Blocks
-    Write-Log "Applying registry policies..." -Level Debug
+    Write-InstallLog "Applying registry policies..." -Level Debug
     $regPaths = @(
         'HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive',
         'HKLM:\SOFTWARE\Policies\Microsoft\Office\16.0\Common\OfficeUpdate'
@@ -2939,18 +2962,19 @@ function Remove-Windows-Bloatware {
     Set-ItemProperty 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive' -Name 'DisableFileSyncNGSC' -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
     Set-ItemProperty 'HKLM:\SOFTWARE\Policies\Microsoft\Office\16.0\Common\OfficeUpdate' -Name 'HideOneDrive' -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
     # OneNote hiding removed
-    Write-Log "Bloatware removal complete" -Level Success
+    Write-InstallLog "Bloatware removal complete" -Level Success
 }
 function Set-WindowsInsider {
+    [CmdletBinding(SupportsShouldProcess)]
     param(
         [string]$Channel = "None"
     )
-    Write-Log "Configuring Windows Insider Program: $Channel" -Level Info
+    Write-InstallLog "Configuring Windows Insider Program: $Channel" -Level Info
     $regPath = "HKLM:\SOFTWARE\Microsoft\WindowsSelfHost\Applicability"
     $regPathUI = "HKLM:\SOFTWARE\Microsoft\WindowsSelfHost\UI\Selection"
     if ($Channel -eq "None" -or $Channel -eq "Normal") {
         # Opt-out / Remove Insider settings
-        Write-Log "Removing Windows Insider settings..." -Level Info
+        Write-InstallLog "Removing Windows Insider settings..." -Level Info
         # Remove Applicability keys
         if (Test-Path $regPath) {
             Remove-ItemProperty -Path $regPath -Name "BranchName" -ErrorAction SilentlyContinue
@@ -2967,7 +2991,7 @@ function Set-WindowsInsider {
             Remove-ItemProperty -Path $regPathUI -Name "UIContentType" -ErrorAction SilentlyContinue
             Remove-ItemProperty -Path $regPathUI -Name "UIRing" -ErrorAction SilentlyContinue
         }
-        Write-Log "Insider Program settings removed." -Level Success
+        Write-InstallLog "Insider Program settings removed." -Level Success
         return
     }
     # Map Channels to Registry Values
@@ -3003,10 +3027,12 @@ function Set-WindowsInsider {
     Set-ItemProperty -Path $regPathUI -Name "UIBranch" -Value $branch -Type String -Force
     Set-ItemProperty -Path $regPathUI -Name "UIContentType" -Value $content -Type String -Force
     Set-ItemProperty -Path $regPathUI -Name "UIRing" -Value $ring -Type String -Force
-    Write-Log "Windows Insider configured to: $Channel" -Level Success
+    Write-InstallLog "Windows Insider configured to: $Channel" -Level Success
 }
-function Start-CleanupOperations {
-    Write-Log "Running post-installation cleanup..." -Level Info
+function Start-Cleanup {
+    [CmdletBinding(SupportsShouldProcess)]
+    param()
+    Write-InstallLog "Running post-installation cleanup..." -Level Info
     # Force remove OneNote executable if it exists
     # OneNote removal removed
     # Force remove Sticky Notes if it exists (Desktop version or leftovers)
@@ -3016,6 +3042,7 @@ function Start-CleanupOperations {
 # FUNCTION: New-DesktopShortcut
 # -------------------------------------------------------------------------
 function New-DesktopShortcut {
+    [CmdletBinding(SupportsShouldProcess)]
     param(
         [string]$TargetFile,
         [string]$ShortcutName,
@@ -3032,25 +3059,27 @@ function New-DesktopShortcut {
         $shortcut.WindowStyle = 1
         $shortcut.IconLocation = "$TargetFile,0"  # Explicit icon from target file
         $shortcut.Save()
-        Write-Log "Created desktop shortcut: $ShortcutName" -Level Success
+        Write-InstallLog "Created desktop shortcut: $ShortcutName" -Level Success
     }
     catch {
-        Write-Log "Failed to create shortcut for $ShortcutName : $($_.Exception.Message)" -Level Warning
+        Write-InstallLog "Failed to create shortcut for $ShortcutName : $($_.Exception.Message)" -Level Warning
     }
 }
 # -------------------------------------------------------------------------
-# FUNCTION: New-AllAppShortcuts
+# FUNCTION: New-AllAppShortcut
 # -------------------------------------------------------------------------
-function New-AllAppShortcuts {
-    Write-Log "===== ENTERING New-AllAppShortcuts ====="  -Level Info
-    Write-Log "Generating desktop shortcuts..." -Level Info
+function New-AllAppShortcut {
+    [CmdletBinding(SupportsShouldProcess)]
+    param()
+    Write-InstallLog "===== ENTERING New-AllAppShortcut ====="  -Level Info
+    Write-InstallLog "Generating desktop shortcuts..." -Level Info
     $desktopPath = [Environment]::GetFolderPath("Desktop")
     if ([string]::IsNullOrWhiteSpace($desktopPath)) { $desktopPath = "$env:USERPROFILE\Desktop" }
     $publicDesktop = "$env:Public\Desktop"
     # Track created shortcuts (by filename, not app name)
     $createdShortcutFiles = @{}
     # Helper: Check if shortcut file already exists
-    function Test-ShortcutExists {
+    function Test-Shortcut {
         param([string]$ShortcutName)
         $userPath = Join-Path $desktopPath "$ShortcutName.lnk"
         $publicPath = Join-Path $publicDesktop "$ShortcutName.lnk"
@@ -3058,10 +3087,12 @@ function New-AllAppShortcuts {
     }
     # Helper: Create Win32 shortcut
     function New-Win32Shortcut {
+        [CmdletBinding(SupportsShouldProcess)]
+        [OutputType([bool])]
         param([string]$Name, [string]$TargetFile)
         if ($createdShortcutFiles.ContainsKey($Name)) { return $false }
-        if (Test-ShortcutExists -ShortcutName $Name) {
-            Write-Log "Skipping $Name (already exists)" -Level Debug
+        if (Test-Shortcut -ShortcutName $Name) {
+            Write-InstallLog "Skipping $Name (already exists)" -Level Debug
             $createdShortcutFiles[$Name] = $true
             return $false
         }
@@ -3072,16 +3103,18 @@ function New-AllAppShortcuts {
             return $true
         }
         catch {
-            Write-Log "Failed Win32 shortcut $Name : $($_.Exception.Message)" -Level Warning
+            Write-InstallLog "Failed Win32 shortcut $Name : $($_.Exception.Message)" -Level Warning
             return $false
         }
     }
     # Helper: Create UWP shortcut
     function New-UWPShortcut {
+        [CmdletBinding(SupportsShouldProcess)]
+        [OutputType([bool])]
         param([string]$ShortcutName, [string]$AppUserModelId)
         if ($createdShortcutFiles.ContainsKey($ShortcutName)) { return $false }
-        if (Test-ShortcutExists -ShortcutName $ShortcutName) {
-            Write-Log "Skipping UWP $ShortcutName (already exists)" -Level Debug
+        if (Test-Shortcut -ShortcutName $ShortcutName) {
+            Write-InstallLog "Skipping UWP $ShortcutName (already exists)" -Level Debug
             $createdShortcutFiles[$ShortcutName] = $true
             return $false
         }
@@ -3095,18 +3128,18 @@ function New-AllAppShortcuts {
             $shortcut.IconLocation = ""
             $shortcut.Save()
             $createdShortcutFiles[$ShortcutName] = $true
-            Write-Log "Created UWP shortcut: $ShortcutName" -Level Success
+            Write-InstallLog "Created UWP shortcut: $ShortcutName" -Level Success
             return $true
         }
         catch {
-            Write-Log "Failed UWP shortcut $ShortcutName : $($_.Exception.Message)" -Level Warning
+            Write-InstallLog "Failed UWP shortcut $ShortcutName : $($_.Exception.Message)" -Level Warning
             return $false
         }
     }
     # =========================================================================
     # PHASE 1: UWP / Store Apps (FIRST - with AGGRESSIVE RETRY for newly installed apps)
     # =========================================================================
-    Write-Log "Phase 1: Creating UWP shortcuts (with aggressive retry)..." -Level Info
+    Write-InstallLog "Phase 1: Creating UWP shortcuts (with aggressive retry)..." -Level Info
     # UWP apps with their search patterns -> Shortcut name
     $uwpApps = @(
         @{ ShortcutName = "Outlook (New)"; Patterns = @("Outlook", "Outlook (new)", "Mail") }
@@ -3120,7 +3153,7 @@ function New-AllAppShortcuts {
         @{ ShortcutName = "Defender"; Patterns = @("Microsoft Defender", "Windows Security") }
     )
     # INITIAL DELAY: Windows needs time to index newly installed apps
-    Write-Log "Waiting 30 seconds for Windows to register newly installed apps..." -Level Info
+    Write-InstallLog "Waiting 30 seconds for Windows to register newly installed apps..." -Level Info
     Update-Progress -Percent 85 -SubStatus "Waiting for apps to register..."
     Start-Sleep -Seconds 30
     # Retry loop with aggressive timing
@@ -3132,26 +3165,26 @@ function New-AllAppShortcuts {
         # Log pending apps on first attempt
         if ($attempt -eq 1) {
             $pendingNames = ($pendingApps | ForEach-Object { $_.ShortcutName }) -join ", "
-            Write-Log "UWP Shortcuts to create: $pendingNames" -Level Info
+            Write-InstallLog "UWP Shortcuts to create: $pendingNames" -Level Info
         }
         # Refresh Start Apps list each attempt
         $startApps = $null
         try {
             $startApps = Get-StartApps -ErrorAction Stop | Select-Object Name, AppID
-            Write-Log "Attempt $attempt/$maxRetries : Found $($startApps.Count) apps in Start Menu, $($pendingApps.Count) shortcuts pending" -Level Debug
+            Write-InstallLog "Attempt $attempt/$maxRetries : Found $($startApps.Count) apps in Start Menu, $($pendingApps.Count) shortcuts pending" -Level Debug
             # Log sample app names on first attempt for debugging
             if ($attempt -eq 1 -and $startApps.Count -gt 0) {
                 $sampleNames = ($startApps | Select-Object -First 20 | ForEach-Object { $_.Name }) -join ", "
-                Write-Log "Sample Start Apps: $sampleNames" -Level Debug
+                Write-InstallLog "Sample Start Apps: $sampleNames" -Level Debug
             }
         }
         catch {
-            Write-Log "Get-StartApps failed: $($_.Exception.Message)" -Level Warning
+            Write-InstallLog "Get-StartApps failed: $($_.Exception.Message)" -Level Warning
             Start-Sleep -Seconds 5
             continue
         }
         if (-not $startApps -or $startApps.Count -eq 0) {
-            Write-Log "Get-StartApps returned empty, retrying..." -Level Warning
+            Write-InstallLog "Get-StartApps returned empty, retrying..." -Level Warning
             Start-Sleep -Seconds 5
             continue
         }
@@ -3163,7 +3196,7 @@ function New-AllAppShortcuts {
                 $match = $startApps | Where-Object { $_.Name -eq $pattern } | Select-Object -First 1
                 if ($match) {
                     $foundAumid = $match.AppID
-                    Write-Log "EXACT MATCH: $($app.ShortcutName) -> $($match.Name) [$($match.AppID)]" -Level Debug
+                    Write-InstallLog "EXACT MATCH: $($app.ShortcutName) -> $($match.Name) [$($match.AppID)]" -Level Debug
                     break
                 }
                 # Fuzzy match
@@ -3171,7 +3204,7 @@ function New-AllAppShortcuts {
                 Sort-Object { $_.Name.Length } | Select-Object -First 1
                 if ($match) {
                     $foundAumid = $match.AppID
-                    Write-Log "FUZZY MATCH: $($app.ShortcutName) -> $($match.Name) [$($match.AppID)]" -Level Debug
+                    Write-InstallLog "FUZZY MATCH: $($app.ShortcutName) -> $($match.Name) [$($match.AppID)]" -Level Debug
                     break
                 }
             }
@@ -3185,26 +3218,26 @@ function New-AllAppShortcuts {
         }
         $pendingApps = $stillPending
         if ($pendingApps.Count -eq 0) {
-            Write-Log "All $createdCount UWP shortcuts created on attempt $attempt" -Level Success
+            Write-InstallLog "All $createdCount UWP shortcuts created on attempt $attempt" -Level Success
             break
         }
         if ($attempt -lt $maxRetries) {
             $pendingNames = ($pendingApps | ForEach-Object { $_.ShortcutName }) -join ", "
-            Write-Log "Waiting ${retryDelay}s for $($pendingApps.Count) pending apps: $pendingNames" -Level Debug
+            Write-InstallLog "Waiting ${retryDelay}s for $($pendingApps.Count) pending apps: $pendingNames" -Level Debug
             Update-Progress -SubStatus "Waiting for: $pendingNames"
             Start-Sleep -Seconds $retryDelay
         }
         else {
             foreach ($app in $pendingApps) {
-                Write-Log "UWP NOT FOUND after $maxRetries attempts: $($app.ShortcutName)" -Level Warning
+                Write-InstallLog "UWP NOT FOUND after $maxRetries attempts: $($app.ShortcutName)" -Level Warning
             }
         }
     }
-    Write-Log "UWP shortcut phase complete: $createdCount created, $($pendingApps.Count) not found" -Level Info
+    Write-InstallLog "UWP shortcut phase complete: $createdCount created, $($pendingApps.Count) not found" -Level Info
     # =========================================================================
     # PHASE 2: Office Apps (Win32 via ODT)
     # =========================================================================
-    Write-Log "Phase 2: Creating Office shortcuts..." -Level Debug
+    Write-InstallLog "Phase 2: Creating Office shortcuts..." -Level Debug
     $officeRoot = "$env:ProgramFiles\Microsoft Office\root\Office16"
     $officeApps = @{
         "Word"       = "WINWORD.EXE"
@@ -3224,7 +3257,7 @@ function New-AllAppShortcuts {
     # =========================================================================
     # PHASE 3: Other Win32 Apps
     # =========================================================================
-    Write-Log "Phase 3: Creating other Win32 shortcuts..." -Level Debug
+    Write-InstallLog "Phase 3: Creating other Win32 shortcuts..." -Level Debug
     $win32Apps = @{
         "Visual Studio Code Insiders" = @(
             "$env:LOCALAPPDATA\Programs\Microsoft VS Code Insiders\Code - Insiders.exe",
@@ -3257,7 +3290,7 @@ function New-AllAppShortcuts {
             }
         }
     }
-    catch {}
+    catch { Write-InstallLog "VS Shortcut Error: $($_.Exception.Message)" -Level Debug }
     foreach ($appName in $win32Apps.Keys) {
         foreach ($path in $win32Apps[$appName]) {
             if (Test-Path $path -ErrorAction SilentlyContinue) {
@@ -3268,12 +3301,12 @@ function New-AllAppShortcuts {
     }
     # Summary
     $totalCreated = $createdShortcutFiles.Count
-    Write-Log "Shortcut generation complete: $totalCreated shortcuts processed" -Level Info
+    Write-InstallLog "Shortcut generation complete: $totalCreated shortcuts processed" -Level Info
 }
-function Remove-AppShortcuts {
+function Remove-AppShortcut {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param()
-    Write-Log "Removing shortcuts for excluded/bloatware apps (Start Menu & Desktop)..." -Level Info
+    Write-InstallLog "Removing shortcuts for excluded/bloatware apps (Start Menu & Desktop)..." -Level Info
     # Only remove shortcuts for apps that were EXCLUDED from installation
     # NOTE: We check user config to see if these apps were requested
     $shortcutTargets = @()
@@ -3338,10 +3371,10 @@ function Remove-AppShortcuts {
                     if ($shortcut.Name -match $target) {
                         try {
                             Remove-Item $shortcut.FullName -Force -ErrorAction Stop
-                            Write-Log "Removed shortcut: $($shortcut.FullName)" -Level Debug
+                            Write-InstallLog "Removed shortcut: $($shortcut.FullName)" -Level Debug
                         }
                         catch {
-                            Write-Log "Failed to remove shortcut $($shortcut.Name): $($_.Exception.Message)" -Level Warning
+                            Write-InstallLog "Failed to remove shortcut $($shortcut.Name): $($_.Exception.Message)" -Level Warning
                         }
                         break
                     }
@@ -3349,24 +3382,24 @@ function Remove-AppShortcuts {
             }
         }
     }
-    Write-Log "Shortcut cleanup complete" -Level Success
+    Write-InstallLog "Shortcut cleanup complete" -Level Success
 }
 function Install-Office {
     param(
         [Parameter(Mandatory)] [string]$SetupPath,
         [Parameter(Mandatory)] [string]$ConfigPath
     )
-    Write-Log "Starting Office Installation (Download & Install)..." -Level Info
+    Write-InstallLog "Starting Office Installation (Download & Install)..." -Level Info
     # Download Phase
     $dlStart = 25
     $dlTarget = 48
     Update-Progress -Status (L 'StatusDownloadingOffice') -Percent $dlStart -SubStatus (L 'SubStatusInternetSpeed')
-    Write-Log "Running ODT download phase with config: $ConfigPath" -Level Debug
+    Write-InstallLog "Running ODT download phase with config: $ConfigPath" -Level Debug
     $proc = Start-Process -FilePath $SetupPath -ArgumentList "/download `"$ConfigPath`"" -WindowStyle Hidden -WorkingDirectory $Script:Config.TempFolder -PassThru
     $startTime = Get-Date
     while (-not $proc.HasExited) {
         if ($Script:ProgressSync.RequestCancel) {
-            try { Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue } catch {}
+            try { Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue } catch { $null = $_ }
             throw "Installation cancelled by user"
         }
         # Simulate progress: +1% every 4 seconds (approx 90s to reach target)
@@ -3375,21 +3408,21 @@ function Install-Office {
         Update-Progress -Percent $currentProg
         Start-Sleep -Milliseconds 500
     }
-    Write-Log "ODT download phase exit code: $($proc.ExitCode)" -Level Debug
+    Write-InstallLog "ODT download phase exit code: $($proc.ExitCode)" -Level Debug
     if ($proc.ExitCode -ne 0 -and $proc.ExitCode -ne 3010) {
-        Write-Log "Download warning/error code: $($proc.ExitCode)" -Level Debug
+        Write-InstallLog "Download warning/error code: $($proc.ExitCode)" -Level Debug
     }
     # Install Phase
     $instStart = 50
     $instTarget = 64
     Update-Progress -Status (L 'StatusInstallingOffice') -Percent $instStart -SubStatus (L 'SubStatusApplyingConfig')
-    Write-Log "Running ODT install phase" -Level Debug
-    Write-Log "Installing Office... This typically takes 5-15 minutes. Please wait." -Level Info
+    Write-InstallLog "Running ODT install phase" -Level Debug
+    Write-InstallLog "Installing Office... This typically takes 5-15 minutes. Please wait." -Level Info
     $proc = Start-Process -FilePath $SetupPath -ArgumentList "/configure `"$ConfigPath`"" -WindowStyle Hidden -WorkingDirectory $Script:Config.TempFolder -PassThru
     $startTime = Get-Date
     while (-not $proc.HasExited) {
         if ($Script:ProgressSync.RequestCancel) {
-            try { Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue } catch {}
+            try { Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue } catch { $null = $_ }
             throw "Installation cancelled by user"
         }
         # Simulate progress: +1% every 30 seconds (slow install)
@@ -3398,18 +3431,18 @@ function Install-Office {
         Update-Progress -Percent $currentProg
         Start-Sleep -Milliseconds 1000
     }
-    Write-Log "ODT install phase exit code: $($proc.ExitCode)" -Level Debug
+    Write-InstallLog "ODT install phase exit code: $($proc.ExitCode)" -Level Debug
     if ($proc.ExitCode -ne 0 -and $proc.ExitCode -ne 3010) {
         throw "Office installation failed with code $($proc.ExitCode)"
     }
-    Write-Log "Office installation complete" -Level Success
+    Write-InstallLog "Office installation complete" -Level Success
 }
 function Install-Winget {
-    Write-Log "Checking Windows Package Manager (winget)..." -Level Info
+    Write-InstallLog "Checking Windows Package Manager (winget)..." -Level Info
     # First try Get-Command (works in most cases)
     $wingetPath = Get-Command winget -ErrorAction SilentlyContinue
     if ($wingetPath) {
-        Write-Log "Winget is already installed" -Level Success
+        Write-InstallLog "Winget is already installed" -Level Success
         return $wingetPath.Source
     }
     # Fallback: Check common installation paths directly (for elevated sessions where aliases may not work)
@@ -3420,20 +3453,20 @@ function Install-Winget {
     foreach ($path in $possiblePaths) {
         $resolved = Get-ChildItem $path -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
         if ($resolved -and (Test-Path $resolved)) {
-            Write-Log "Winget is already installed (found at: $resolved)" -Level Success
+            Write-InstallLog "Winget is already installed (found at: $resolved)" -Level Success
             return $resolved
         }
     }
-    Write-Log "Winget not found - installing App Installer from Microsoft Store..." -Level Warning
+    Write-InstallLog "Winget not found - installing App Installer from Microsoft Store..." -Level Warning
     try {
         # Download App Installer (includes winget)
         $appInstallerUrl = "https://aka.ms/getwinget"
         $appInstallerPath = Join-Path $Script:Config.TempFolder "Microsoft.DesktopAppInstaller.msixbundle"
-        Write-Log "Downloading App Installer..." -Level Debug
+        Write-InstallLog "Downloading App Installer..." -Level Debug
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
         $success = Invoke-Download-CancelAware -Url $appInstallerUrl -Path $appInstallerPath
         if (-not $success) { throw "Download cancelled or failed" }
-        Write-Log "Installing App Installer..." -Level Debug
+        Write-InstallLog "Installing App Installer..." -Level Debug
         Add-AppxPackage -Path $appInstallerPath -ErrorAction Stop
         # Wait for installation to complete
         Start-Sleep -Seconds 5
@@ -3441,11 +3474,11 @@ function Install-Winget {
         $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
         $wingetPath = Get-Command winget -ErrorAction SilentlyContinue
         if ($wingetPath) {
-            Write-Log "Winget installed successfully" -Level Success
+            Write-InstallLog "Winget installed successfully" -Level Success
             return $wingetPath.Source
         }
         else {
-            Write-Log "Winget installation completed but command not found in PATH" -Level Warning
+            Write-InstallLog "Winget installation completed but command not found in PATH" -Level Warning
             # Try common installation paths
             $possiblePaths = @(
                 "$env:LOCALAPPDATA\Microsoft\WindowsApps\winget.exe",
@@ -3454,7 +3487,7 @@ function Install-Winget {
             foreach ($path in $possiblePaths) {
                 $resolved = Get-ChildItem $path -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
                 if ($resolved -and (Test-Path $resolved)) {
-                    Write-Log "Found winget at: $resolved" -Level Success
+                    Write-InstallLog "Found winget at: $resolved" -Level Success
                     return $resolved
                 }
             }
@@ -3463,7 +3496,7 @@ function Install-Winget {
     }
     catch {
         if ($_.Exception.Message -match "0x80073D06" -or $_.Exception.Message -match "higher version.*already installed") {
-            Write-Log "Winget (App Installer) is already installed (newer version detected). Proceeding." -Level Success
+            Write-InstallLog "Winget (App Installer) is already installed (newer version detected). Proceeding." -Level Success
             # Try to resolve path again
             $wingetPath = Get-Command winget -ErrorAction SilentlyContinue
             if ($wingetPath) { return $wingetPath.Source }
@@ -3474,17 +3507,17 @@ function Install-Winget {
             foreach ($path in $possiblePaths) {
                 $resolved = Get-ChildItem $path -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
                 if ($resolved -and (Test-Path $resolved)) {
-                    Write-Log "Found winget at: $resolved" -Level Success
+                    Write-InstallLog "Found winget at: $resolved" -Level Success
                     return $resolved
                 }
             }
         }
-        Write-Log "Failed to install winget: $($_.Exception.Message)" -Level Error
+        Write-InstallLog "Failed to install winget: $($_.Exception.Message)" -Level Error
         throw
     }
 }
-function Install-Extras {
-    Write-Log "Installing Winget packages (Parallel Mode)..." -Level Info
+function Install-ExtraPackage {
+    Write-InstallLog "Installing Winget packages (Parallel Mode)..." -Level Info
     Update-Progress -Status (L 'StatusInstallingExtras') -Percent 65 -SubStatus "Preparing package list..."
     # ---------------------------
     # App Definitions (Winget/Store)
@@ -3520,7 +3553,7 @@ function Install-Extras {
         $packagesToInstall += @{ Id = 'Microsoft.PowerAutomateDesktop'; Source = 'winget'; Name = 'Power Automate Desktop' }
     }
     if ($packagesToInstall.Count -eq 0) {
-        Write-Log "No extra packages selected - skipping" -Level Debug
+        Write-InstallLog "No extra packages selected - skipping" -Level Debug
         return
     }
     # Ensure winget is available
@@ -3528,13 +3561,13 @@ function Install-Extras {
         $wingetExe = Install-Winget
     }
     catch {
-        Write-Log "Winget unavailable: $($_.Exception.Message)" -Level Warning
+        Write-InstallLog "Winget unavailable: $($_.Exception.Message)" -Level Warning
         return
     }
     # ===========================================================================
     # PARALLEL INSTALLATION
     # ===========================================================================
-    Write-Log "Starting parallel installation of $($packagesToInstall.Count) packages..." -Level Info
+    Write-InstallLog "Starting parallel installation of $($packagesToInstall.Count) packages..." -Level Info
     Update-Progress -Status "Installing Applications (Parallel)" -Percent 67 -SubStatus "Launching installers..."
     $processes = @{}
     $retryQueue = @()
@@ -3543,23 +3576,23 @@ function Install-Extras {
     $wingetApps = $packagesToInstall | Where-Object { $_.Source -eq 'winget' }
     $msstoreApps = $packagesToInstall | Where-Object { $_.Source -eq 'msstore' }
     # Helper: Launch parallel installs for a batch
-    function Start-ParallelInstalls {
+    function Start-ParallelInstall {
         [CmdletBinding(SupportsShouldProcess = $true)]
         param([array]$Apps, [string]$WingetPath)
         $procs = @{}
         foreach ($pkg in $Apps) {
-            $args = "install --id $($pkg.Id) --accept-package-agreements --accept-source-agreements --source $($pkg.Source) --disable-interactivity --silent"
-            if ($pkg.Source -ne 'msstore') { $args += " --force" }
-            if ($PSCmdlet.ShouldProcess($pkg.Name, "Start-Process $args")) {
-                Write-Log "Launching: $($pkg.Name)" -Level Debug
-                $proc = Start-Process -FilePath $WingetPath -ArgumentList $args -WindowStyle Hidden -PassThru
+            $installArgs = "install --id $($pkg.Id) --accept-package-agreements --accept-source-agreements --source $($pkg.Source) --disable-interactivity --silent"
+            if ($pkg.Source -ne 'msstore') { $installArgs += " --force" }
+            if ($PSCmdlet.ShouldProcess($pkg.Name, "Start-Process $installArgs")) {
+                Write-InstallLog "Launching: $($pkg.Name)" -Level Debug
+                $proc = Start-Process -FilePath $WingetPath -ArgumentList $installArgs -WindowStyle Hidden -PassThru
                 $procs[$pkg.Name] = @{ Process = $proc; Package = $pkg }
             }
         }
         return $procs
     }
     # Helper: Wait for all processes with timeout
-    function Wait-AllProcesses {
+    function Wait-ProcessBatch {
         param([hashtable]$Processes, [int]$Timeout)
         $startTime = Get-Date
         $failed = @()
@@ -3576,15 +3609,15 @@ function Install-Extras {
                 if ($entry.Process.HasExited) {
                     $exitCode = $entry.Process.ExitCode
                     if ($exitCode -eq 0 -or $exitCode -eq -1978335212 -or $exitCode -eq -1978335189) {
-                        Write-Log "[OK] $name installed" -Level Success
+                        Write-InstallLog "[OK] $name installed" -Level Success
                         $succeeded += $name
                     }
                     elseif ($exitCode -eq -2147009217 -and $name -match "Copilot") {
-                        Write-Log "[SKIP] $name blocked by policy" -Level Warning
+                        Write-InstallLog "[SKIP] $name blocked by policy" -Level Warning
                         $succeeded += $name
                     }
                     else {
-                        Write-Log "[FAIL] $name exit code: $exitCode" -Level Warning
+                        Write-InstallLog "[FAIL] $name exit code: $exitCode" -Level Warning
                         $failed += $entry.Package
                     }
                     $completed += $name
@@ -3600,59 +3633,59 @@ function Install-Extras {
         }
         # Timeout cleanup
         foreach ($name in $Processes.Keys) {
-            Write-Log "[TIMEOUT] $name - killing" -Level Warning
-            try { Stop-Process -Id $Processes[$name].Process.Id -Force -ErrorAction SilentlyContinue } catch {}
+            Write-InstallLog "[TIMEOUT] $name - killing" -Level Warning
+            try { Stop-Process -Id $Processes[$name].Process.Id -Force -ErrorAction SilentlyContinue } catch { $null = $_ }
             $failed += $Processes[$name].Package
         }
         return @{ Succeeded = $succeeded; Failed = $failed }
     }
     # Phase 1: Install winget source apps
     if ($wingetApps.Count -gt 0) {
-        Write-Log "Phase 1: Installing $($wingetApps.Count) winget apps in parallel..." -Level Info
+        Write-InstallLog "Phase 1: Installing $($wingetApps.Count) winget apps in parallel..." -Level Info
         Update-Progress -Percent 68 -SubStatus "Installing winget apps..."
-        $processes = Start-ParallelInstalls -Apps $wingetApps -WingetPath $wingetExe
-        $result = Wait-AllProcesses -Processes $processes -Timeout $timeout
+        $processes = Start-ParallelInstall -Apps $wingetApps -WingetPath $wingetExe
+        $result = Wait-ProcessBatch -Processes $processes -Timeout $timeout
         $retryQueue += $result.Failed
     }
     # Phase 2: Install msstore apps
     if ($msstoreApps.Count -gt 0) {
-        Write-Log "Phase 2: Installing $($msstoreApps.Count) Store apps in parallel..." -Level Info
+        Write-InstallLog "Phase 2: Installing $($msstoreApps.Count) Store apps in parallel..." -Level Info
         Update-Progress -Percent 72 -SubStatus "Installing Store apps..."
-        $processes = Start-ParallelInstalls -Apps $msstoreApps -WingetPath $wingetExe
-        $result = Wait-AllProcesses -Processes $processes -Timeout $timeout
+        $processes = Start-ParallelInstall -Apps $msstoreApps -WingetPath $wingetExe
+        $result = Wait-ProcessBatch -Processes $processes -Timeout $timeout
         $retryQueue += $result.Failed
     }
     # Phase 3: Retry failed installs (sequential, one attempt)
     if ($retryQueue.Count -gt 0) {
-        Write-Log "Retrying $($retryQueue.Count) failed packages..." -Level Info
+        Write-InstallLog "Retrying $($retryQueue.Count) failed packages..." -Level Info
         Update-Progress -Percent 74 -SubStatus "Retrying failed installs..."
         foreach ($pkg in $retryQueue) {
-            $args = "install --id $($pkg.Id) --accept-package-agreements --accept-source-agreements --source $($pkg.Source) --disable-interactivity --silent"
-            $proc = Start-Process -FilePath $wingetExe -ArgumentList $args -WindowStyle Hidden -PassThru -Wait
+            $retryArgs = "install --id $($pkg.Id) --accept-package-agreements --accept-source-agreements --source $($pkg.Source) --disable-interactivity --silent"
+            $proc = Start-Process -FilePath $wingetExe -ArgumentList $retryArgs -WindowStyle Hidden -PassThru -Wait
             if ($proc.ExitCode -eq 0) {
-                Write-Log "[RETRY OK] $($pkg.Name)" -Level Success
+                Write-InstallLog "[RETRY OK] $($pkg.Name)" -Level Success
             }
             else {
-                Write-Log "[RETRY FAIL] $($pkg.Name) - code $($proc.ExitCode)" -Level Warning
+                Write-InstallLog "[RETRY FAIL] $($pkg.Name) - code $($proc.ExitCode)" -Level Warning
             }
         }
     }
     # Post-Install Cleanup: Final Sweep
     # Kill any lingering processes that might have started after the last install finished
     Update-Progress -Percent 75 -SubStatus "Final cleanup..."
-    Write-Log "Performing final cleanup check..." -Level Debug
+    Write-InstallLog "Performing final cleanup check..." -Level Debug
     $appsToKill = @('PowerToys', 'PowerToys.Settings', 'PowerToys.Runner', 'PAD.Console.Host', 'PAD.Machine.Management', 'ms-teams', 'Teams', 'StarDesk', 'GameViewer')
     foreach ($procName in $appsToKill) {
         Get-Process -Name $procName -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
     }
-    Write-Log "Parallel installation complete" -Level Success
+    Write-InstallLog "Parallel installation complete" -Level Success
 }
 # ============================================================================
 # LICENSING (MAS INTEGRATION)
 # ============================================================================
 # Duplicate helper functions removed - Defined at lines 975-1080
 function Invoke-Licensing {
-    Write-Log "Starting Licensing Check & Activation..." -Level Info
+    Write-InstallLog "Starting Licensing Check & Activation..." -Level Info
     Update-Progress -Status "Activating Products" -Percent 75 -SubStatus "Checking Windows and Office licenses..."
     # Download MAS to ProgramData (NOT temp folder - MAS refuses to run from temp)
     $masFolder = Join-Path $env:ProgramData 'MicrosoftActivation'
@@ -3663,7 +3696,7 @@ function Invoke-Licensing {
     $downloaded = $false
     foreach ($url in $Script:Config.MASUrls) {
         try {
-            Write-Log "Attempting MAS download from: $url" -Level Debug
+            Write-InstallLog "Attempting MAS download from: $url" -Level Debug
             [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
             $success = Invoke-Download-CancelAware -Url $url -Path $masPath
             if (-not $success) { throw "Download returned false" }
@@ -3672,15 +3705,15 @@ function Invoke-Licensing {
                 throw "Downloaded file is missing or too small (<1KB) - possible corruption"
             }
             $downloaded = $true
-            Write-Log "MAS downloaded and verified successfully" -Level Success
+            Write-InstallLog "MAS downloaded and verified successfully" -Level Success
             break
         }
         catch {
-            Write-Log "MAS download failed from this source: $($_.Exception.Message)" -Level Warning
+            Write-InstallLog "MAS download failed from this source: $($_.Exception.Message)" -Level Warning
         }
     }
     if (-not $downloaded) {
-        Write-Log "Could not download valid activation script. Skipping licensing." -Level Error
+        Write-InstallLog "Could not download valid activation script. Skipping licensing." -Level Error
         return
     }
     # 1. Apply Windows Edition (if selected)
@@ -3688,7 +3721,7 @@ function Invoke-Licensing {
     try {
         $targetEdition = $Script:UserConfig.WindowsEdition
         if ($targetEdition -and $targetEdition -ne '') {
-            Write-Log "Applying Windows Edition: $targetEdition" -Level Info
+            Write-InstallLog "Applying Windows Edition: $targetEdition" -Level Info
             Update-Progress -Status (L 'StatusActivating') -Percent 78 -SubStatus "Switching Windows to $targetEdition..."
             $editionKeys = @{
                 'Pro'           = 'VK7JG-NPHTM-C97JM-9MPGT-3V66T'
@@ -3699,27 +3732,27 @@ function Invoke-Licensing {
             }
             if ($editionKeys.ContainsKey($targetEdition)) {
                 $genericKey = $editionKeys[$targetEdition]
-                Write-Log "Using Generic Key: $genericKey" -Level Debug
+                Write-InstallLog "Using Generic Key: $genericKey" -Level Debug
                 # Attempt 1: changepk.exe
-                Write-Log "Attempting edition change via ChangePK..." -Level Debug
+                Write-InstallLog "Attempting edition change via ChangePK..." -Level Debug
                 $proc = Start-Process-CancelAware -FilePath "changepk.exe" -ArgumentList "/ProductKey $genericKey" -WindowStyle Hidden
                 if ($proc.ExitCode -eq 0) {
-                    Write-Log "ChangePK completed successfully." -Level Success
+                    Write-InstallLog "ChangePK completed successfully." -Level Success
                     $editionChanged = $true
                 }
                 else {
-                    Write-Log "ChangePK failed with exit code: $($proc.ExitCode). Trying fallback..." -Level Warning
+                    Write-InstallLog "ChangePK failed with exit code: $($proc.ExitCode). Trying fallback..." -Level Warning
                 }
                 # Attempt 2: slmgr /ipk (Fallback)
                 if (-not $editionChanged) {
-                    Write-Log "Attempting edition change via SLMGR..." -Level Debug
+                    Write-InstallLog "Attempting edition change via SLMGR..." -Level Debug
                     $procSlmgr = Start-Process-CancelAware -FilePath "cscript.exe" -ArgumentList "//nologo $env:SystemRoot\System32\slmgr.vbs /ipk $genericKey" -WindowStyle Hidden
                     if ($procSlmgr.ExitCode -eq 0) {
-                        Write-Log "SLMGR key installation successful." -Level Success
+                        Write-InstallLog "SLMGR key installation successful." -Level Success
                         $editionChanged = $true
                     }
                     else {
-                        Write-Log "SLMGR failed with exit code: $($procSlmgr.ExitCode)" -Level Error
+                        Write-InstallLog "SLMGR failed with exit code: $($procSlmgr.ExitCode)" -Level Error
                     }
                 }
                 Start-Sleep -Seconds 5
@@ -3727,26 +3760,26 @@ function Invoke-Licensing {
         }
     }
     catch {
-        Write-Log "Windows edition change failed: $($_.Exception.Message)" -Level Warning
+        Write-InstallLog "Windows edition change failed: $($_.Exception.Message)" -Level Warning
     }
     # 2. Activate Windows (HWID)
     # 2. Activate Windows (HWID)
-    Write-Log "Checking Windows Activation State..." -Level Debug
+    Write-InstallLog "Checking Windows Activation State..." -Level Debug
     # Robust WMI Query to capture all statuses (User reported Enterprise failure)
     $licenses = $null
     try {
         $licenses = Get-CimInstance SoftwareLicensingProduct | Where-Object { $_.PartialProductKey -and $_.ApplicationId -eq '55c92734-d682-4d71-983e-d6ec3f16059f' }
         if ($licenses) {
             $licenses | ForEach-Object {
-                Write-Log "  [WMI] Found License: Name='$($_.Name)' | Status=$($_.LicenseStatus) | Desc='$($_.Description)'" -Level Debug
+                Write-InstallLog "  [WMI] Found License: Name='$($_.Name)' | Status=$($_.LicenseStatus) | Desc='$($_.Description)'" -Level Debug
             }
         }
         else {
-            Write-Log "  [WMI] No matching Windows licenses found." -Level Warning
+            Write-InstallLog "  [WMI] No matching Windows licenses found." -Level Warning
         }
     }
     catch {
-        Write-Log "  [WMI] Query Failed: $($_.Exception.Message)" -Level Error
+        Write-InstallLog "  [WMI] Query Failed: $($_.Exception.Message)" -Level Error
     }
     # Determine if ANY license is valid (Status 1 = Licensed)
     $isLicensed = $false
@@ -3758,59 +3791,59 @@ function Invoke-Licensing {
     }
     # Logic: Preserve license if explicitly Licensed AND no edition change. Activate otherwise.
     if ($isLicensed -and -not $editionChanged) {
-        Write-Log "Windows is already activated (Valid permanent/active license found). Preserving existing license." -Level Success
+        Write-InstallLog "Windows is already activated (Valid permanent/active license found). Preserving existing license." -Level Success
     }
     else {
-        if ($editionChanged) { Write-Log "Edition changed ($targetEdition). Forcing activation to match new edition..." -Level Info }
-        else { Write-Log "Windows is not fully activated. Initiating activation..." -Level Info }
+        if ($editionChanged) { Write-InstallLog "Edition changed ($targetEdition). Forcing activation to match new edition..." -Level Info }
+        else { Write-InstallLog "Windows is not fully activated. Initiating activation..." -Level Info }
         # Enterprise Logic Fix: Ensure generic KMS client key is present if unlicensed
         try {
             $osInfo = Get-CimInstance Win32_OperatingSystem
             $currentCaption = $osInfo.Caption
             if ($currentCaption -like "*Enterprise*" -and -not $isLicensed) {
-                Write-Log "Unlicensed Enterprise edition detected ($currentCaption). Applying generic KMS client key to facilitate HWID..." -Level Info
+                Write-InstallLog "Unlicensed Enterprise edition detected ($currentCaption). Applying generic KMS client key to facilitate HWID..." -Level Info
                 $entKey = "XGVPP-NMH47-7TTHJ-W3FW7-8HV2C" # Generic Enterprise
                 if ($currentCaption -like "*IoT*") { $entKey = "XQQ2F-VNMJ3-C7R3R-VV3BZ-T4R6J" } # Generic IoT Enterprise
-                Write-Log "Installing generic key: $entKey" -Level Debug
+                Write-InstallLog "Installing generic key: $entKey" -Level Debug
                 $procKey = Start-Process-CancelAware -FilePath "cscript.exe" -ArgumentList "//nologo $env:SystemRoot\System32\slmgr.vbs /ipk $entKey" -WindowStyle Hidden
-                Write-Log "Generic key installation exit code: $($procKey.ExitCode)" -Level Debug
+                Write-InstallLog "Generic key installation exit code: $($procKey.ExitCode)" -Level Debug
             }
         }
-        catch { Write-Log "Enterprise key preparation failed: $($_.Exception.Message)" -Level Warning }
+        catch { Write-InstallLog "Enterprise key preparation failed: $($_.Exception.Message)" -Level Warning }
         Update-Progress -Status "Activating Products" -Percent 80 -SubStatus "Activating Windows (Permanent Digital License)..."
         $actLog = Join-Path $Script:Config.TempFolder 'WindowsActivation_Debug.log'
         # Attempt 1: HWID
-        Write-Log "Attempting Windows Activation via MAS /HWID..." -Level Info
+        Write-InstallLog "Attempting Windows Activation via MAS /HWID..." -Level Info
         try {
             $proc = Start-Process-CancelAware -FilePath "cmd.exe" -ArgumentList "/c", "call `"$masPath`" /HWID /S" -WindowStyle Hidden -RedirectStandardOutput $actLog -TimeoutSeconds 180
         }
         catch {
-            Write-Log "Windows Activation (HWID) timed out or failed: $($_.Exception.Message)" -Level Warning
+            Write-InstallLog "Windows Activation (HWID) timed out or failed: $($_.Exception.Message)" -Level Warning
         }
         # Check result
         Start-Sleep -Seconds 2
         $afterStatus = Get-CimInstance SoftwareLicensingProduct | Where-Object { $_.PartialProductKey -and $_.Name -like "*Windows*" } | Select-Object -ExpandProperty LicenseStatus -Unique
         # Attempt 2: KMS38 (Fallback)
         if ($afterStatus -ne 1) {
-            Write-Log "HWID activation failed or could not be verified (Status: $afterStatus). Trying KMS38 fallback..." -Level Warning
+            Write-InstallLog "HWID activation failed or could not be verified (Status: $afterStatus). Trying KMS38 fallback..." -Level Warning
             Update-Progress -Status (L 'StatusActivating') -Percent 82 -SubStatus 'Windows (KMS38)...'
             try {
                 $null = Start-Process-CancelAware -FilePath "cmd.exe" -ArgumentList "/c", "call `"$masPath`" /KMS38 /S" -WindowStyle Hidden -RedirectStandardOutput $actLog -TimeoutSeconds 180
             }
             catch {
-                Write-Log "Windows Activation (KMS38) timed out or failed: $($_.Exception.Message)" -Level Warning
+                Write-InstallLog "Windows Activation (KMS38) timed out or failed: $($_.Exception.Message)" -Level Warning
             }
             Start-Sleep -Seconds 2
             $afterStatus = Get-CimInstance SoftwareLicensingProduct | Where-Object { $_.PartialProductKey -and $_.Name -like "*Windows*" } | Select-Object -ExpandProperty LicenseStatus -Unique
         }
         if ($afterStatus -eq 1) {
-            Write-Log "Windows successfully activated." -Level Success
+            Write-InstallLog "Windows successfully activated." -Level Success
         }
         else {
-            Write-Log "Windows activation failed. Final status: $afterStatus." -Level Error
-            Write-Log "Dumping activation log snippet:" -Level Debug
+            Write-InstallLog "Windows activation failed. Final status: $afterStatus." -Level Error
+            Write-InstallLog "Dumping activation log snippet:" -Level Debug
             if (Test-Path $actLog) {
-                Get-Content $actLog | Select-Object -Last 20 | ForEach-Object { Write-Log "     [MAS] $_" -Level Debug }
+                Get-Content $actLog | Select-Object -Last 20 | ForEach-Object { Write-InstallLog "     [MAS] $_" -Level Debug }
             }
         }
     }
@@ -3825,55 +3858,55 @@ function Invoke-Licensing {
         $officePreStatus = Get-CimInstance SoftwareLicensingProduct | Where-Object { $_.Name -like "Office 16, Office16*" -and $_.PartialProductKey -and $_.LicenseStatus -eq 1 }
         # Activate if: User just installed it (Intent) OR It's currently unlicensed
         if ($userIntent -or -not $officePreStatus) {
-            if ($userIntent) { Write-Log "Activation triggered by new Office installation/configuration." -Level Info }
-            else { Write-Log "Office detected but unlicensed. Initiating activation..." -Level Info }
+            if ($userIntent) { Write-InstallLog "Activation triggered by new Office installation/configuration." -Level Info }
+            else { Write-InstallLog "Office detected but unlicensed. Initiating activation..." -Level Info }
             Update-Progress -Status (L 'StatusActivating') -Percent 85 -SubStatus 'Office (Ohook)...'
             $ohookLog = Join-Path $Script:Config.TempFolder 'OfficeActivation_Debug.log'
-            Write-Log "Attempting Office Activation via MAS /Ohook..." -Level Info
+            Write-InstallLog "Attempting Office Activation via MAS /Ohook..." -Level Info
             try {
                 $proc = Start-Process-CancelAware -FilePath "cmd.exe" -ArgumentList "/c", "call `"$masPath`" /Ohook /S" -WindowStyle Hidden -RedirectStandardOutput $ohookLog -TimeoutSeconds 180
             }
             catch {
-                Write-Log "Office Activation (Ohook) timed out or failed: $($_.Exception.Message)" -Level Warning
+                Write-InstallLog "Office Activation (Ohook) timed out or failed: $($_.Exception.Message)" -Level Warning
             }
             if ($proc) {
-                Write-Log "  -> Office activation process exit code: $($proc.ExitCode)" -Level Debug
+                Write-InstallLog "  -> Office activation process exit code: $($proc.ExitCode)" -Level Debug
             }
             if (Test-Path $ohookLog) {
                 $logContent = Get-Content $ohookLog -ErrorAction SilentlyContinue
                 if ($logContent) {
-                    Write-Log "Capturing MAS Ohook output:" -Level Debug
-                    $logContent | Select-Object -Last 20 | ForEach-Object { Write-Log "     [MAS] $_" -Level Debug }
+                    Write-InstallLog "Capturing MAS Ohook output:" -Level Debug
+                    $logContent | Select-Object -Last 20 | ForEach-Object { Write-InstallLog "     [MAS] $_" -Level Debug }
                 }
             }
             # Post-Verification
             $officeLi = Get-CimInstance SoftwareLicensingProduct | Where-Object { $_.Name -like "*Office*" -and $_.LicenseStatus -eq 1 }
-            if ($officeLi) { Write-Log "Office successfully activated." -Level Success }
-            else { Write-Log "Office activation verification failed (or could not be verified via WMI)." -Level Warning }
+            if ($officeLi) { Write-InstallLog "Office successfully activated." -Level Success }
+            else { Write-InstallLog "Office activation verification failed (or could not be verified via WMI)." -Level Warning }
         }
         else {
-            Write-Log "Office is already activated and no new installation was requested. Preserving existing license." -Level Success
+            Write-InstallLog "Office is already activated and no new installation was requested. Preserving existing license." -Level Success
         }
     }
     else {
-        Write-Log "Office installation not found and not selected in config. Skipping Office activation." -Level Warning
+        Write-InstallLog "Office installation not found and not selected in config. Skipping Office activation." -Level Warning
     }
     # Cleanup MAS folder
     try {
         if (Test-Path $masFolder) {
             Remove-Item $masFolder -Recurse -Force -ErrorAction SilentlyContinue
-            Write-Log "MAS temporary files cleaned up" -Level Debug
+            Write-InstallLog "MAS temporary files cleaned up" -Level Debug
         }
     }
-    catch {}
-    Write-Log "Licensing operations complete" -Level Success
+    catch { Write-InstallLog "MAS cleanup error: $($_.Exception.Message)" -Level Debug }
+    Write-InstallLog "Licensing operations complete" -Level Success
 }
-function Uninstall-VisualStudios {
-    Write-Log "Detecting Visual Studio installations..." -Level Info
+function Uninstall-VisualStudio {
+    Write-InstallLog "Detecting Visual Studio installations..." -Level Info
     # Path to vswhere
     $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
     if (-not (Test-Path $vswhere)) {
-        Write-Log "Visual Studio Installer (vswhere) not found. Skipping VS cleanup." -Level Warning
+        Write-InstallLog "Visual Studio Installer (vswhere) not found. Skipping VS cleanup." -Level Warning
         return
     }
     # Find all instances
@@ -3882,32 +3915,32 @@ function Uninstall-VisualStudios {
         if ($instances) {
             foreach ($path in $instances) {
                 if ([string]::IsNullOrWhiteSpace($path)) { continue }
-                Write-Log "Found Visual Studio at: $path" -Level Info
+                Write-InstallLog "Found Visual Studio at: $path" -Level Info
                 # For older versions or if standard path differs, try finding setup info
                 # But typically we use the centralized installer:
                 $centralInstaller = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\setup.exe"
                 if (Test-Path $centralInstaller) {
-                    Write-Log "  -> Uninstalling..." -Level Info
+                    Write-InstallLog "  -> Uninstalling..." -Level Info
                     # Argument format: uninstall --installPath <path> --quiet --norestart
                     $uninstallArgs = "uninstall --installPath `"$path`" --quiet --norestart --force"
                     $proc = Start-Process-CancelAware -FilePath $centralInstaller -ArgumentList $uninstallArgs -WindowStyle Hidden
-                    Write-Log "  -> Uninstallation exit code: $($proc.ExitCode)" -Level Debug
+                    Write-InstallLog "  -> Uninstallation exit code: $($proc.ExitCode)" -Level Debug
                 }
                 else {
-                    Write-Log "  -> Installer executable not found for this instance." -Level Warning
+                    Write-InstallLog "  -> Installer executable not found for this instance." -Level Warning
                 }
             }
         }
         else {
-            Write-Log "No Visual Studio instances detected." -Level Debug
+            Write-InstallLog "No Visual Studio instances detected." -Level Debug
         }
     }
     catch {
-        Write-Log "Error during VS detection: $($_.Exception.Message)" -Level Error
+        Write-InstallLog "Error during VS detection: $($_.Exception.Message)" -Level Error
     }
 }
-function Uninstall-SupportedApps {
-    Write-Log "Scanning for supported applications to remove..." -Level Info
+function Uninstall-SupportedApp {
+    Write-InstallLog "Scanning for supported applications to remove..." -Level Info
     # 1. Define list of apps to check (IDs and Names for broad matching)
     $appsToRemove = @(
         @{ Id = 'Microsoft.PowerToys'; Name = 'PowerToys' },
@@ -3919,7 +3952,7 @@ function Uninstall-SupportedApps {
     $winget = "$env:LOCALAPPDATA\Microsoft\WindowsApps\winget.exe"
     if (Test-Path $winget) {
         foreach ($app in $appsToRemove) {
-            Write-Log "Checking for $($app.Name)..." -Level Debug
+            Write-InstallLog "Checking for $($app.Name)..." -Level Debug
             # Try generic uninstall by ID first
             $argsId = "uninstall --id $($app.Id) --silent --accept-source-agreements --disable-interactivity"
             $procId = Start-Process-CancelAware -FilePath $winget -ArgumentList $argsId -WindowStyle Hidden
@@ -3932,7 +3965,7 @@ function Uninstall-SupportedApps {
         }
     }
     # 3. Store App Removal (Aggressive wildcard matching)
-    Write-Log "Removing Store Applications..." -Level Debug
+    Write-InstallLog "Removing Store Applications..." -Level Debug
     $storePatterns = @(
         "*Microsoft.PowerToys*",
         "*Microsoft.PowerBI*",
@@ -3948,15 +3981,15 @@ function Uninstall-SupportedApps {
     )
     foreach ($pattern in $storePatterns) {
         Get-AppxPackage -Name $pattern -AllUsers -ErrorAction SilentlyContinue | ForEach-Object {
-            Write-Log "Removing Appx: $($_.Name)" -Level Info
+            Write-InstallLog "Removing Appx: $($_.Name)" -Level Info
         }
     }
 }
-function Remove-LeftoverShortcuts {
+function Remove-LeftoverShortcut {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "")]
     [CmdletBinding(SupportsShouldProcess = $true)]
     param()
-    Write-Log "Cleaning up leftover shortcuts..." -Level Info
+    Write-InstallLog "Cleaning up leftover shortcuts..." -Level Info
     $commonDesktop = [Environment]::GetFolderPath('CommonDesktopDirectory')
     $userDesktop = [Environment]::GetFolderPath('Desktop')
     # Start Menu paths (ProgramData and User)
@@ -3986,7 +4019,7 @@ function Remove-LeftoverShortcuts {
             foreach ($pattern in $patterns) {
                 # Look for .lnk files matching the pattern
                 Get-ChildItem -Path $path -Include "$pattern.lnk" -Recurse -ErrorAction SilentlyContinue | ForEach-Object {
-                    Write-Log "Removing shortcut: $($_.FullName)" -Level Info
+                    Write-InstallLog "Removing shortcut: $($_.FullName)" -Level Info
                     Remove-Item $_.FullName -Force -ErrorAction SilentlyContinue
                 }
             }
@@ -3998,7 +4031,7 @@ function Remove-LeftoverShortcuts {
 # ============================================================================
 function Test-CleanupIntegrity {
     param([int]$Attempt = 1, [int]$MaxAttempts = 3)
-    Write-Log "Verifying cleanup (attempt $Attempt of $MaxAttempts)..." -Level Debug
+    Write-InstallLog "Verifying cleanup (attempt $Attempt of $MaxAttempts)..." -Level Debug
     $orphanedFiles = @()
     $tempPath = $Script:Config.TempFolder
     # Check if temp folder still exists
@@ -4016,14 +4049,14 @@ function Test-CleanupIntegrity {
         if (Test-Path $path) { $orphanedFiles += $path }
     }
     if ($orphanedFiles.Count -gt 0) {
-        Write-Log "Found $($orphanedFiles.Count) orphaned files, removing..." -Level Warning
+        Write-InstallLog "Found $($orphanedFiles.Count) orphaned files, removing..." -Level Warning
         foreach ($file in $orphanedFiles) {
             try {
                 Remove-Item $file -Force -Recurse -ErrorAction Stop
-                Write-Log "Removed: $file" -Level Debug
+                Write-InstallLog "Removed: $file" -Level Debug
             }
             catch {
-                Write-Log "Failed to remove orphaned file $file : $($_.Exception.Message)" -Level Error
+                Write-InstallLog "Failed to remove orphaned file $file : $($_.Exception.Message)" -Level Error
             }
         }
         # Retry cleanup only if under max attempts
@@ -4032,18 +4065,18 @@ function Test-CleanupIntegrity {
             Test-CleanupIntegrity -Attempt ($Attempt + 1) -MaxAttempts $MaxAttempts
         }
         else {
-            Write-Log "Max cleanup attempts reached. Some files may remain." -Level Warning
+            Write-InstallLog "Max cleanup attempts reached. Some files may remain." -Level Warning
         }
     }
     else {
-        Write-Log "Cleanup verification successful - no orphaned files found" -Level Success
+        Write-InstallLog "Cleanup verification successful - no orphaned files found" -Level Success
     }
 }
 function Restore-SystemState {
-    Write-Log "Restoring system to previous state..." -Level Info
+    Write-InstallLog "Restoring system to previous state..." -Level Info
     Update-Progress -Status (L 'StatusCleaning') -Percent 98 -SubStatus (L 'SubStatusRevertingChanges')
     # Restore registry keys
-    Write-Log "Restoring registry keys..." -Level Debug
+    Write-InstallLog "Restoring registry keys..." -Level Debug
     @(
         'HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive',
         'HKLM:\SOFTWARE\Policies\Microsoft\Office\16.0\Common\OfficeUpdate',
@@ -4054,19 +4087,19 @@ function Restore-SystemState {
             Restore-RegistryKey -Path $_
         }
         catch {
-            Write-Log "Warning restoring ${_}: $($_.Exception.Message)" -Level Warning
+            Write-InstallLog "Warning restoring ${_}: $($_.Exception.Message)" -Level Warning
         }
     }
     # Clean up temporary files
-    Write-Log "Removing temporary installation files..." -Level Debug
+    Write-InstallLog "Removing temporary installation files..." -Level Debug
     try {
         if (Test-Path $Script:Config.TempFolder) {
             Remove-Item $Script:Config.TempFolder -Recurse -Force -ErrorAction Stop
-            Write-Log "Removed temp folder: $($Script:Config.TempFolder)" -Level Debug
+            Write-InstallLog "Removed temp folder: $($Script:Config.TempFolder)" -Level Debug
         }
     }
     catch {
-        Write-Log "Warning removing temp folder: $($_.Exception.Message)" -Level Warning
+        Write-InstallLog "Warning removing temp folder: $($_.Exception.Message)" -Level Warning
     }
     # Remove any leftover Office installation folders
     $leftoverPaths = @(
@@ -4081,16 +4114,16 @@ function Restore-SystemState {
         if (Test-Path $path) {
             try {
                 Remove-Item $path -Recurse -Force -ErrorAction Stop
-                Write-Log "Removed leftover: $path" -Level Debug
+                Write-InstallLog "Removed leftover: $path" -Level Debug
             }
             catch {
-                Write-Log "Warning removing $path : $($_.Exception.Message)" -Level Warning
+                Write-InstallLog "Warning removing $path : $($_.Exception.Message)" -Level Warning
             }
         }
     }
     # Verify cleanup
     Test-CleanupIntegrity
-    Write-Log "System restoration complete" -Level Success
+    Write-InstallLog "System restoration complete" -Level Success
 }
 # ============================================================================
 # MAIN
@@ -4099,30 +4132,30 @@ $Script:Stage = 'initialization'
 try {
     $Script:Stage = 'start'
     Initialize-Log
-    Write-Log "=== INSTALLATION STARTED ===" -Level Info
+    Write-InstallLog "=== INSTALLATION STARTED ===" -Level Info
     # Show configuration window (Blocking)
     $configSuccess = Show-ConfigWindow
     if (-not $configSuccess) {
-        Write-Log "User cancelled configuration" -Level Info
+        Write-InstallLog "User cancelled configuration" -Level Info
         exit 0
     }
-    Write-Log "User configuration completed - Mode: $($Script:ConfigResult.Mode)" -Level Info
+    Write-InstallLog "User configuration completed - Mode: $($Script:ConfigResult.Mode)" -Level Info
     # -------------------------------------------------------------------------
     # SPECIAL MODE: DEEP UNINSTALL
     # -------------------------------------------------------------------------
     if ($Script:ConfigResult.Mode -eq 'Uninstall') {
-        Write-Log "Starting Deep Uninstall Mode..." -Level Info
+        Write-InstallLog "Starting Deep Uninstall Mode..." -Level Info
         # Start Progress UI
         Start-ProgressWindow
         Update-Progress -Status "Uninstalling Office..." -Percent 0 -SubStatus "Initializing..."
         try {
             # 1. New Comprehensive Uninstall Steps
             Update-Progress -Status "Uninstalling Visual Studio..." -Percent 10 -SubStatus "Detecting versions..."
-            Uninstall-VisualStudios
+            Uninstall-VisualStudio
             Update-Progress -Status "Uninstalling Apps..." -Percent 30 -SubStatus "Removing supported apps..."
-            Uninstall-SupportedApps
+            Uninstall-SupportedApp
             Update-Progress -Status "Cleaning Shortcuts..." -Percent 40 -SubStatus "Removing leftover shortcuts..."
-            Remove-LeftoverShortcuts
+            Remove-LeftoverShortcut
             # 2. Existing Office Uninstall
             Update-Progress -Status "Uninstalling Office..." -Percent 50 -SubStatus "Removing Office suite..."
             Start-OfficeUninstallation
@@ -4130,10 +4163,10 @@ try {
         catch {
             $Script:UninstallErrorOccurred = $true
             if ($_.Exception.Message -like "*cancelled by user*") {
-                Write-Log "Uninstallation cancelled by user" -Level Warning
+                Write-InstallLog "Uninstallation cancelled by user" -Level Warning
             }
             else {
-                Write-Log "Uninstall Error: $($_.Exception.Message)" -Level Error
+                Write-InstallLog "Uninstall Error: $($_.Exception.Message)" -Level Error
                 # Improved Uninstall Error Dialogue
                 [System.Windows.MessageBox]::Show("We encountered an issue during the uninstallation process.`n`nPlease check the log file (visible on your Desktop or in Temp) for specific error details.", "Uninstallation Issue", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Error)
             }
@@ -4141,7 +4174,7 @@ try {
         # Cleanup
         Close-Progress
         if (Test-Path $Script:Config.TempFolder) { Remove-Item $Script:Config.TempFolder -Recurse -Force -ErrorAction SilentlyContinue }
-        Write-Log "Uninstallation finished. Exiting." -Level Info
+        Write-InstallLog "Uninstallation finished. Exiting." -Level Info
         # Log Logic Fix: Remove log file ONLY if successful (User Request)
         if (-not $Script:UninstallErrorOccurred) {
             try {
@@ -4152,7 +4185,7 @@ try {
             catch { $null = $_ }
         }
         else {
-            Write-Log "Log file preserved for debugging at: $($Script:Config.LogFile)" -Level Info
+            Write-InstallLog "Log file preserved for debugging at: $($Script:Config.LogFile)" -Level Info
         }
         exit 0
     }
@@ -4184,74 +4217,74 @@ try {
         Remove-Conflicting-Office
     }
     else {
-        Write-Log "No Office version selected. Skipping removal of existing Office installations." -Level Info
+        Write-InstallLog "No Office version selected. Skipping removal of existing Office installations." -Level Info
     }
     # Check for user cancel
     if ($Script:ProgressSync.RequestCancel) { throw "Installation cancelled by user" }
     if ($officeSelected) {
         $Script:Stage = 'phase2-prepare'
-        Write-Log "Phase 2: Preparing Office Installation" -Level Info
+        Write-InstallLog "Phase 2: Preparing Office Installation" -Level Info
         $setup = Get-ODT
         $xmlConfigPath = New-ConfigXML
         # Check for user cancel
         if ($Script:ProgressSync.RequestCancel) { throw "Installation cancelled by user" }
         $Script:Stage = 'phase2-validate'
-        Write-Log "Validating installation assets..." -Level Info
+        Write-InstallLog "Validating installation assets..." -Level Info
         try {
-            Test-FileExists -Path $setup -Label 'ODT setup'
-            Test-FileExists -Path $xmlConfigPath -Label 'Configuration XML'
-            Write-Log "Validation OK: setup & config" -Level Success
+            Test-File -Path $setup -Label 'ODT setup'
+            Test-File -Path $xmlConfigPath -Label 'Configuration XML'
+            Write-InstallLog "Validation OK: setup & config" -Level Success
         }
         catch {
-            Write-Log "Asset validation failed: $($_.Exception.Message)" -Level Error
-            Write-Log "Stack: $($_.Exception.StackTrace)" -Level Error
+            Write-InstallLog "Asset validation failed: $($_.Exception.Message)" -Level Error
+            Write-InstallLog "Stack: $($_.Exception.StackTrace)" -Level Error
             throw
         }
         $Script:Stage = 'phase3-install'
-        Write-Log "Phase 3: Installing Office" -Level Info
+        Write-InstallLog "Phase 3: Installing Office" -Level Info
         try {
             Install-Office -SetupPath $setup -ConfigPath $xmlConfigPath
         }
         catch {
-            Write-Log "Install-Office failed: $($_.Exception.Message)" -Level Error
-            Write-Log "Stack: $($_.ScriptStackTrace)" -Level Error
+            Write-InstallLog "Install-Office failed: $($_.Exception.Message)" -Level Error
+            Write-InstallLog "Stack: $($_.ScriptStackTrace)" -Level Error
             throw
         }
-        Write-Log "Phase 3 completed" -Level Info
+        Write-InstallLog "Phase 3 completed" -Level Info
     }
     else {
-        Write-Log "Skipping Office Installation Phases (User selection: None)" -Level Info
+        Write-InstallLog "Skipping Office Installation Phases (User selection: None)" -Level Info
     }
     # Run cleanup immediately after install to ensure OneNote is removed even if later stages fail
-    Start-CleanupOperations
-    Remove-AppShortcuts
+    Start-Cleanup
+    Remove-AppShortcut
     # Remove Windows Bloatware (OneDrive, Appx) only after successful install
     Remove-Windows-Bloatware
     # Check for user cancel
     if ($Script:ProgressSync.RequestCancel) { throw "Installation cancelled by user" }
     $Script:Stage = 'phase4-extras'
-    Write-Log "Phase 4: Installing extras" -Level Info
-    Install-Extras
-    Write-Log "Phase 4 completed" -Level Info
+    Write-InstallLog "Phase 4: Installing extras" -Level Info
+    Install-ExtraPackage
+    Write-InstallLog "Phase 4 completed" -Level Info
     # Check for user cancel
     if ($Script:ProgressSync.RequestCancel) { throw "Installation cancelled by user" }
     $Script:Stage = 'phase5-licensing'
-    Write-Log "Phase 5: Licensing activation" -Level Info
+    Write-InstallLog "Phase 5: Licensing activation" -Level Info
     Invoke-Licensing
-    Write-Log "Phase 5 completed" -Level Info
+    Write-InstallLog "Phase 5 completed" -Level Info
     # Check for user cancel
     if ($Script:ProgressSync.RequestCancel) { throw "Installation cancelled by user" }
     $Script:Stage = 'post-cleanup'
-    # Start-CleanupOperations and Remove-AppShortcuts already run after Phase 3
+    # Start-Cleanup and Remove-AppShortcuts already run after Phase 3
     # Only run again if there were intervening steps that may have created new artifacts
     if ($Script:UserConfig.IncludeClipchamp -or $Script:UserConfig.IncludePowerAutomate) {
-        Start-CleanupOperations
-        Remove-AppShortcuts
+        Start-Cleanup
+        Remove-AppShortcut
     }
     # Generate user-requested desktop shortcuts
-    New-AllAppShortcuts
+    New-AllAppShortcut
     $Script:Stage = 'cleanup'
-    Write-Log "Cleaning temporary files..." -Level Debug
+    Write-InstallLog "Cleaning temporary files..." -Level Debug
     Update-Progress -Status (L 'StatusFinalizing') -Percent 95 -SubStatus (L 'SubStatusRemovingTemp')
     # PRESERVE LOG FILE before deleting temp folder (critical for debugging)
     $desktopLogPath = Join-Path ([Environment]::GetFolderPath('Desktop')) "MicrosoftUltimateInstaller_Debug.log"
@@ -4263,8 +4296,8 @@ try {
     Test-CleanupIntegrity
     Update-Progress -Status (L 'StatusComplete') -Percent 100 -SubStatus (L 'SubStatusAllComplete')
     $duration = (Get-Date) - $Script:Config.InstallStartTime
-    Write-Log "=== INSTALLATION COMPLETED SUCCESSFULLY ===" -Level Success
-    Write-Log "Total duration: $('{0:hh\:mm\:ss}' -f $duration)" -Level Info
+    Write-InstallLog "=== INSTALLATION COMPLETED SUCCESSFULLY ===" -Level Success
+    Write-InstallLog "Total duration: $('{0:hh\:mm\:ss}' -f $duration)" -Level Info
     Start-Sleep -Seconds 2
     Close-Progress
     # Log file is NO LONGER copied to Desktop on success (User Request)
@@ -4288,7 +4321,7 @@ catch {
     # Determine if it's a user cancellation
     $isCancellation = $err -like "*cancelled by user*"
     if ($isCancellation) {
-        Write-Log "=== INSTALLATION CANCELLED BY USER ===" -Level Warning
+        Write-InstallLog "=== INSTALLATION CANCELLED BY USER ===" -Level Warning
         try { Update-Progress -Status "Cancelling..." -Percent 100 -SubStatus "Cleaning up leftovers..." } catch { $null = $_ }
         # Cleanup log file on user cancellation
         Start-Sleep -Seconds 1 # Give file handles a moment
@@ -4297,31 +4330,29 @@ catch {
                 Remove-Item $Script:Config.LogFile -Force -ErrorAction SilentlyContinue
             }
         }
-        catch {
-            # Best effort
-        }
+        catch { $null = $_ }
     }
     else {
-        Write-Log "=== CRITICAL ERROR ===" -Level Error
+        Write-InstallLog "=== CRITICAL ERROR ===" -Level Error
     }
-    Write-Log "Stage: $Script:Stage" -Level Error
-    Write-Log "Error: $err" -Level Error
-    Write-Log "Stack: $($_.Exception.StackTrace)" -Level Error
-    Write-Log "ScriptStackTrace: $($_.ScriptStackTrace)" -Level Error
-    if ($_.InvocationInfo) { Write-Log "Invocation: $($_.InvocationInfo.PositionMessage)" -Level Error }
-    if ($_.Exception.InnerException) { Write-Log "InnerException: $($_.Exception.InnerException.Message)" -Level Error }
-    Write-Log "Duration before failure: $('{0:hh\:mm\:ss}' -f $duration)" -Level Error
+    Write-InstallLog "Stage: $Script:Stage" -Level Error
+    Write-InstallLog "Error: $err" -Level Error
+    Write-InstallLog "Stack: $($_.Exception.StackTrace)" -Level Error
+    Write-InstallLog "ScriptStackTrace: $($_.ScriptStackTrace)" -Level Error
+    if ($_.InvocationInfo) { Write-InstallLog "Invocation: $($_.InvocationInfo.PositionMessage)" -Level Error }
+    if ($_.Exception.InnerException) { Write-InstallLog "InnerException: $($_.Exception.InnerException.Message)" -Level Error }
+    Write-InstallLog "Duration before failure: $('{0:hh\:mm\:ss}' -f $duration)" -Level Error
     # Dump detailed license info on failure
     try {
-        Write-Log "--- LICENSE DIAGNOSTICS ---" -Level Error
+        Write-InstallLog "--- LICENSE DIAGNOSTICS ---" -Level Error
         Get-CimInstance SoftwareLicensingProduct | Where-Object { $_.PartialProductKey } | ForEach-Object {
             $desc = if ($_.Description.Length -gt 100) { $_.Description.Substring(0, 100) + '...' } else { $_.Description }
-            Write-Log "Product: $($_.Name) | Status: $($_.LicenseStatus) | Desc: $desc" -Level Error
+            Write-InstallLog "Product: $($_.Name) | Status: $($_.LicenseStatus) | Desc: $desc" -Level Error
         }
     }
-    catch {}
+    catch { $null = $_ }
     # Restore system state
-    Write-Log "Initiating system restoration..." -Level Warning
+    Write-InstallLog "Initiating system restoration..." -Level Warning
     Restore-SystemState
     Test-CleanupIntegrity
     if ($isCancellation) {
@@ -4335,7 +4366,7 @@ catch {
         try {
             Copy-Item -Path $Script:Config.LogFile -Destination $desktopLog -Force -ErrorAction SilentlyContinue
         }
-        catch {}
+        catch { Write-InstallLog "Could not copy log to Desktop: $($_.Exception.Message)" -Level Warning }
         [System.Windows.MessageBox]::Show("Installation could not be completed.`n`nStage: $Script:Stage`nError: $err`n`nWe have reverted changes to keep your system clean.`n`nPlease check the log file created on your Desktop for troubleshooting details:`n$desktopLog", "Installation Issue", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Error)
     }
 }
