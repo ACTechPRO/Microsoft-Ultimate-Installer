@@ -31,29 +31,50 @@ Add-Type -AssemblyName PresentationFramework, PresentationCore, WindowsBase, Sys
 # Uses only native Start-Process (no C#/PInvoke) to minimize AV heuristics.
 if (-not $IsHidden) {
     $scriptPath = $MyInvocation.MyCommand.Path
-    if ([string]::IsNullOrEmpty($scriptPath)) {
-        # Web/Memory execution detected. Save to Temp to enable relaunch logic.
+    $tempInstallerPath = Join-Path $env:TEMP "MicrosoftUltimateInstaller.ps1"
+
+    # RECURSION GUARD: If we are running from the temp path, we are already the relaunched process.
+    if ($scriptPath -eq $tempInstallerPath) {
+        $IsHidden = $true
+    }
+    
+    # If still not hidden (i.e., not the temp file), proceed to relaunch logic
+    if (-not $IsHidden) {
+        if ([string]::IsNullOrEmpty($scriptPath)) {
+            # Web/Memory execution detected. Save to Temp.
+            try {
+                $scriptPath = $tempInstallerPath
+                $MyInvocation.MyCommand.Definition | Out-File -FilePath $scriptPath -Encoding UTF8 -Force
+            }
+            catch {
+                Write-Host "Error staging web script: $_" -ForegroundColor Red
+                exit 1
+            }
+        }
+
         try {
-            $scriptPath = Join-Path $env:TEMP "MicrosoftUltimateInstaller.ps1"
-            $MyInvocation.MyCommand.Definition | Out-File -FilePath $scriptPath -Encoding UTF8 -Force
+            $psPath = (Get-Process -Id $PID).Path
+            
+            # Use Array for robust argument handling
+            $argList = @(
+                "-NoExit",
+                "-NoLogo",
+                "-NoProfile",
+                "-ExecutionPolicy", "Bypass",
+                "-File", $scriptPath,
+                "-IsHidden"
+            )
+            
+            if ($Force) { $argList += "-Force" }
+
+            Write-Host "Relaunching visible for debug..." -ForegroundColor Cyan
+            Start-Process -FilePath $psPath -ArgumentList $argList -Verb RunAs
+            exit
         }
         catch {
-            Write-Host "Error staging web script: $_" -ForegroundColor Red
+            Write-Host "Error launching process: $_" -ForegroundColor Red
             exit 1
         }
-    }
-    try {
-        $psPath = (Get-Process -Id $PID).Path
-        $forceArg = if ($Force) { " -Force" } else { "" }
-        # DEBUGGING: Added -NoExit and allowed window to be visible
-        $arguments = "-NoExit -NoLogo -NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`" -IsHidden$forceArg"
-        # Use Start-Process with -Verb RunAs for UAC elevation (Removed -WindowStyle Hidden for debug)
-        Start-Process -FilePath $psPath -ArgumentList $arguments -Verb RunAs
-        exit
-    }
-    catch {
-        Write-Host "Error launching hidden process: $_" -ForegroundColor Red
-        exit 1
     }
 }
 $ErrorActionPreference = 'Stop'
