@@ -88,11 +88,45 @@ elseif ((Get-ChildItem -Filter *.ps1 -Recurse).Count -gt 0) {
     $projectType = "PowerShell"
     
     $validationCmd = { 
+        $issues = @()
+        
+        # 1. Standard PSScriptAnalyzer
         if (Get-Command Invoke-ScriptAnalyzer -ErrorAction SilentlyContinue) {
-            Invoke-ScriptAnalyzer -Path . -Recurse
+            $sa = Invoke-ScriptAnalyzer -Path . -Recurse
+            if ($sa) { $issues += $sa }
         } else {
-            Write-Warning "PSScriptAnalyzer not found."; $null 
+            Write-Warning "PSScriptAnalyzer not found."
         }
+
+        # 2. Resource Integrity (Base64 Strings)
+        Get-ChildItem -Filter *.ps1 -Recurse | ForEach-Object {
+            $content = Get-Content $_.FullName -Raw
+            # Check for explicitly empty/null Base64 variables
+            if ($content -match '\$[a-zA-Z0-9]+Base64\s*=\s*(""|''|\$null)') {
+                $issues += [PSCustomObject]@{
+                    RuleName = "ResourceIntegrity"
+                    Message = "Empty Base64 Resource detected in $($_.Name)"
+                    Severity = "Warning"
+                    Line = 1 
+                }
+            }
+        }
+
+        # 3. Critical Path Validation (Repo layout)
+        Get-ChildItem -Filter *.ps1 -Recurse | ForEach-Object {
+            $content = Get-Content $_.FullName -Raw
+            # Detect hardcoded Program Files (should use env vars)
+            if ($content -match '["''][C-D]:\\Program Files') {
+                $issues += [PSCustomObject]@{
+                    RuleName = "CriticalPath"
+                    Message = "Hardcoded Program Files Path in $($_.Name). Use `$env:ProgramFiles"
+                    Severity = "Warning"
+                    Line = 1
+                }
+            }
+        }
+        
+        return $issues
     }
     
     $fixCmd = {
