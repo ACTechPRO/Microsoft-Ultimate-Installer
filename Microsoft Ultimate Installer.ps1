@@ -32,8 +32,15 @@ Add-Type -AssemblyName PresentationFramework, PresentationCore, WindowsBase, Sys
 if (-not $IsHidden) {
     $scriptPath = $MyInvocation.MyCommand.Path
     if ([string]::IsNullOrEmpty($scriptPath)) {
-        Write-Host "Error: Cannot determine script path for hidden execution" -ForegroundColor Red
-        exit 1
+        # Web/Memory execution detected. Save to Temp to enable relaunch logic.
+        try {
+            $scriptPath = Join-Path $env:TEMP "MicrosoftUltimateInstaller.ps1"
+            $MyInvocation.MyCommand.Definition | Out-File -FilePath $scriptPath -Encoding UTF8 -Force
+        }
+        catch {
+            Write-Host "Error staging web script: $_" -ForegroundColor Red
+            exit 1
+        }
     }
     try {
         $startInfo = New-Object System.Diagnostics.ProcessStartInfo
