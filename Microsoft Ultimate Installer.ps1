@@ -60,15 +60,13 @@ if (-not $IsHidden) {
         
         # Use -Command instead of -File to allow inline env var assignment
         $argList = @(
-            "-NoExit",
             "-NoLogo",
             "-NoProfile",
             "-ExecutionPolicy", "Bypass",
             "-Command", $commandString
         )
 
-        Write-Host "Relaunching visible for debug..." -ForegroundColor Cyan
-        Start-Process -FilePath $psPath -ArgumentList $argList -Verb RunAs
+        Start-Process -FilePath $psPath -ArgumentList $argList -Verb RunAs -WindowStyle Hidden
         exit
     }
     catch {
@@ -90,8 +88,7 @@ Add-Type -Name Win32 -Namespace '' -MemberDefinition @'
 '@ -ErrorAction SilentlyContinue
 $consolePtr = [Win32]::GetConsoleWindow()
 if ($consolePtr -ne [IntPtr]::Zero) {
-    # DEBUGGING: Disabled hiding to allow error visibility
-    # [Win32]::ShowWindow($consolePtr, 0) | Out-Null  # 0 = SW_HIDE
+    [Win32]::ShowWindow($consolePtr, 0) | Out-Null  # 0 = SW_HIDE
 }
 # ============================================================================
 # CONFIGURATION
