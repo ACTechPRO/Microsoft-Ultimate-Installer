@@ -45,9 +45,10 @@ if (-not $IsHidden) {
     try {
         $psPath = (Get-Process -Id $PID).Path
         $forceArg = if ($Force) { " -Force" } else { "" }
-        $arguments = "-NoLogo -NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`" -IsHidden$forceArg"
-        # Use Start-Process with -Verb RunAs for UAC elevation and -WindowStyle Hidden
-        Start-Process -FilePath $psPath -ArgumentList $arguments -Verb RunAs -WindowStyle Hidden
+        # DEBUGGING: Added -NoExit and allowed window to be visible
+        $arguments = "-NoExit -NoLogo -NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`" -IsHidden$forceArg"
+        # Use Start-Process with -Verb RunAs for UAC elevation (Removed -WindowStyle Hidden for debug)
+        Start-Process -FilePath $psPath -ArgumentList $arguments -Verb RunAs
         exit
     }
     catch {
