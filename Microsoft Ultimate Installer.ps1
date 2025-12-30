@@ -29,52 +29,51 @@ Add-Type -AssemblyName PresentationFramework, PresentationCore, WindowsBase, Sys
 # ============================================================================
 # If the console is visible, relaunch the script hidden and exit the parent.
 # Uses only native Start-Process (no C#/PInvoke) to minimize AV heuristics.
+# RECURSION GUARD: Environment variable flag to prevent infinite relaunch
+if ($env:MUI_RELAUNCHED -eq "1") {
+    $IsHidden = $true
+}
+
 if (-not $IsHidden) {
     $scriptPath = $MyInvocation.MyCommand.Path
     $tempInstallerPath = Join-Path $env:TEMP "MicrosoftUltimateInstaller.ps1"
 
-    # RECURSION GUARD: If we are running from the temp path, we are already the relaunched process.
-    if ($scriptPath -eq $tempInstallerPath) {
-        $IsHidden = $true
-    }
-    
-    # If still not hidden (i.e., not the temp file), proceed to relaunch logic
-    if (-not $IsHidden) {
-        if ([string]::IsNullOrEmpty($scriptPath)) {
-            # Web/Memory execution detected. Save to Temp.
-            try {
-                $scriptPath = $tempInstallerPath
-                $MyInvocation.MyCommand.Definition | Out-File -FilePath $scriptPath -Encoding UTF8 -Force
-            }
-            catch {
-                Write-Host "Error staging web script: $_" -ForegroundColor Red
-                exit 1
-            }
-        }
-
+    if ([string]::IsNullOrEmpty($scriptPath)) {
+        # Web/Memory execution detected. Save to Temp.
         try {
-            $psPath = (Get-Process -Id $PID).Path
-            
-            # Use Array for robust argument handling
-            $argList = @(
-                "-NoExit",
-                "-NoLogo",
-                "-NoProfile",
-                "-ExecutionPolicy", "Bypass",
-                "-File", $scriptPath,
-                "-IsHidden"
-            )
-            
-            if ($Force) { $argList += "-Force" }
-
-            Write-Host "Relaunching visible for debug..." -ForegroundColor Cyan
-            Start-Process -FilePath $psPath -ArgumentList $argList -Verb RunAs
-            exit
+            $scriptPath = $tempInstallerPath
+            $MyInvocation.MyCommand.Definition | Out-File -FilePath $scriptPath -Encoding UTF8 -Force
         }
         catch {
-            Write-Host "Error launching process: $_" -ForegroundColor Red
+            Write-Host "Error staging web script: $_" -ForegroundColor Red
             exit 1
         }
+    }
+
+    try {
+        $psPath = (Get-Process -Id $PID).Path
+        
+        # Build command that sets env var THEN runs script (env var must be set in same session)
+        $forceParam = if ($Force) { " -Force" } else { "" }
+        $escapedPath = $scriptPath -replace "'", "''"
+        $commandString = "`$env:MUI_RELAUNCHED='1'; & '$escapedPath' -IsHidden$forceParam"
+        
+        # Use -Command instead of -File to allow inline env var assignment
+        $argList = @(
+            "-NoExit",
+            "-NoLogo",
+            "-NoProfile",
+            "-ExecutionPolicy", "Bypass",
+            "-Command", $commandString
+        )
+
+        Write-Host "Relaunching visible for debug..." -ForegroundColor Cyan
+        Start-Process -FilePath $psPath -ArgumentList $argList -Verb RunAs
+        exit
+    }
+    catch {
+        Write-Host "Error launching process: $_" -ForegroundColor Red
+        exit 1
     }
 }
 $ErrorActionPreference = 'Stop'
