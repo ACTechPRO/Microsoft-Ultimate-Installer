@@ -70,7 +70,8 @@ Add-Type -Name Win32 -Namespace '' -MemberDefinition @'
 '@ -ErrorAction SilentlyContinue
 $consolePtr = [Win32]::GetConsoleWindow()
 if ($consolePtr -ne [IntPtr]::Zero) {
-    [Win32]::ShowWindow($consolePtr, 0) | Out-Null  # 0 = SW_HIDE
+    # DEBUGGING: Disabled hiding to allow error visibility
+    # [Win32]::ShowWindow($consolePtr, 0) | Out-Null  # 0 = SW_HIDE
 }
 # ============================================================================
 # CONFIGURATION
