@@ -76,33 +76,7 @@ if (-not $IsHidden) {
 }
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
-# ============================================================================
-# HIDE CONSOLE WINDOW (P/Invoke)
-# ============================================================================
-# Explicitly hide the PowerShell console window using Windows API
-$consoleHideCode = @'
-using System;
-using System.Runtime.InteropServices;
-public class ConsoleHelper {
-    [DllImport("kernel32.dll")]
-    public static extern IntPtr GetConsoleWindow();
-    [DllImport("user32.dll")]
-    public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-    public static void HideConsole() {
-        IntPtr hWnd = GetConsoleWindow();
-        if (hWnd != IntPtr.Zero) {
-            ShowWindow(hWnd, 0); // SW_HIDE = 0
-        }
-    }
-}
-'@
-try {
-    Add-Type -TypeDefinition $consoleHideCode -Language CSharp -ErrorAction SilentlyContinue
-}
-catch { }
-if ([Type]::GetType('ConsoleHelper')) {
-    [ConsoleHelper]::HideConsole()
-}
+
 # ============================================================================
 # CONFIGURATION
 # ============================================================================
