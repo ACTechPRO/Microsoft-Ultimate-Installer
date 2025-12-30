@@ -43,15 +43,11 @@ if (-not $IsHidden) {
         }
     }
     try {
-        $startInfo = New-Object System.Diagnostics.ProcessStartInfo
-        $startInfo.FileName = (Get-Process -Id $PID).Path
+        $psPath = (Get-Process -Id $PID).Path
         $forceArg = if ($Force) { " -Force" } else { "" }
-        $startInfo.Arguments = "-NoLogo -NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`" -IsHidden$forceArg"
-        # Use WindowStyle Hidden but NOT CreateNoWindow, so WPF windows can still appear
-        $startInfo.WindowStyle = 'Hidden'
-        $startInfo.CreateNoWindow = $false
-        $startInfo.UseShellExecute = $false
-        [System.Diagnostics.Process]::Start($startInfo) | Out-Null
+        $arguments = "-NoLogo -NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`" -IsHidden$forceArg"
+        # Use Start-Process with -Verb RunAs for UAC elevation and -WindowStyle Hidden
+        Start-Process -FilePath $psPath -ArgumentList $arguments -Verb RunAs -WindowStyle Hidden
         exit
     }
     catch {
