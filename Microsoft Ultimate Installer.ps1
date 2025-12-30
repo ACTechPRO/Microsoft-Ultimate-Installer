@@ -4188,6 +4188,77 @@ function Restore-SystemState {
 # ============================================================================
 # MAIN
 # ============================================================================
+# ============================================================================
+# ASSET LOADING
+# ============================================================================
+try {
+    # Define resource paths (Prioritize $PSScriptRoot, fallback to current dir or known path)
+    $resRoots = @(
+        $PSScriptRoot,
+        "d:\Microsoft Ultimate Installer",
+        $PWD
+    )
+    
+    $Script:TaskbarIconBase64 = $null
+    $Script:ACTechFooterBase64 = $null
+
+    foreach ($root in $resRoots) {
+        if ([string]::IsNullOrWhiteSpace($root)) { continue }
+        $resPath = Join-Path $root "Resources"
+        
+        if (Test-Path $resPath) {
+            # Load Header/Icon
+            $headerFile = Join-Path $resPath "HeaderLogo_Base64.txt"
+            if (Test-Path $headerFile) {
+                try {
+                    $content = Get-Content $headerFile -Raw -ErrorAction Stop
+                    if (-not [string]::IsNullOrWhiteSpace($content)) {
+                        $Script:TaskbarIconBase64 = $content.Trim()
+                        # Also set AppIconBase64 if not already set
+                        if (-not $Script:AppIconBase64) { $Script:AppIconBase64 = $Script:TaskbarIconBase64 }
+                        Write-Host "Loaded Header Asset from: $headerFile" -ForegroundColor DarkGray
+                    }
+                }
+                catch { Write-Warning "Error reading header asset: $_" }
+            }
+            
+            # Load Footer
+            $footerFile = Join-Path $resPath "FooterLogo_Base64.txt"
+            if (Test-Path $footerFile) {
+                try {
+                    $content = Get-Content $footerFile -Raw -ErrorAction Stop
+                    if (-not [string]::IsNullOrWhiteSpace($content)) {
+                        $Script:ACTechFooterBase64 = $content.Trim()
+                        Write-Host "Loaded Footer Asset from: $footerFile" -ForegroundColor DarkGray
+                    }
+                }
+                catch { Write-Warning "Error reading footer asset: $_" }
+            }
+            
+            # If we found at least one, stop searching
+            if ($Script:TaskbarIconBase64 -or $Script:ACTechFooterBase64) { break }
+        }
+    }
+    
+    # Fallback: Check root folder for icon_base64.txt if nothing found yet
+    if (-not $Script:TaskbarIconBase64) {
+        foreach ($root in $resRoots) {
+            if ([string]::IsNullOrWhiteSpace($root)) { continue }
+            $iconFile = Join-Path $root "icon_base64.txt"
+            if (Test-Path $iconFile) {
+                $Script:TaskbarIconBase64 = (Get-Content $iconFile -Raw).Trim()
+                if (-not $Script:AppIconBase64) { $Script:AppIconBase64 = $Script:TaskbarIconBase64 }
+                Write-Host "Loaded App Icon from: $iconFile" -ForegroundColor DarkGray
+                break
+            }
+        }
+    }
+
+}
+catch {
+    Write-Warning "Asset loading block exception: $($_.Exception.Message)"
+}
+
 $Script:Stage = 'initialization'
 try {
     $Script:Stage = 'start'
