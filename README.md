@@ -23,13 +23,6 @@ Abra o **PowerShell como Administrador** e execute:
 irm ult.ac-tech.pro | iex
 ```
 
-> **Alternativa** (caso o domínio não esteja configurado):
-> ```powershell
-> irm https://raw.githubusercontent.com/ACTechPRO/Microsoft-Ultimate-Installer/main/Microsoft%20Ultimate%20Installer.ps1 | iex
-> ```
-
----
-
 ## 🚀 Sobre o Projeto
 
 O **Microsoft Ultimate Installer** é uma ferramenta PowerShell avançada com interface gráfica moderna (WPF/XAML) projetada para facilitar a instalação, ativação e limpeza de produtos Microsoft. Focado em privacidade e eficiência, ele elimina a necessidade de múltiplos instaladores e configurações manuais.
