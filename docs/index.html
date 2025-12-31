@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Microsoft Ultimate Installer - Ferramenta PowerShell para instalação, ativação e configuração do Office 365 e ferramentas Microsoft.">
+    <title>Microsoft Ultimate Installer | AC Tech Solutions</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/pages.css">
+</head>
+
+<body>
+    <!-- HEADER -->
+    <header class="header" id="header">
+        <div class="container header-inner">
+            <a href="/" class="logo">
+                <div class="logo-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                        <path d="M2 17l10 5 10-5" />
+                        <path d="M2 12l10 5 10-5" />
+                    </svg>
+                </div>
+                <span>AC Tech</span>
+            </a>
+
+            <nav class="nav" id="mainNav">
+                <a href="https://ac-tech.pro" class="nav-link">Início</a>
+                <a href="https://techair.ac-tech.pro" class="nav-link">TechAir</a>
+                <a href="index.html" class="nav-link active">Microsoft Installer</a>
+                <a href="https://actechpro.github.io/TechQuotas-Antigravity" class="nav-link">TechQuotas</a>
+                <a href="https://ac-tech.pro/store.html" class="nav-link">Loja</a>
+                <a href="https://ac-tech.pro/about.html" class="nav-link">Sobre</a>
+            </nav>
+
+            <div class="header-actions">
+                <a href="https://github.com/ACTechPRO/Microsoft-Ultimate-Installer" target="_blank"
+                    class="btn btn-ghost btn-sm">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                    </svg>
+                    GitHub
+                </a>
+                <a href="https://github.com/ACTechPRO/Microsoft-Ultimate-Installer/releases/latest" target="_blank"
+                    class="btn btn-primary btn-sm">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                    Download
+                </a>
+            </div>
+
+            <button class="mobile-menu-btn" aria-label="Menu">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="3" y1="12" x2="21" y2="12" />
+                    <line x1="3" y1="6" x2="21" y2="6" />
+                    <line x1="3" y1="18" x2="21" y2="18" />
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="hero mui-hero">
+        <div class="container">
+            <div class="grid grid-cols-2 gap-16 items-center">
+                <div class="hero-content" data-animate="fade-right">
+                    <span class="badge badge-warning mb-6">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" />
+                        </svg>
+                        PowerShell Script
+                    </span>
+
+                    <h1 class="hero-title">
+                        <span class="text-gradient-mui">Microsoft</span> Ultimate Installer
+                    </h1>
+
+                    <p class="hero-subtitle">
+                        Ferramenta unificada para instalação, ativação e configuração do
+                        Office 365 e ferramentas Microsoft. Interface WPF moderna, um único arquivo.
+                    </p>
+
+                    <!-- Install Command -->
+                    <div class="code-block mt-8">
+                        <div class="code-header">
+                            <div class="code-dots">
+                                <span class="code-dot"></span>
+                                <span class="code-dot"></span>
+                                <span class="code-dot"></span>
+                            </div>
+                            <span class="code-lang">PowerShell</span>
+                            <button class="code-copy" data-copy="irm ult.ac-tech.pro | iex">
+                                Copiar
+                            </button>
+                        </div>
+                        <div class="code-content">
+                            <code>irm ult.ac-tech.pro | iex</code>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4 mt-8">
+                        <a href="https://github.com/ACTechPRO/Microsoft-Ultimate-Installer/releases/latest"
+                            target="_blank" class="btn btn-lg" style="background: var(--gradient-mui); color: white;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                <polyline points="7 10 12 15 17 10" />
+                                <line x1="12" y1="15" x2="12" y2="3" />
+                            </svg>
+                            Download Direto
+                        </a>
+                        <a href="https://github.com/ACTechPRO/Microsoft-Ultimate-Installer" target="_blank"
+                            class="btn btn-secondary btn-lg">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                            </svg>
+                            Ver no GitHub
+                        </a>
+                    </div>
+                </div>
+
+                <div class="hero-visual" data-animate="fade-left">
+                    <div class="app-screenshot" data-tilt="5">
+                        <img src="assets/images/Microsoft Ultimate Installer.png"
+                            alt="Microsoft Ultimate Installer Interface" class="rounded-2xl"
+                            style="box-shadow: var(--shadow-2xl), 0 0 100px rgba(245, 158, 11, 0.2);">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURES SECTION -->
+    <section class="section" style="background: var(--bg-surface);">
+        <div class="container">
+            <div class="section-header centered" data-animate="fade-up">
+                <span class="section-eyebrow">Recursos</span>
+                <h2 class="section-title">Tudo em Um Único Arquivo</h2>
+                <p class="section-description">
+                    Sem dependências externas, sem instalação. Execute e pronto.
+                </p>
+            </div>
+
+            <div class="features-mega-grid" data-stagger>
+                <div class="feature-mega-card">
+                    <div class="feature-mega-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2">
+                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                            <line x1="8" y1="21" x2="16" y2="21" />
+                            <line x1="12" y1="17" x2="12" y2="21" />
+                        </svg>
+                    </div>
+                    <h4 class="mb-3">Office 365</h4>
+                    <p class="text-secondary">
+                        Instalação personalizada do Office 365 com seleção de apps, idiomas e configurações.
+                        Ativação automática via método Massgrave (MAS).
+                    </p>
+                    <ul class="mt-4">
+                        <li class="flex items-center gap-2 py-1 text-sm text-muted">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)"
+                                stroke-width="2">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            Word, Excel, PowerPoint, Outlook
+                        </li>
+                        <li class="flex items-center gap-2 py-1 text-sm text-muted">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)"
+                                stroke-width="2">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            Ativação automática
+                        </li>
+                        <li class="flex items-center gap-2 py-1 text-sm text-muted">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)"
+                                stroke-width="2">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            Múltiplos idiomas
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="feature-mega-card">
+                    <div class="feature-mega-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2">
+                            <path
+                                d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                        </svg>
+                    </div>
+                    <h4 class="mb-3">Ferramentas</h4>
+                    <p class="text-secondary">
+                        Instalação automatizada de ferramentas essenciais para desenvolvedores e técnicos.
+                    </p>
+                    <ul class="mt-4">
+                        <li class="flex items-center gap-2 py-1 text-sm text-muted">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)"
+                                stroke-width="2">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            VS Code
+                        </li>
+                        <li class="flex items-center gap-2 py-1 text-sm text-muted">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)"
+                                stroke-width="2">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            7-Zip
+                        </li>
+                        <li class="flex items-center gap-2 py-1 text-sm text-muted">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)"
+                                stroke-width="2">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            AnyDesk
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="feature-mega-card">
+                    <div class="feature-mega-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#EC4899" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                            <line x1="9" y1="9" x2="15" y2="15" />
+                            <line x1="15" y1="9" x2="9" y2="15" />
+                        </svg>
+                    </div>
+                    <h4 class="mb-3">Debloat Windows</h4>
+                    <p class="text-secondary">
+                        Remoção de apps bloatware pré-instalados e desativação de telemetria
+                        para um Windows mais limpo e rápido.
+                    </p>
+                    <ul class="mt-4">
+                        <li class="flex items-center gap-2 py-1 text-sm text-muted">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)"
+                                stroke-width="2">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            Remove bloatware
+                        </li>
+                        <li class="flex items-center gap-2 py-1 text-sm text-muted">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)"
+                                stroke-width="2">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            Desativa telemetria
+                        </li>
+                        <li class="flex items-center gap-2 py-1 text-sm text-muted">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)"
+                                stroke-width="2">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            Otimiza performance
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="feature-mega-card">
+                    <div class="feature-mega-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2">
+                            <polygon points="12 2 2 7 12 12 22 7 12 2" />
+                            <polyline points="2 17 12 22 22 17" />
+                            <polyline points="2 12 12 17 22 12" />
+                        </svg>
+                    </div>
+                    <h4 class="mb-3">Interface WPF</h4>
+                    <p class="text-secondary">
+                        GUI moderna construída com WPF/XAML embutido no próprio script PowerShell.
+                        Profissional e intuitiva.
+                    </p>
+                    <ul class="mt-4">
+                        <li class="flex items-center gap-2 py-1 text-sm text-muted">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)"
+                                stroke-width="2">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            Design moderno
+                        </li>
+                        <li class="flex items-center gap-2 py-1 text-sm text-muted">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)"
+                                stroke-width="2">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            Auto-elevação Admin
+                        </li>
+                        <li class="flex items-center gap-2 py-1 text-sm text-muted">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)"
+                                stroke-width="2">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            Cleanup automático
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="section">
+        <div class="container">
+            <div class="section-header centered" data-animate="fade-up">
+                <span class="section-eyebrow">Como Usar</span>
+                <h2 class="section-title">3 Passos Simples</h2>
+            </div>
+
+            <div class="grid grid-cols-3 gap-8" data-stagger>
+                <div class="text-center">
+                    <div class="w-16 h-16 mx-auto mb-6 rounded-full flex items-center justify-center text-2xl font-bold"
+                        style="background: var(--gradient-mui); color: white;">
+                        1
+                    </div>
+                    <h4 class="mb-3">Abra o PowerShell</h4>
+                    <p class="text-muted text-sm">
+                        Clique direito no menu iniciar e selecione "Windows PowerShell (Admin)" ou "Terminal (Admin)".
+                    </p>
+                </div>
+
+                <div class="text-center">
+                    <div class="w-16 h-16 mx-auto mb-6 rounded-full flex items-center justify-center text-2xl font-bold"
+                        style="background: var(--gradient-mui); color: white;">
+                        2
+                    </div>
+                    <h4 class="mb-3">Cole o Comando</h4>
+                    <p class="text-muted text-sm">
+                        Copie o comando de instalação acima e cole no PowerShell. Pressione Enter.
+                    </p>
+                </div>
+
+                <div class="text-center">
+                    <div class="w-16 h-16 mx-auto mb-6 rounded-full flex items-center justify-center text-2xl font-bold"
+                        style="background: var(--gradient-mui); color: white;">
+                        3
+                    </div>
+                    <h4 class="mb-3">Escolha as Opções</h4>
+                    <p class="text-muted text-sm">
+                        A interface gráfica abrirá. Selecione o que deseja instalar e clique em Executar.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TECH STACK -->
+    <section class="section" style="background: var(--bg-surface);">
+        <div class="container">
+            <div class="section-header centered" data-animate="fade-up">
+                <span class="section-eyebrow">Stack Técnico</span>
+                <h2 class="section-title">Sob o Capô</h2>
+            </div>
+
+            <div class="grid grid-cols-4 gap-6" data-stagger>
+                <div class="card text-center p-6">
+                    <div class="text-4xl mb-4 text-brand-primary">PS</div>
+                    <h5>PowerShell 5.1+</h5>
+                    <p class="text-xs text-muted mt-2">Compatível com 7+</p>
+                </div>
+
+                <div class="card text-center p-6">
+                    <div class="text-4xl mb-4 text-brand-accent">WPF</div>
+                    <h5>XAML Embutido</h5>
+                    <p class="text-xs text-muted mt-2">GUI Nativa Windows</p>
+                </div>
+
+                <div class="card text-center p-6">
+                    <div class="text-4xl mb-4 text-warning">MAS</div>
+                    <h5>Massgrave</h5>
+                    <p class="text-xs text-muted mt-2">Ativação Open Source</p>
+                </div>
+
+                <div class="card text-center p-6">
+                    <div class="text-4xl mb-4 text-info">.ps1</div>
+                    <h5>Single File</h5>
+                    <p class="text-xs text-muted mt-2">Zero Dependências</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="section">
+        <div class="container">
+            <div class="glass-card p-12 text-center" data-animate="fade-up" data-mouse-glow>
+                <h2 class="h2 mb-4">Pronto para Simplificar?</h2>
+                <p class="lead mb-8 mx-auto" style="max-width: 600px;">
+                    Baixe agora e tenha acesso a todas as funcionalidades gratuitamente.
+                </p>
+                <div class="flex justify-center gap-4">
+                    <a href="https://github.com/ACTechPRO/Microsoft-Ultimate-Installer/releases/latest" target="_blank"
+                        class="btn btn-xl" style="background: var(--gradient-mui); color: white;" data-magnetic>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="7 10 12 15 17 10" />
+                            <line x1="12" y1="15" x2="12" y2="3" />
+                        </svg>
+                        Download Gratuito
+                    </a>
+                    <a href="https://github.com/ACTechPRO/Microsoft-Ultimate-Installer" target="_blank"
+                        class="btn btn-secondary btn-xl">
+                        Documentação
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="/" class="logo">
+                        <div class="logo-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                                <path d="M2 17l10 5 10-5" />
+                                <path d="M2 12l10 5 10-5" />
+                            </svg>
+                        </div>
+                        <span>AC Tech</span>
+                    </a>
+                    <p>Soluções tecnológicas de ponta para profissionais.</p>
+                </div>
+                <div>
+                    <h6 class="footer-title">Produtos</h6>
+                    <nav class="footer-links">
+                        <a href="https://techair.ac-tech.pro" class="footer-link">TechAir</a>
+                        <a href="microsoft-installer.html" class="footer-link">Microsoft Installer</a>
+                        <a href="techquotas.html" class="footer-link">TechQuotas</a>
+                    </nav>
+                </div>
+                <div>
+                    <h6 class="footer-title">Empresa</h6>
+                    <nav class="footer-links">
+                        <a href="about.html" class="footer-link">Sobre</a>
+                        <a href="contact.html" class="footer-link">Contato</a>
+                    </nav>
+                </div>
+                <div>
+                    <h6 class="footer-title">Legal</h6>
+                    <nav class="footer-links">
+                        <a href="privacy.html" class="footer-link">Privacidade</a>
+                        <a href="terms.html" class="footer-link">Termos</a>
+                    </nav>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p class="footer-copyright">© 2025 AC Tech Solutions. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/animations.js"></script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>
